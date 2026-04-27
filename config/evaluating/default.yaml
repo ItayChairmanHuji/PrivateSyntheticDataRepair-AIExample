@@ -1,0 +1,10 @@
+_target_: src.evaluating.evaluation_orchestrator.EvaluationOrchestrator
+output_dir: results
+experiment_name: ${experiment_name}
+evaluators:
+  - _target_: src.evaluating.runtime_evaluator.RuntimeEvaluator
+  - _target_: src.evaluating.deletion_ratio_evaluator.DeletionRatioEvaluator
+  - _target_: src.evaluating.marginals_error_evaluator.MarginalsErrorEvaluator
+  - _target_: src.evaluating.tvd_evaluator.TwoWayTVDEvaluator
+  - _target_: src.evaluating.ml_accuracy_evaluator.MLAccuracyEvaluator
+  - _target_: src.evaluating.violation_evaluator.ViolationEvaluator

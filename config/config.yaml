@@ -1,0 +1,17 @@
+defaults:
+  - loading: file_loader
+  - synthesizing: co_noise
+  - marginals_obtaining: top_k
+  - repairing: ilp
+  - evaluating: default
+  - _self_
+
+experiment_name: default
+
+pipeline:
+  _target_: src.pipeline.Pipeline
+  loader: ${loading}
+  synthesizer: ${synthesizing}
+  obtainer: ${marginals_obtaining}
+  repairer: ${repairing}
+  evaluator: ${evaluating}

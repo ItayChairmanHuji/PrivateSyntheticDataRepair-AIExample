@@ -1,0 +1,4 @@
+not(t1.State=t2.State&t1.HasChild=t2.HasChild&t1.ChildExemp!=t2.ChildExemp)
+not(t1.State=t2.State&t1.MaritalStatus=t2.MaritalStatus&t1.SingleExemp!=t2.SingleExemp)
+not(t1.State=t2.State&t1.Salary>t2.Salary&t1.Rate<t2.Rate)
+not(t1.State=t2.State&t1.Salary<t2.Salary&t1.Rate>t2.Rate)

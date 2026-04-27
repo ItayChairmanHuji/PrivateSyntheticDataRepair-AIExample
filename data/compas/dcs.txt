@@ -1,0 +1,5 @@
+not(t1.ScoreText='Low'&t2.ScoreText='High'&t1.DecileScore>t2.DecileScore)
+not(t1.Scale_ID=t2.Scale_ID&t1.DisplayText!=t2.DisplayText)
+not(t1.RecSupervisionLevelText='Low'&t2.RecSupervisionLevelText='High'&t1.RecSupervisionLevel>t2.RecSupervisionLevel)
+not(t1.DisplayText=t2.DisplayText&t1.Scale_ID!=t2.Scale_ID)
+not(t1.RecSupervisionLevelText=t2.RecSupervisionLevelText&t1.RecSupervisionLevel!=t2.RecSupervisionLevel)

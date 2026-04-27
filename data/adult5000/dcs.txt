@@ -1,0 +1,3 @@
+not(t1.education_num != t2.education_num&t1.education=t2.education)
+not(t1.education_num = t2.education_num&t1.education!=t2.education)
+not(t1.capital_gain < t2.capital_gain&t1.capital_loss<t2.capital_loss)
