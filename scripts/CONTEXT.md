@@ -6,8 +6,17 @@ This directory contains scripts for running experiments, benchmarking components
 
 ### Experiment Execution
 - `run_parallel_experiments.py`: Runs multiple research experiments in parallel using a `ProcessPoolExecutor`. Supports a configurable worker limit.
+- `slurm_manager.py`: Manages the lifecycle of experiments on a remote Slurm cluster. Supports pushing code, submitting jobs, checking status, and pulling results/logs.
 - `run_adult_experiments.bat`: Runs the full suite of experiments for the Adult dataset using various repair algorithms.
 - `run_adult5000_experiments.bat`: Similar to the above, but specifically for a 5000-row subset.
+
+### Remote Slurm Workflow
+To run experiments on a remote cluster:
+1.  **Configure**: Set remote host and Slurm defaults in `config/remote/slurm.yaml`.
+2.  **Push**: Run `python scripts/slurm_manager.py push` to sync code to the server.
+3.  **Submit**: Run `python scripts/slurm_manager.py submit "loading.name=adult" "loading.name=compas"` to queue jobs.
+4.  **Status**: Run `python scripts/slurm_manager.py status` to check progress.
+5.  **Pull**: Run `python scripts/slurm_manager.py pull` and `python scripts/slurm_manager.py logs` to retrieve results and logs once jobs are done.
 
 ### Result Collection
 - `collect_results_full.py`: Aggregates results from multiple experiment runs into a summary table.

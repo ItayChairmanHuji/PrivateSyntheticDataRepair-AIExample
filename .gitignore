@@ -16,6 +16,10 @@ ENV/
 outputs/
 multirun/
 
+# Remote execution
+logs/
+codebase.zip
+
 # Project Specific
 results/
 myeasylog.log

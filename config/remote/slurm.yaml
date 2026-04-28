@@ -1,0 +1,10 @@
+host: snorlax-login
+remote_dir: ~/final_research
+python_env: ~/final_research/.venv/bin/python
+slurm_defaults:
+  partition: main
+  time: "24:00:00"
+  nodes: 1
+  ntasks: 1
+  cpus_per_task: 4
+  mem: 16G
