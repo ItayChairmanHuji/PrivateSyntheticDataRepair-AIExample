@@ -8,3 +8,4 @@ evaluators:
   - _target_: src.evaluating.tvd_evaluator.TwoWayTVDEvaluator
   - _target_: src.evaluating.ml_accuracy_evaluator.MLAccuracyEvaluator
   - _target_: src.evaluating.violation_evaluator.ViolationEvaluator
+  - _target_: src.evaluating.loss_function_evaluator.LossFunctionEvaluator

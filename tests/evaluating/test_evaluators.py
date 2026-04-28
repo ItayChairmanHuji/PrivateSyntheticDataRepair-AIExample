@@ -12,6 +12,7 @@ from src.evaluating.deletion_ratio_evaluator import DeletionRatioEvaluator
 from src.evaluating.tvd_evaluator import TwoWayTVDEvaluator
 from src.evaluating.runtime_evaluator import RuntimeEvaluator
 from src.evaluating.marginals_error_evaluator import MarginalsErrorEvaluator
+from src.evaluating.loss_function_evaluator import LossFunctionEvaluator
 from src.entities.pipeline_result import PipelineResult
 from src.entities.dataset import DatasetWithViolations
 from src.entities.denial_constraints import DenialConstraints
@@ -92,6 +93,29 @@ class TestEvaluators(unittest.TestCase):
         # Rep: (1,1) appears 1/2 times. Error = abs(0.5 - 0.5) / 0.5 = 0
         self.assertAlmostEqual(metrics["marginals_error"]["synthetic_avg"], 0.5)
         self.assertAlmostEqual(metrics["marginals_error"]["repaired_avg"], 0.0)
+
+    def test_loss_function_evaluator(self):
+        evaluator = LossFunctionEvaluator()
+        # Mock alpha in metadata
+        self.result.metadata["repairer_params"] = {"alpha": 0.5}
+        
+        metrics = evaluator.evaluate(self.result)
+        
+        # n = 2
+        # Synthetic (3 rows): 
+        # size_component = (2 - 3) / 2 = -0.5
+        # marginal_component: |1/3 - 0.5| = 1/6
+        # total = 0.5 * (-0.5) + 0.5 * (1/6) = -0.25 + 1/12 = -3/12 + 1/12 = -2/12 = -1/6
+        
+        self.assertAlmostEqual(metrics["loss_function"]["synthetic"]["size_component"], -0.5)
+        self.assertAlmostEqual(metrics["loss_function"]["synthetic"]["marginal_component"], 1/6)
+        self.assertAlmostEqual(metrics["loss_function"]["synthetic"]["total"], -1/6)
+        
+        # Repaired (2 rows):
+        # size_component = (2 - 2) / 2 = 0
+        # marginal_component: |1/2 - 0.5| = 0
+        # total = 0
+        self.assertAlmostEqual(metrics["loss_function"]["repaired"]["total"], 0.0)
 
 if __name__ == "__main__":
     unittest.main()

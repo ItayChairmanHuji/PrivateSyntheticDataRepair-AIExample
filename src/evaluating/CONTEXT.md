@@ -6,10 +6,22 @@ The evaluation stage is responsible for quantifying the quality of the synthetic
 ## Evaluators
 1. **Runtime**: Logs the runtime of each part of the pipeline.
 2. **Deletion Ratio**: Logs the ratio between the number of tuples after and before the repair.
-3. **Marginals Error**: Logs the average error of the obtained marginals for each of the datasets.
+3. **Marginals Error**: Logs the average error of the obtained marginals for each of the datasets (include both error and distance).
 4. **2-way TVD**: Computes the averaged Total Variation Distance (TVD) for all 2-way marginals between private data and (synthetic/repaired) data.
 5. **ML Accuracy**: The accuracy of machine learning models (Random Forest, Logistic Regression) trained on each dataset and tested on the private dataset.
 6. **Violation**: Logs the number of violations in private, synthetic, and repaired datasets.
+7. **Loss Function**: Logs the loss function of each dataset, defined as $$\begin{equation*}\label{eq:obj}
+\begin{split}
+\mathcal{L}(\rdb) \;=\;& \alpha \cdot \frac{n - |D|}{n} \;+\;\\ 
+&(1-\alpha) \cdot \frac{1}{|\marginalset|} \!\!\sum_{(A_i{=}a_i,\, A_j{=}a_j) \in \marginalset}\!\! 
+% |\margsimple{\rdb}{A_i{=}a_i}{A_j{=}a_j} - \tmarg{D_p}{A_i{=}a_i}{A_j{=}a_j}|
+|\margsimple{D}{i}{j} - \tmarg{D_p}{i}{j}|
+\end{split}
+\end{equation*}$$ for each dataset. In simple words, the change in the data size (the size of the original data minus the new size divided by the size of the original data) plus the average marginal distance of the obtained marginals. Please give the loss and each of the two components. 
+
+
+
+
 
 ## Orchestration
 The `EvaluationOrchestrator` runs all configured evaluators in sequence and aggregates their results into a single JSON file, ensuring metadata and unique experiment IDs are included.
@@ -24,6 +36,7 @@ Uses mocked `PipelineResult` and `Dataset` objects to verify the calculation log
 - **`TwoWayTVDEvaluator`**: Ensures that TVD is calculated correctly for pairs of attributes.
 - **`RuntimeEvaluator`**: Verifies that it correctly extracts and formats runtime metadata.
 - **`MarginalsErrorEvaluator`**: Validates the error calculation between obtained marginals and the resulting datasets.
+- **`LossFunctionEvaluator`**: Confirms that it correctly calculates the weighted loss function using alpha from metadata, including size and marginal components.
 
 ### 2. Orchestration Tests (`test_orchestrator.py`)
 Tests the `EvaluationOrchestrator` to ensure proper integration:

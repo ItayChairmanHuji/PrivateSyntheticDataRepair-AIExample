@@ -27,6 +27,10 @@ class Marginal:
             return abs(freq - self.target) # avoid division by zero
         return abs(freq - self.target) / freq
 
+    def calculate_distance(self, data: pd.DataFrame) -> float:
+        freq = self.calculate_frequency(data)
+        return abs(freq - self.target)
+
 @dataclass
 class MarginalSet:
     marginals: List[Marginal]
