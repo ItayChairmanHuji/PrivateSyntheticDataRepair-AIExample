@@ -9,7 +9,7 @@ The system follows a modular pipeline design, where each stage is independent an
 ### Pipeline Stages
 
 1. **[Loading](./loading/CONTEXT.md)**: Responsible for reading private datasets, metadata, and constraints. It ensures data consistency and handles initial processing.
-2. **Synthesizing**: Generates synthetic data from the private data. Different synthesis methods can be swapped here.
+2. **[Synthesizing](./synthesizing/CONTEXT.md)**: Generates synthetic data from the private data. Different synthesis methods can be swapped here.
 3. **Marginals Obtaining**: Calculates and extracts noisy marginals from both private and synthetic data.
 4. **Repairing**: The core logic that uses obtained marginals to improve the quality of the synthetic data.
 5. **Evaluating**: Aggregates results from all previous stages and computes metrics to assess the repair's effectiveness.
