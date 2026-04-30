@@ -3,7 +3,6 @@ import argparse
 import os
 import yaml
 import datetime
-import zipfile
 from pathlib import Path
 
 def get_config():
@@ -19,41 +18,27 @@ def run_remote(host, cmd):
 def push(cfg):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
-    print(f"Pushing code to {host}:{remote_dir}...")
+    print(f"Pushing code via git to origin and pulling on {host}:{remote_dir}...")
     
-    run_remote(host, f"mkdir -p {remote_dir}")
+    # 1. Push locally to origin
+    subprocess.run(["git", "push", "origin"])
     
-    # Get tracked files
-    result = subprocess.run(["git", "ls-files"], capture_output=True, text=True)
-    files = result.stdout.splitlines()
-    if os.path.exists("license.json"):
-        files.append("license.json")
-        
-    zip_name = "codebase.zip"
-    with zipfile.ZipFile(zip_name, 'w') as zipf:
-        for file in files:
-            if os.path.exists(file):
-                zipf.write(file)
-            else:
-                # Handle directories tracked by git
-                if os.path.isdir(file):
-                    for root, dirs, fnames in os.walk(file):
-                        for fname in fnames:
-                            zipf.write(os.path.join(root, fname))
-                
-    subprocess.run(["scp", zip_name, f"{host}:{remote_dir}/"])
-    run_remote(host, f"cd {remote_dir} && unzip -o {zip_name} && rm {zip_name}")
-    os.remove(zip_name)
+    # 2. Pull on remote
+    # Assuming remote is already a git repo and has origin set up
+    res = run_remote(host, f"cd {remote_dir} && git pull origin main")
+    print(res.stdout)
     print("Push complete.")
 
-def submit(cfg, experiments):
+def submit(cfg, experiments, group_size=3):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
     # Ensure logs directory exists on remote
     run_remote(host, f"mkdir -p {remote_dir}/logs")
     
-    for i, exp_overrides in enumerate(experiments):
+    for i in range(0, len(experiments), group_size):
+        chunk = experiments[i : i + group_size]
+        
         # Generate a unique name for the job
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         job_name = f"exp_{timestamp}_{i}"
@@ -74,16 +59,18 @@ def submit(cfg, experiments):
             f"cd {remote_dir}",
             "mkdir -p logs results outputs",
             f"export PYTHONPATH=$PYTHONPATH:{remote_dir}",
-            f"{cfg['python_env']} main.py {exp_overrides}"
         ]
         
+        for exp_overrides in chunk:
+            script_content.append(f"{cfg['python_env']} main.py {exp_overrides}")
+        
         script_name = f"submit_{job_name}.sh"
-        with open(script_name, "w") as f:
+        with open(script_name, "w", newline='\n') as f:
             f.write("\n".join(script_content))
             
         subprocess.run(["scp", script_name, f"{host}:{remote_dir}/"])
         res = run_remote(host, f"cd {remote_dir} && sbatch {script_name}")
-        print(f"Submitted {exp_overrides}: {res.stdout.strip()}")
+        print(f"Submitted job {job_name} with {len(chunk)} experiments: {res.stdout.strip()}")
         
         # Keep the script on remote but delete locally
         os.remove(script_name)
@@ -115,25 +102,41 @@ def pull(cfg):
     subprocess.run(["scp", "-r", f"{host}:{remote_dir}/outputs", "."])
     print("Pull complete.")
 
-def logs(cfg):
+def logs(cfg, lines=50):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
-    print(f"Pulling logs from {host}:{remote_dir}...")
-    subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs", "."])
-    print("Logs pulled to local logs/ directory.")
+    print(f"Checking recent logs from {host}:{remote_dir}/logs...")
+    
+    res = run_remote(host, f"ls -t {remote_dir}/logs/*.out | head -n 1")
+    if res.stdout:
+        last_log = res.stdout.strip()
+        print(f"--- Tail of {last_log} ---")
+        res = run_remote(host, f"tail -n {lines} {last_log}")
+        print(res.stdout)
+        
+        # Also check error log
+        err_log = last_log.replace(".out", ".err")
+        print(f"--- Tail of {err_log} ---")
+        res = run_remote(host, f"tail -n {lines} {err_log}")
+        print(res.stdout)
+    else:
+        print("No logs found.")
 
 def main():
     parser = argparse.ArgumentParser(description="Slurm Experiment Manager")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
     
-    subparsers.add_parser("push", help="Push code to remote server")
+    subparsers.add_parser("push", help="Push code to remote server via git")
     
     submit_parser = subparsers.add_parser("submit", help="Submit experiments to Slurm")
     submit_parser.add_argument("experiments", nargs="+", help="Hydra overrides for each experiment")
+    submit_parser.add_argument("--group", type=int, default=3, help="Number of experiments per job")
     
     subparsers.add_parser("status", help="Check job status")
     subparsers.add_parser("pull", help="Pull results from remote server")
-    subparsers.add_parser("logs", help="Pull logs from remote server")
+    
+    logs_parser = subparsers.add_parser("logs", help="Check recent logs")
+    logs_parser.add_argument("--lines", type=int, default=50, help="Number of lines to tail")
     
     args = parser.parse_args()
     
@@ -150,13 +153,13 @@ def main():
     if args.command == "push":
         push(cfg)
     elif args.command == "submit":
-        submit(cfg, args.experiments)
+        submit(cfg, args.experiments, args.group)
     elif args.command == "status":
         status(cfg)
     elif args.command == "pull":
         pull(cfg)
     elif args.command == "logs":
-        logs(cfg)
+        logs(cfg, args.lines)
 
 if __name__ == "__main__":
     main()
