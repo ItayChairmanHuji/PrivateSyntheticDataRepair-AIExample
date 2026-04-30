@@ -44,6 +44,12 @@ def submit(cfg, experiments, group_size=3):
         job_name = f"exp_{timestamp}_{i}"
         
         slurm_cfg = cfg['slurm_defaults']
+        # Convert remote_dir to absolute path if it starts with ~
+        abs_remote_dir = remote_dir.replace("~", f"/u4/{host.split('-')[0]}" if "snorlax" in host else "/home/$(whoami)")
+        # Actually it's better to just use a fixed path or get it from remote. 
+        # But we already know it's /u4/ichairman/final_research
+        abs_remote_dir = "/u4/ichairman/final_research"
+        
         script_content = [
             "#!/bin/bash",
             f"#SBATCH --job-name={job_name}",
@@ -56,13 +62,14 @@ def submit(cfg, experiments, group_size=3):
             f"#SBATCH --output=logs/%x_%j.out",
             f"#SBATCH --error=logs/%x_%j.err",
             "",
-            f"cd {remote_dir}",
+            f"cd {abs_remote_dir}",
             "mkdir -p logs results outputs",
-            f"export PYTHONPATH=$PYTHONPATH:{remote_dir}",
+            f"export PYTHONPATH=$PYTHONPATH:{abs_remote_dir}",
+            "export HYDRA_FULL_ERROR=1",
         ]
         
         for exp_overrides in chunk:
-            script_content.append(f"{cfg['python_env']} main.py {exp_overrides}")
+            script_content.append(f"{abs_remote_dir}/.venv/bin/python main.py {exp_overrides}")
         
         script_name = f"submit_{job_name}.sh"
         with open(script_name, "w", newline='\n') as f:
