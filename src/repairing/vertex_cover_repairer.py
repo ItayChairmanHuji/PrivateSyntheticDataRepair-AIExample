@@ -4,7 +4,7 @@ import pandas as pd
 import igraph as ig
 from abc import abstractmethod
 from dataclasses import dataclass
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.marginal import MarginalSet
 from src.repairing.repairer import Repairer
 
@@ -13,7 +13,7 @@ class VertexCoverRepairer(Repairer):
     Base class for Vertex Cover based repair algorithms.
     Optimized to use edge-deletion to keep vertex indices stable.
     """
-    def repair(self, dataset: Dataset, marginals: MarginalSet) -> DatasetWithViolations:
+    def repair(self, dataset: Dataset, marginals: MarginalSet) -> Dataset:
         # 1. Build conflict graph
         graph = self._build_conflict_graph(dataset)
         
@@ -34,7 +34,7 @@ class VertexCoverRepairer(Repairer):
         keep_indices = [i for i in range(len(dataset.data)) if i not in removed_indices]
         repaired_data = dataset.data.iloc[keep_indices].reset_index(drop=True)
         
-        return DatasetWithViolations(
+        return Dataset(
             name=f"{dataset.name}_repaired",
             data=repaired_data,
             dcs=dataset.dcs,
@@ -46,7 +46,7 @@ class VertexCoverRepairer(Repairer):
         graph = ig.Graph(n)
         graph.vs["original_index"] = list(range(n))
         
-        violations = dataset.get_violations() if isinstance(dataset, DatasetWithViolations) else pd.DataFrame(columns=['idx1', 'idx2'])
+        violations = dataset.get_violations()
         
         if not violations.empty:
             edges = list(zip(violations['idx1'].astype(int), violations['idx2'].astype(int)))

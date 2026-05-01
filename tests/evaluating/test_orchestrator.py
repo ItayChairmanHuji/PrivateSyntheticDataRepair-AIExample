@@ -13,10 +13,10 @@ from src.evaluating.evaluation_orchestrator import EvaluationOrchestrator
 from src.evaluating.violation_evaluator import ViolationEvaluator
 from src.evaluating.runtime_evaluator import RuntimeEvaluator
 from src.entities.pipeline_result import PipelineResult
-from src.entities.dataset import DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.denial_constraints import DenialConstraints
 
-class MockDataset(DatasetWithViolations):
+class MockDataset(Dataset):
     def __init__(self, name, data):
         super().__init__(name=name, data=data, dcs=DenialConstraints([]), target="")
     def get_violations(self):

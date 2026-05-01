@@ -31,7 +31,7 @@ def inspect():
         print(f"  U1: {[p.to_string() for p in u1]}")
         print(f"  U2: {[p.to_string() for p in u2]}")
         
-    violations = dataset.violations
+    violations = dataset.get_violations()
     
     print(f"Found {len(violations)} violations.")
     if len(violations) > 0:

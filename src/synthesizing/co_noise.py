@@ -2,7 +2,7 @@ import random
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.synthesizing.synthesizer import Synthesizer
 from src.entities.denial_constraints import Predicate
 
@@ -14,7 +14,7 @@ class CoNoise(Synthesizer):
     num_of_iterations: int
     seed: int = 42
 
-    def synthesize(self, dataset: Dataset) -> DatasetWithViolations:
+    def synthesize(self, dataset: Dataset) -> Dataset:
         # Set seeds for reproducibility
         random.seed(self.seed)
         np.random.seed(self.seed)
@@ -23,7 +23,7 @@ class CoNoise(Synthesizer):
         synthetic_data = dataset.data.copy()
         
         if not dataset.dcs or not dataset.dcs.constraints:
-            return DatasetWithViolations(
+            return Dataset(
                 name=f"{dataset.name}_co_noise",
                 data=synthetic_data,
                 dcs=dataset.dcs,
@@ -33,7 +33,7 @@ class CoNoise(Synthesizer):
         for _ in range(self.num_of_iterations):
             self._run_iteration(synthetic_data, dataset)
 
-        return DatasetWithViolations(
+        return Dataset(
             name=f"{dataset.name}_co_noise",
             data=synthetic_data,
             dcs=dataset.dcs,

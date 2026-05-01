@@ -1,6 +1,6 @@
 import pandas as pd
 from snsynth import Synthesizer as SnSynthesizer
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.synthesizing.synthesizer import Synthesizer
 
 class SmartNoiseSynthesizer(Synthesizer):
@@ -33,7 +33,7 @@ class SmartNoiseSynthesizer(Synthesizer):
             kwargs.update(extra_args)
         self.kwargs = kwargs
 
-    def synthesize(self, dataset: Dataset) -> DatasetWithViolations:
+    def synthesize(self, dataset: Dataset) -> Dataset:
         """
         Generates a synthetic version of the provided dataset.
         
@@ -41,7 +41,7 @@ class SmartNoiseSynthesizer(Synthesizer):
             dataset (Dataset): The source dataset to synthesize.
             
         Returns:
-            DatasetWithViolations: A new dataset object containing the synthetic data.
+            Dataset: A new dataset object containing the synthetic data.
         """
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **self.kwargs)
         synth.fit(dataset.data)
@@ -51,7 +51,7 @@ class SmartNoiseSynthesizer(Synthesizer):
         if not isinstance(synthetic_df, pd.DataFrame):
             synthetic_df = pd.DataFrame(synthetic_df, columns=dataset.data.columns)
 
-        return DatasetWithViolations(
+        return Dataset(
             name=f"{dataset.name}_{self.engine}",
             data=synthetic_df,
             dcs=dataset.dcs,

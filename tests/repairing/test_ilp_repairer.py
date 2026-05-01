@@ -7,7 +7,7 @@ import unittest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.repairing.ilp_repairer import ILPRepairer
-from src.entities.dataset import DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 from src.entities.marginal import Marginal, MarginalSet
 
@@ -22,10 +22,10 @@ class TestILPRepairer(unittest.TestCase):
         p1 = Predicate(Side('A', 1, False), '=', Side('A', 2, False))
         p2 = Predicate(Side('B', 1, False), '!=', Side('B', 2, False))
         self.dcs = DenialConstraints([DenialConstraint([p1, p2])])
-        self.ds = DatasetWithViolations("dummy", self.data, self.dcs, "")
+        self.ds = Dataset("dummy", self.data, self.dcs, "")
         
         # Marginal: want A=1, B=10 (Row 0)
-        m1 = Marginal('A', 'B', 1, 10, 0.9)
+        m1 = Marginal(attrs=('A', 'B'), values=(1, 10), target=0.9)
         self.marginals = MarginalSet([m1])
 
     def test_ilp_repair(self):
@@ -45,7 +45,7 @@ class TestILPRepairer(unittest.TestCase):
         # Should have removed Row 1 (conflicting)
         has_row_1 = ((repaired_ds.data['A'] == 1) & (repaired_ds.data['B'] == 20)).any()
         self.assertFalse(has_row_1, "Row 1 (conflicting) should have been removed")
-        self.assertEqual(len(repaired_ds.violations), 0)
+        self.assertEqual(len(repaired_ds.get_violations()), 0)
         
         has_row_0 = ((repaired_ds.data['A'] == 1) & (repaired_ds.data['B'] == 10)).any()
         self.assertTrue(has_row_0, "Row 0 (beneficial) should have been kept")

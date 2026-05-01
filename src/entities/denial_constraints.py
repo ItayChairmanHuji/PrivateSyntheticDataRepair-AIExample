@@ -26,21 +26,19 @@ class Predicate:
         return attrs
 
     def to_string(self) -> str:
-        def format_side(s: Side) -> str:
-            if s.is_value:
-                # Value is already a string, but if it is numeric we don't need quotes
-                # However, our loader might keep it as a string with quotes.
-                # We'll just return it as it is if it has quotes, else quote it.
-                if isinstance(s.attr, str) and (s.attr.startswith("'") or s.attr.startswith('"')):
-                    return s.attr
-                try:
-                    float(s.attr)
-                    return str(s.attr)
-                except ValueError:
-                    return f"'{s.attr}'"
-            return f"t{s.index}.{s.attr}"
-        return f"{format_side(self.left)} {self.opr} {format_side(self.right)}"
+        return f"{self._format_side(self.left)} {self.opr} {self._format_side(self.right)}"
 
+    def _format_side(self, s: Side) -> str:
+        if s.is_value:
+            if isinstance(s.attr, str) and (s.attr.startswith("'") or s.attr.startswith('"')):
+                return s.attr
+            try:
+                float(s.attr)
+                return str(s.attr)
+            except ValueError:
+                return f"'{s.attr}'"
+        return f"t{s.index}.{s.attr}"
+    
 @dataclass
 class DenialConstraint:
     predicates: list[Predicate]

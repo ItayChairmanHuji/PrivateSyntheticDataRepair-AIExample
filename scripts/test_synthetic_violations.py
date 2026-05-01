@@ -29,7 +29,7 @@ def run_test(ds_name, result_dict):
         
         print(f"Starting violation finding for {ds_name}_synthetic...")
         start_time = time.time()
-        violations = synthetic_dataset.violations
+        violations = synthetic_dataset.get_violations()
         end_time = time.time()
         
         result_dict['status'] = 'success'

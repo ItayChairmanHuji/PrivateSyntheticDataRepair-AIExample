@@ -1,7 +1,7 @@
 import gurobipy as gp
 import pandas as pd
 from dataclasses import dataclass, field
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.marginal import MarginalSet
 from src.repairing.repairer import Repairer
 
@@ -16,7 +16,7 @@ class ILPRepairer(Repairer):
     gurobi_params: dict = field(default_factory=dict)
     use_marginals: bool = True
 
-    def repair(self, dataset: Dataset, marginals: MarginalSet) -> DatasetWithViolations:
+    def repair(self, dataset: Dataset, marginals: MarginalSet) -> Dataset:
         # Create a model with the licensed environment
         env = GurobiHelper.get_env()
         model = gp.Model("ILP_Repair", env=env)
@@ -31,10 +31,7 @@ class ILPRepairer(Repairer):
         x = model.addVars(n, vtype=gp.GRB.BINARY, name="x")
         
         # 1. Conflict Constraints: x_i + x_j <= 1 for all conflicting tuples
-        if isinstance(dataset, DatasetWithViolations):
-            violations = dataset.get_violations()
-        else:
-            violations = pd.DataFrame(columns=['idx1', 'idx2'])
+        violations = dataset.get_violations()
             
         for _, row in violations.iterrows():
             idx1, idx2 = int(row['idx1']), int(row['idx2'])
@@ -79,7 +76,7 @@ class ILPRepairer(Repairer):
             keep_indices = [i for i in range(n) if x[i].X > 0.5]
             repaired_data = dataset.data.iloc[keep_indices].reset_index(drop=True)
             
-            return DatasetWithViolations(
+            return Dataset(
                 name=f"{dataset.name}_repaired",
                 data=repaired_data,
                 dcs=dataset.dcs,
@@ -87,9 +84,7 @@ class ILPRepairer(Repairer):
             )
         else:
             # If infeasible or error, return the original data
-            if isinstance(dataset, DatasetWithViolations):
-                return dataset
-            return DatasetWithViolations(
+            return Dataset(
                 name=dataset.name,
                 data=dataset.data,
                 dcs=dataset.dcs,

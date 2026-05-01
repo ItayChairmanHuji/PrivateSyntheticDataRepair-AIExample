@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 
 from src.repairing.vanilla_vc_repairer import VanillaVCRepairer
 from src.repairing.weighted_vc_repairer import WeightedVCRepairer
-from src.entities.dataset import DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 from src.entities.marginal import Marginal, MarginalSet
 
@@ -26,10 +26,10 @@ class TestVCRepairers(unittest.TestCase):
         p2 = Predicate(Side('B', 1, False), '!=', Side('B', 2, False))
         self.dcs = DenialConstraints([DenialConstraint([p1, p2])])
         
-        self.ds = DatasetWithViolations("dummy", self.data, self.dcs, "")
+        self.ds = Dataset("dummy", self.data, self.dcs, "")
         
         # Marginals: say we want more of A=1, B=10 (Row 0)
-        m1 = Marginal('A', 'B', 1, 10, 0.9) 
+        m1 = Marginal(attrs=('A', 'B'), values=(1, 10), target=0.9) 
         self.marginals = MarginalSet([m1])
 
     def test_weighted_vc_deep_logic(self):
@@ -67,7 +67,7 @@ class TestVCRepairers(unittest.TestCase):
         # It should remove one of them.
         self.assertEqual(len(repaired_ds.data), 2)
         # Remaining data should have 0 violations
-        self.assertEqual(len(repaired_ds.violations), 0)
+        self.assertEqual(len(repaired_ds.get_violations()), 0)
 
     def test_weighted_vc_repair(self):
         # alpha=0.5. 
@@ -95,7 +95,7 @@ class TestVCRepairers(unittest.TestCase):
         
         self.assertTrue(has_row_0, "Row 0 (beneficial) should have been kept")
         self.assertFalse(has_row_1, "Row 1 (conflicting and not beneficial) should have been removed")
-        self.assertEqual(len(repaired_ds.violations), 0)
+        self.assertEqual(len(repaired_ds.get_violations()), 0)
 
 if __name__ == "__main__":
     unittest.main()

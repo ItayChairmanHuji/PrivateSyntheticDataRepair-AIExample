@@ -8,7 +8,7 @@ import unittest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.synthesizing.co_noise import CoNoise
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 
 class TestCoNoise(unittest.TestCase):
@@ -29,8 +29,8 @@ class TestCoNoise(unittest.TestCase):
 
     def test_co_noise_introduces_violations(self):
         # Initial violations should be 0
-        ds_with_v = DatasetWithViolations(self.ds.name, self.ds.data, self.ds.dcs, self.ds.target)
-        self.assertEqual(len(ds_with_v.violations), 0)
+        ds_with_v = Dataset(self.ds.name, self.ds.data, self.ds.dcs, self.ds.target)
+        self.assertEqual(len(ds_with_v.get_violations()), 0)
         
         # Run Co-Noise
         synthesizer = CoNoise(num_of_iterations=5, seed=42)
@@ -39,7 +39,7 @@ class TestCoNoise(unittest.TestCase):
         # Since we ran 5 iterations, we expect some modifications that lead to violations
         # In each iteration it picks 2 tuples and FORCES them to violate a DC.
         # So we should have at least 1 violation if iterations > 0 and DC exists.
-        self.assertGreater(len(synthetic_ds.violations), 0)
+        self.assertGreater(len(synthetic_ds.get_violations()), 0)
         
         # Ensure data shape is preserved
         self.assertEqual(synthetic_ds.data.shape, self.data.shape)

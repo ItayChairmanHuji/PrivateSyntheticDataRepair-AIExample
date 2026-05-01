@@ -46,7 +46,7 @@ class TestFileLoaderIntegration(unittest.TestCase):
             self.assertTrue(pd.api.types.is_numeric_dtype(dataset.data[col]), f"Column {col} is not numeric")
             
         # Check violations
-        violations = dataset.violations
+        violations = dataset.get_violations()
         self.assertIsInstance(violations, pd.DataFrame)
         self.assertGreater(len(violations), 0, "Expected violations in dummy dataset")
         self.assertIn('idx1', violations.columns)

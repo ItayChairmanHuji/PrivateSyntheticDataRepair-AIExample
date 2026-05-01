@@ -5,9 +5,8 @@ The `entities` package defines the core data structures used throughout the rese
 
 ## Key Entities
 
-### 1. Dataset & DatasetWithViolations (`dataset.py`)
-- **Dataset**: A base container for data (Pandas DataFrame), denial constraints, and metadata.
-- **DatasetWithViolations**: Extends `Dataset` with logic to find and cache violations using the `ViolationFinder`.
+### 1. Dataset (`dataset.py`)
+- **Dataset**: A container for data (Pandas DataFrame), denial constraints, and metadata. It includes a `get_violations()` method that uses `ViolationFinder` to detect integrity violations. Note: Violations are not cached to ensure accuracy during iterative repair.
 
 ### 2. Denial Constraints (`denial_constraints.py`)
 - **Side**: Represents one side of a predicate (attribute or literal value).

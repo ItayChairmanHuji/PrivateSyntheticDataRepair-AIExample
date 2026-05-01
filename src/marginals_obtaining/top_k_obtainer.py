@@ -60,10 +60,8 @@ class TopKObtainer(Obtainer):
         marginals = []
         for key, val in zip(selected_keys, noisy_p_values):
             marginals.append(Marginal(
-                attr1=key[0],
-                attr2=key[1],
-                value1=key[2],
-                value2=key[3],
+                attrs=(key[0], key[1]),
+                values=(key[2], key[3]),
                 target=float(val)
             ))
 

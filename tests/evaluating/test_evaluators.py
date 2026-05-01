@@ -14,11 +14,11 @@ from src.evaluating.runtime_evaluator import RuntimeEvaluator
 from src.evaluating.marginals_error_evaluator import MarginalsErrorEvaluator
 from src.evaluating.loss_function_evaluator import LossFunctionEvaluator
 from src.entities.pipeline_result import PipelineResult
-from src.entities.dataset import DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.denial_constraints import DenialConstraints
 from src.entities.marginal import Marginal, MarginalSet
 
-class MockDataset(DatasetWithViolations):
+class MockDataset(Dataset):
     def __init__(self, name, data, dcs=None):
         super().__init__(name=name, data=data, dcs=dcs or DenialConstraints([]), target="")
     
@@ -40,7 +40,7 @@ class TestEvaluators(unittest.TestCase):
         self.r_ds = MockDataset("repaired", self.r_data)
         
         self.marginals = MarginalSet([
-            Marginal(attr1='A', attr2='B', value1=1, value2=1, target=0.5)
+            Marginal(attrs=('A', 'B'), values=(1, 1), target=0.5)
         ])
         
         self.result = PipelineResult(

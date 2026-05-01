@@ -62,10 +62,10 @@ class TestRandomness(unittest.TestCase):
         self.assertEqual(len(m_set), 1)
         selected = m_set.marginals[0]
         # (A,B,1,1) utility is 1.0. (A,C,1,1) utility is 0.25. (B,C,1,1) utility is 0.25.
-        self.assertEqual(selected.attr1, 'A')
-        self.assertEqual(selected.attr2, 'B')
-        self.assertEqual(selected.value1, 1)
-        self.assertEqual(selected.value2, 1)
+        self.assertEqual(selected.attrs[0], 'A')
+        self.assertEqual(selected.attrs[1], 'B')
+        self.assertEqual(selected.values[0], 1)
+        self.assertEqual(selected.values[1], 1)
 
 if __name__ == "__main__":
     unittest.main()

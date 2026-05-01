@@ -9,8 +9,8 @@ class ViolationEvaluator(Evaluator):
     def evaluate(self, result: PipelineResult) -> dict:
         return {
             "violations": {
-                "private": len(result.private_dataset.violations),
-                "synthetic": len(result.synthetic_dataset.violations),
-                "repaired": len(result.repaired_dataset.violations)
+                "private": len(result.private_dataset.get_violations()),
+                "synthetic": len(result.synthetic_dataset.get_violations()),
+                "repaired": len(result.repaired_dataset.get_violations())
             }
         }

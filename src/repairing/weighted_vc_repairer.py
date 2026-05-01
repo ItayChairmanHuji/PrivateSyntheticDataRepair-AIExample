@@ -1,7 +1,7 @@
 import numpy as np
 import igraph as ig
 from dataclasses import dataclass, field
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.entities.marginal import MarginalSet
 from src.repairing.vertex_cover_repairer import VertexCoverRepairer
 
@@ -110,7 +110,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
         # Convert to numpy arrays for faster indexing
         self._tuple_matches = [np.array(m, dtype=int) for m in self._tuple_matches]
 
-    def repair(self, dataset: Dataset, marginals: MarginalSet) -> DatasetWithViolations:
+    def repair(self, dataset: Dataset, marginals: MarginalSet) -> Dataset:
         # Reset state before each repair call
         self._tuple_matches = []
         self._current_counts = None

@@ -87,4 +87,4 @@ Focuses on the logical correctness of the `ViolationFinder` across its three mai
 ### 3. Integration Tests (`test_file_loader.py`)
 Tests the full orchestration of the loading stage:
 - **`FileLoader` Orchestration**: Loads the project's `dummy` dataset from `data/dummy`, performs encoding, and runs violation discovery in a single flow.
-- **End-to-End Validation**: Ensures the resulting `DatasetWithViolations` entity has correctly encoded data, mapped constraints, and a non-empty set of detected violations.
+- **End-to-End Validation**: Ensures the resulting `Dataset` entity has correctly encoded data, mapped constraints, and a non-empty set of detected violations.

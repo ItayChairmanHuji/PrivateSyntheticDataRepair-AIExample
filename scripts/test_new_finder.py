@@ -25,8 +25,8 @@ def test_all_datasets():
         )
         try:
             dataset = loader.load()
-            # DatasetWithViolations will trigger ViolationFinder via DuckDB
-            violations = dataset.violations
+            # Dataset will trigger ViolationFinder via DuckDB
+            violations = dataset.get_violations()
             print(f"Success! Found {len(violations)} violations.")
             if len(violations) > 0:
                 print(violations.head(2))

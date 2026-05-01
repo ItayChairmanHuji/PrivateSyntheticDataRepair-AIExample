@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 import pandas as pd
-from src.entities.dataset import Dataset, DatasetWithViolations
+from src.entities.dataset import Dataset
 from src.loading.loader import Loader
 from src.loading.components.data_loader import DataLoader
 from src.loading.components.dcs_loader import DCsLoader
@@ -19,7 +19,7 @@ class FileLoader(Loader):
     data_encoder: DataEncoder
     dcs_encoder: DCsEncoder
 
-    def load(self) -> DatasetWithViolations:
+    def load(self) -> Dataset:
         # Orchestration logic
         raw_data = self.data_loader.load(self.data_path)
         raw_dcs = self.dcs_loader.load(self.dcs_path)
@@ -34,12 +34,11 @@ class FileLoader(Loader):
         
         target = metadata.get("target", "")
         
-        return DatasetWithViolations(
+        return Dataset(
             name=self.name, 
             data=encoded_data, 
             dcs=encoded_dcs, 
-            target=target,
-            mappings=mappings
+            target=target
         )
 
     @property
