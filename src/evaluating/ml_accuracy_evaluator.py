@@ -2,55 +2,77 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from src.evaluating.evaluator import Evaluator
+from sklearn.neural_network import MLPClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
 from src.entities.pipeline_result import PipelineResult
+from src.evaluating.evaluator import Evaluator
+
 
 class MLAccuracyEvaluator(Evaluator):
     """
-    Evaluates ML accuracy of models trained on private, synthetic, and repaired data,
-    all tested on a held-out portion of the private data.
+    Evaluates ML accuracy by training models on different dataset versions
+    (private, synthetic, repaired) and testing them exclusively on the full private dataset.
+
+    Models: Logistic Regression, Random Forest, and MLP.
     """
+
     def evaluate(self, result: PipelineResult) -> dict:
         target = result.private_dataset.target
-        if not target or target not in result.private_dataset.data.columns:
+        p_data = result.private_dataset.data
+        s_data = result.synthetic_dataset.data
+        r_data = result.repaired_dataset.data
+
+        if not target or target not in p_data.columns:
             return {"ml_accuracy": {}}
 
-        # 1. Split private data into train/test
-        p_train, p_test = train_test_split(result.private_dataset.data, test_size=0.2, random_state=42)
-        
-        y_test = p_test[target]
-        X_test = p_test.drop(columns=[target])
+        metrics = {
+            "private_gold_standard": self._train_and_score(p_data, p_data, target),
+            "synthetic": self._train_and_score(s_data, p_data, target),
+            "repaired": self._train_and_score(r_data, p_data, target),
+        }
 
-        # Helper to train and evaluate
-        def get_accs(train_df):
-            if train_df.empty: return {"random_forest": 0.0, "logistic_regression": 0.0}
-            X_train = train_df.drop(columns=[target])
-            y_train = train_df[target]
-            
-            # RF
-            rf = RandomForestClassifier(n_estimators=100, random_state=42)
-            rf.fit(X_train, y_train)
-            y_pred_rf = rf.predict(X_test)
-            
-            # LR
-            lr = LogisticRegression(max_iter=1000, random_state=42)
-            lr.fit(X_train, y_train)
-            y_pred_lr = lr.predict(X_test)
-            
-            return {
-                "random_forest": accuracy_score(y_test, y_pred_rf),
-                "logistic_regression": accuracy_score(y_test, y_pred_lr)
-            }
+        return {"ml_accuracy": metrics}
 
-        accs_private = get_accs(p_train)
-        accs_synthetic = get_accs(result.synthetic_dataset.data)
-        accs_repaired = get_accs(result.repaired_dataset.data)
+    def _train_and_score(
+        self, train_df: pd.DataFrame, test_df: pd.DataFrame, target: str
+    ) -> dict:
+        if train_df.empty or test_df.empty:
+            return {"logistic_regression": 0.0, "random_forest": 0.0, "mlp": 0.0}
 
+        X_train, X_test = (
+            train_df.drop(columns=[target]),
+            test_df.drop(columns=[target]),
+        )
+        y_train, y_test = train_df[target], test_df[target]
+        X_train, X_test = X_train.align(X_test, join="inner", axis=1, fill_value=0)
+        return self._run_models(X_train, y_train, X_test, y_test)
+
+    def _run_models(self, X_train, y_train, X_test, y_test):
+        models = self._get_models()
+        scores = {}
+        for name, model in models.items():
+            try:
+                model.fit(X_train, y_train)
+                y_pred = model.predict(X_test)
+                scores[name] = float(accuracy_score(y_test, y_pred))
+            except Exception:
+                scores[name] = 0.0
+        return scores
+
+    def _get_models(self):
         return {
-            "ml_accuracy": {
-                "private_gold_standard": accs_private,
-                "synthetic": accs_synthetic,
-                "repaired": accs_repaired
-            }
+            "logistic_regression": make_pipeline(
+                StandardScaler(), LogisticRegression(max_iter=5000, random_state=42)
+            ),
+            "random_forest": RandomForestClassifier(
+                n_estimators=100, random_state=42, n_jobs=-1
+            ),
+            "mlp": make_pipeline(
+                StandardScaler(),
+                MLPClassifier(
+                    hidden_layer_sizes=(100,), max_iter=2000, random_state=42
+                ),
+            ),
         }

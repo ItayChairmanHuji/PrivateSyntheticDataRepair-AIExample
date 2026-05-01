@@ -9,17 +9,6 @@ from src.loading.violation_finder import ViolationFinder
 
 @dataclass
 class Dataset:
-    """
-    Core data entity representing a dataset with its associated constraints and metadata.
-
-    Attributes:
-        name: Identifier for the dataset.
-        data: The actual numeric/encoded data in a Pandas DataFrame.
-        dcs: Denial constraints that apply to this dataset.
-        target: The target column name for ML tasks.
-        mappings: A dictionary mapping column names to LabelEncoders, used for 
-                  decoding categorical data back to its original string form.
-    """
     name: str
     data: DataFrame
     dcs: DenialConstraints

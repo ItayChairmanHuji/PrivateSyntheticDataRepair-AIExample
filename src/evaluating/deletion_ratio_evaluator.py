@@ -2,9 +2,6 @@ from src.evaluating.evaluator import Evaluator
 from src.entities.pipeline_result import PipelineResult
 
 class DeletionRatioEvaluator(Evaluator):
-    """
-    Logs the ratio between the number of tuples after and before the repair.
-    """
     def evaluate(self, result: PipelineResult) -> dict:
         n_before = len(result.synthetic_dataset.data)
         n_after = len(result.repaired_dataset.data)

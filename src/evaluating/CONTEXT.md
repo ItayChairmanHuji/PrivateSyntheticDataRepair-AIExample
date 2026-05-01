@@ -8,7 +8,7 @@ The evaluation stage is responsible for quantifying the quality of the synthetic
 2. **Deletion Ratio**: Logs the ratio between the number of tuples after and before the repair.
 3. **Marginals Error**: Logs the average error of the obtained marginals for each of the datasets (include both error and distance).
 4. **2-way TVD**: Computes the averaged Total Variation Distance (TVD) for all 2-way marginals between private data and (synthetic/repaired) data.
-5. **ML Accuracy**: The accuracy of machine learning models (Random Forest, Logistic Regression) trained on each dataset and tested on the private dataset.
+5. **ML Accuracy**: Evaluates the machine learning utility of each dataset version (private, synthetic, repaired). Models (Logistic Regression, Random Forest, and MLP) are trained on each full dataset and tested exclusively on the full private dataset. No validation splits are used within the evaluator.
 6. **Violation**: Logs the number of violations in private, synthetic, and repaired datasets.
 7. **Loss Function**: Logs the loss function of each dataset, defined as $$\begin{equation*}\label{eq:obj}
 \begin{split}
@@ -37,6 +37,7 @@ Uses mocked `PipelineResult` and `Dataset` objects to verify the calculation log
 - **`RuntimeEvaluator`**: Verifies that it correctly extracts and formats runtime metadata.
 - **`MarginalsErrorEvaluator`**: Validates the error calculation between obtained marginals and the resulting datasets.
 - **`LossFunctionEvaluator`**: Confirms that it correctly calculates the weighted loss function using alpha from metadata, including size and marginal components.
+- **`MLAccuracyEvaluator`** (`test_ml_accuracy_evaluator.py`): Verifies the "Train on Each, Test on Private" logic across Logistic Regression, Random Forest, and MLP models.
 
 ### 2. Orchestration Tests (`test_orchestrator.py`)
 Tests the `EvaluationOrchestrator` to ensure proper integration:
