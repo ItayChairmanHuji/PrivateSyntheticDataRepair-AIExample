@@ -3,6 +3,7 @@ import argparse
 import os
 import yaml
 import datetime
+import tempfile
 from pathlib import Path
 
 def get_config():
@@ -24,31 +25,39 @@ def push(cfg):
     subprocess.run(["git", "push", "origin"])
     
     # 2. Pull on remote
-    # Assuming remote is already a git repo and has origin set up
     res = run_remote(host, f"cd {remote_dir} && git pull origin main")
     print(res.stdout)
+    if res.stderr:
+        print(f"Errors/Warnings:\n{res.stderr}")
     print("Push complete.")
 
-def submit(cfg, experiments, group_size=3):
+def submit(cfg, experiments, group_size=None):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
+    
+    slurm_cfg = cfg['slurm_defaults']
+    if group_size is None:
+        group_size = slurm_cfg.get('cpus_per_task', 4)
     
     # Ensure logs directory exists on remote
     run_remote(host, f"mkdir -p {remote_dir}/logs")
     
     for i in range(0, len(experiments), group_size):
         chunk = experiments[i : i + group_size]
-        
-        # Generate a unique name for the job
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         job_name = f"exp_{timestamp}_{i}"
         
-        slurm_cfg = cfg['slurm_defaults']
-        # Convert remote_dir to absolute path if it starts with ~
-        abs_remote_dir = remote_dir.replace("~", f"/u4/{host.split('-')[0]}" if "snorlax" in host else "/home/$(whoami)")
-        # Actually it's better to just use a fixed path or get it from remote. 
-        # But we already know it's /u4/ichairman/final_research
-        abs_remote_dir = "/u4/ichairman/final_research"
+        # Write overrides to a local temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, newline='\n') as tmp:
+            for exp in chunk:
+                tmp.write(exp + "\n")
+            tmp_path = tmp.name
+        
+        remote_overrides_path = f"{remote_dir}/logs/{job_name}_overrides.txt"
+        
+        # Copy overrides file to remote
+        subprocess.run(["scp", tmp_path, f"{host}:{remote_overrides_path}"])
+        os.remove(tmp_path)
         
         script_content = [
             "#!/bin/bash",
@@ -62,14 +71,14 @@ def submit(cfg, experiments, group_size=3):
             f"#SBATCH --output=logs/%x_%j.out",
             f"#SBATCH --error=logs/%x_%j.err",
             "",
-            f"cd {abs_remote_dir}",
+            f"cd {remote_dir}",
             "mkdir -p logs results outputs",
-            f"export PYTHONPATH=$PYTHONPATH:{abs_remote_dir}",
+            f"export PYTHONPATH=$PYTHONPATH:. ",
             "export HYDRA_FULL_ERROR=1",
+            "",
+            f"# Run experiments in parallel using the dedicated script",
+            f"./.venv/bin/python scripts/run_parallel_experiments.py --workers {slurm_cfg['cpus_per_task']} --overrides_file {remote_overrides_path}"
         ]
-        
-        for exp_overrides in chunk:
-            script_content.append(f"{abs_remote_dir}/.venv/bin/python main.py {exp_overrides}")
         
         script_name = f"submit_{job_name}.sh"
         with open(script_name, "w", newline='\n') as f:
@@ -79,7 +88,6 @@ def submit(cfg, experiments, group_size=3):
         res = run_remote(host, f"cd {remote_dir} && sbatch {script_name}")
         print(f"Submitted job {job_name} with {len(chunk)} experiments: {res.stdout.strip()}")
         
-        # Keep the script on remote but delete locally
         os.remove(script_name)
 
 def status(cfg):
@@ -92,7 +100,7 @@ def status(cfg):
         print("No active jobs found.")
     
     print("--- Recent Job History (sacct) ---")
-    res = run_remote(host, "sacct --format=JobID,JobName,State,ExitCode,TimeLimit,Elapsed -n -X | tail -n 10")
+    res = run_remote(host, "sacct --format=JobID,JobName,State,ExitCode,TimeLimit,Elapsed -n -X | tail -n 20")
     if res.stdout:
         print(res.stdout)
     else:
@@ -103,31 +111,37 @@ def pull(cfg):
     remote_dir = cfg['remote_dir']
     print(f"Pulling results and outputs from {host}:{remote_dir}...")
     
-    # Sync results
-    subprocess.run(["scp", "-r", f"{host}:{remote_dir}/results", "."])
-    # Sync outputs
-    subprocess.run(["scp", "-r", f"{host}:{remote_dir}/outputs", "."])
-    print("Pull complete.")
+    # Use rsync if available for efficiency, otherwise fallback to scp
+    try:
+        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/results/", "results/"], check=True)
+        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/outputs/", "outputs/"], check=True)
+        print("Pull complete (via rsync).")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("rsync failed or not found, falling back to scp...")
+        subprocess.run(["scp", "-r", f"{host}:{remote_dir}/results", "."])
+        subprocess.run(["scp", "-r", f"{host}:{remote_dir}/outputs", "."])
+        print("Pull complete (via scp).")
 
-def logs(cfg, lines=50):
+def logs(cfg, lines=50, job_id=None):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
-    print(f"Checking recent logs from {host}:{remote_dir}/logs...")
     
-    res = run_remote(host, f"ls -t {remote_dir}/logs/*.out | head -n 1")
-    if res.stdout:
-        last_log = res.stdout.strip()
-        print(f"--- Tail of {last_log} ---")
-        res = run_remote(host, f"tail -n {lines} {last_log}")
-        print(res.stdout)
-        
-        # Also check error log
-        err_log = last_log.replace(".out", ".err")
-        print(f"--- Tail of {err_log} ---")
-        res = run_remote(host, f"tail -n {lines} {err_log}")
-        print(res.stdout)
+    if job_id:
+        out_pattern = f"{remote_dir}/logs/*_{job_id}.out"
+        err_pattern = f"{remote_dir}/logs/*_{job_id}.err"
     else:
-        print("No logs found.")
+        out_pattern = f"$(ls -t {remote_dir}/logs/*.out | head -n 1)"
+        err_pattern = out_pattern.replace(".out", ".err")
+
+    print(f"Checking logs from {host}...")
+    
+    res = run_remote(host, f"tail -n {lines} {out_pattern}")
+    print(f"--- Tail of Output Log ---")
+    print(res.stdout)
+    
+    res = run_remote(host, f"tail -n {lines} {err_pattern}")
+    print(f"--- Tail of Error Log ---")
+    print(res.stdout)
 
 def main():
     parser = argparse.ArgumentParser(description="Slurm Experiment Manager")
@@ -136,14 +150,16 @@ def main():
     subparsers.add_parser("push", help="Push code to remote server via git")
     
     submit_parser = subparsers.add_parser("submit", help="Submit experiments to Slurm")
-    submit_parser.add_argument("experiments", nargs="+", help="Hydra overrides for each experiment")
-    submit_parser.add_argument("--group", type=int, default=3, help="Number of experiments per job")
+    submit_parser.add_argument("experiments", nargs="*", help="Hydra overrides for each experiment")
+    submit_parser.add_argument("--file", type=str, help="File containing experiments (one per line)")
+    submit_parser.add_argument("--group", type=int, help="Number of experiments per job (defaults to cpus_per_task)")
     
     subparsers.add_parser("status", help="Check job status")
     subparsers.add_parser("pull", help="Pull results from remote server")
     
     logs_parser = subparsers.add_parser("logs", help="Check recent logs")
     logs_parser.add_argument("--lines", type=int, default=50, help="Number of lines to tail")
+    logs_parser.add_argument("--job_id", type=str, help="Specific Job ID to check")
     
     args = parser.parse_args()
     
@@ -160,13 +176,20 @@ def main():
     if args.command == "push":
         push(cfg)
     elif args.command == "submit":
-        submit(cfg, args.experiments, args.group)
+        exps = args.experiments
+        if args.file:
+            with open(args.file, "r") as f:
+                exps.extend([line.strip() for line in f if line.strip() and not line.startswith("#")])
+        if not exps:
+            print("No experiments provided.")
+            return
+        submit(cfg, exps, args.group)
     elif args.command == "status":
         status(cfg)
     elif args.command == "pull":
         pull(cfg)
     elif args.command == "logs":
-        logs(cfg, args.lines)
+        logs(cfg, args.lines, args.job_id)
 
 if __name__ == "__main__":
     main()
