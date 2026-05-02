@@ -6,9 +6,10 @@ from src.repairing.vertex_cover_repairer import VertexCoverRepairer
 
 class ClassicVCRepairer(VertexCoverRepairer):
     """
-    Implements Classic Vertex Cover repair (Random).
+    Implements Classic Vertex Cover repair (Random edge selection).
     """
-    def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> int:
-        # Select a random vertex from the graph that has at least one edge (is not isolated)
-        active_vertices = [v.index for v in graph.vs if graph.degree(v.index) > 0]
-        return random.choice(active_vertices)
+    def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> list[int]:
+        # Select a random edge from the graph
+        edge_idx = random.randrange(graph.ecount())
+        edge = graph.es[edge_idx]
+        return [edge.source, edge.target]

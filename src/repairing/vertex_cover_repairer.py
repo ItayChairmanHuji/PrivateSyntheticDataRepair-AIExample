@@ -18,14 +18,19 @@ class VertexCoverRepairer(Repairer):
         removed_indices = set()
         
         while graph.ecount() > 0:
-            # select_vertex returns a stable index (0 to N-1)
-            v_idx = self._select_vertex(graph, dataset, marginals)
+            # select_vertex can return a single index or a list of indices
+            selected = self._select_vertex(graph, dataset, marginals)
             
-            removed_indices.add(v_idx)
+            if isinstance(selected, (int, np.integer)):
+                v_indices = [selected]
+            else:
+                v_indices = selected
             
-            # Deleting incident edges makes the vertex "isolated" (degree 0).
-            incident_edges = graph.incident(v_idx)
-            graph.delete_edges(incident_edges)
+            for v_idx in v_indices:
+                removed_indices.add(int(v_idx))
+                # Deleting incident edges makes the vertex "isolated" (degree 0).
+                incident_edges = graph.incident(v_idx)
+                graph.delete_edges(incident_edges)
         
         # 3. Drop the tuples in the cover from the data
         keep_indices = [i for i in range(len(dataset.data)) if i not in removed_indices]
