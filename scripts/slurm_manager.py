@@ -109,18 +109,20 @@ def status(cfg):
 def pull(cfg):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
-    print(f"Pulling results and outputs from {host}:{remote_dir}...")
+    print(f"Transferring results from {host} via Git...")
     
-    # Use rsync if available for efficiency, otherwise fallback to scp
-    try:
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/results/", "results/"], check=True)
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/outputs/", "outputs/"], check=True)
-        print("Pull complete (via rsync).")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("rsync failed or not found, falling back to scp...")
-        subprocess.run(["scp", "-r", f"{host}:{remote_dir}/results", "."])
-        subprocess.run(["scp", "-r", f"{host}:{remote_dir}/outputs", "."])
-        print("Pull complete (via scp).")
+    # 1. Commit and push on remote
+    commit_cmd = f"cd {remote_dir} && git add results/ outputs/ && git commit -m 'Sync results' && git push origin main"
+    print("Committing and pushing on remote...")
+    res = run_remote(host, commit_cmd)
+    print(res.stdout)
+    if res.stderr:
+        print(f"Remote Git Output/Errors:\n{res.stderr}")
+    
+    # 2. Pull locally
+    print("Pulling locally...")
+    subprocess.run(["git", "pull", "origin", "main"])
+    print("Pull complete via Git.")
 
 def logs(cfg, lines=50, job_id=None):
     host = cfg['host']
