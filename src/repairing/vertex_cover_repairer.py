@@ -1,9 +1,6 @@
-import random
 import numpy as np
-import pandas as pd
 import igraph as ig
 from abc import abstractmethod
-from dataclasses import dataclass
 from src.entities.dataset import Dataset
 from src.entities.marginal import MarginalSet
 from src.repairing.repairer import Repairer

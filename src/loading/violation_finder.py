@@ -1,16 +1,9 @@
 import pandas as pd
 import duckdb
 import numpy as np
-import itertools
 from src.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 
 class ViolationFinder:
-    """
-    Highly optimized ViolationFinder using a hybrid strategy (Pandas/NumPy + DuckDB).
-    Uses a Value-Partitioned Join to avoid N^2 explosions in large groups.
-    Guarantees that ALL violations are found without limits.
-    """
-
     def find_violations(self, data: pd.DataFrame, dcs: DenialConstraints) -> pd.DataFrame:
         if len(data) == 0 or len(dcs.constraints) == 0:
             return pd.DataFrame(columns=['idx1', 'idx2'])
@@ -27,13 +20,26 @@ class ViolationFinder:
         if not all_violations:
             return pd.DataFrame(columns=['idx1', 'idx2'])
 
-        combined = pd.concat(all_violations).drop_duplicates()
-        return combined.reset_index(drop=True)
+        combined = pd.concat(all_violations)
+        return self._normalize_and_deduplicate(combined).reset_index(drop=True)
+
+    def _normalize_and_deduplicate(self, df: pd.DataFrame) -> pd.DataFrame:
+        if df.empty:
+            return df
+        i1 = df['idx1'].values
+        i2 = df['idx2'].values
+        # 1. Enforce idx1 < idx2
+        df['idx1'] = np.minimum(i1, i2)
+        df['idx2'] = np.maximum(i1, i2)
+        # 2. Ignore self-conflicts
+        df = df[df['idx1'] != df['idx2']]
+        # 3. Deduplicate
+        return df.drop_duplicates()
 
     def _find_violations_optimized(self, data: pd.DataFrame, dc: DenialConstraint) -> pd.DataFrame:
         eq_keys, ineq_preds, u1, u2 = self._categorize_predicates(dc)
         
-        # --- Pattern 1: Pure Unary / Constant-Value Implication (Pandas) ---
+        # --- Pattern 1: Constant-Value Implication (Pandas) ---
         if not eq_keys and len(ineq_preds) <= 1:
             return self._find_constant_implication_pandas(data, u1, u2, ineq_preds[0] if ineq_preds else None)
 
@@ -83,16 +89,12 @@ class ViolationFinder:
             for v1, ids1 in groups1.items():
                 for v2, ids2 in groups2.items():
                     if self._compare(v1, v2, opr):
-                        i1, i2 = ids1.values, ids2.values
-                        ii, jj = np.meshgrid(i1, i2)
-                        pair_df = pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()})
-                        valid = pair_df[pair_df['idx1'] < pair_df['idx2']]
-                        if not valid.empty: res.append(valid)
+                        ii, jj = np.meshgrid(ids1.values, ids2.values)
+                        res.append(pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()}))
             return pd.concat(res) if res else pd.DataFrame(columns=['idx1', 'idx2'])
         else:
             ii, jj = np.meshgrid(idx1, idx2)
-            pair_df = pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()})
-            return pair_df[pair_df['idx1'] < pair_df['idx2']]
+            return pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()})
 
     def _find_fd_partitioned(self, data, eq_keys, u1, u2, attr) -> pd.DataFrame:
         m1, m2 = self._get_pandas_mask(data, u1), self._get_pandas_mask(data, u2)
@@ -117,7 +119,7 @@ class ViolationFinder:
         for _, group in all_groups:
             res.extend(self._process_fd_group(group, attr))
                             
-        return pd.concat(res).drop_duplicates() if res else pd.DataFrame(columns=['idx1', 'idx2'])
+        return pd.concat(res) if res else pd.DataFrame(columns=['idx1', 'idx2'])
 
     def _process_fd_group(self, group, attr):
         res = []
@@ -137,9 +139,7 @@ class ViolationFinder:
             ids_b = gb.loc[gb['__m2'], '__idx'].values
             if len(ids_a) > 0 and len(ids_b) > 0:
                 ii, jj = np.meshgrid(ids_a, ids_b)
-                pair_df = pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()})
-                valid = pair_df[pair_df['idx1'] < pair_df['idx2']]
-                if not valid.empty: res.append(valid)
+                res.append(pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()}))
         return res
 
     def _find_order_duckdb(self, data, eq_keys, u1, u2, ineq_preds) -> pd.DataFrame:
@@ -152,17 +152,14 @@ class ViolationFinder:
         where_f = " AND ".join([self._format_predicate_sql(p) for p in ineq_preds])
         join_on = " AND ".join([f"t1.{k}=t2.{k}" for k in eq_keys]) if eq_keys else "1=1"
         
-        # We find ALL violating pairs (t1, t2) where t1 != t2, 
-        # then return them as (min_idx, max_idx) to satisfy idx1 < idx2.
         query = f"""
             SELECT DISTINCT 
-                LEAST(t1.__idx, t2.__idx) as idx1, 
-                GREATEST(t1.__idx, t2.__idx) as idx2 
+                t1.__idx as idx1, 
+                t2.__idx as idx2 
             FROM dt t1 JOIN dt t2 ON {join_on} 
             WHERE t1.__idx != t2.__idx AND ({t1_f}) AND ({t2_f}) AND ({where_f})
         """
         
-        # Existence check on dt
         has_v = con.execute(f"SELECT EXISTS ({query} LIMIT 1)").fetchone()[0]
         if not has_v: 
             con.close()
@@ -184,8 +181,8 @@ class ViolationFinder:
         
         query = f"""
             SELECT DISTINCT 
-                LEAST(t1.__idx, t2.__idx) as idx1, 
-                GREATEST(t1.__idx, t2.__idx) as idx2 
+                t1.__idx as idx1, 
+                t2.__idx as idx2 
             FROM dt t1 JOIN dt t2 ON {join_on} 
             WHERE t1.__idx != t2.__idx AND ({t1_f}) AND ({t2_f}) AND ({where_f})
         """

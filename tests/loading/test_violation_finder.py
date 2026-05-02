@@ -35,26 +35,14 @@ class TestViolationFinder(unittest.TestCase):
         dcs = self._get_dcs("not(t1.A=1 & t1.B>15)")
         violations = self.finder.find_violations(df, dcs)
         
-        # Result should contain the index of the violating row. 
-        # Note: Unary violations are returned as (idx, idx) or similar depending on implementation.
-        # Looking at _find_constant_implication_pandas: it returns pair_df[pair_df['idx1'] < pair_df['idx2']]
-        # WAIT: if it's a UNARY DC like not(t1.A=1 & t1.B>15), it's about ONE tuple.
-        # But the code uses np.meshgrid(idx1, idx2) and returns idx1 < idx2.
-        # In this specific DC, u1 is t1.A=1 & t1.B>15. u2 is empty? 
-        # Actually, DCs are usually defined over pairs.
+        # Result should contain pairs involving the violating row (Row 1).
+        # Since we ignore self-conflicts (1,1), and we normalize to idx1 < idx2:
+        # (1,0) -> (0,1)
+        # (1,2) -> (1,2)
         
-        # If the DC is strictly unary: "not(t1.A=1 & t1.B>15)"
-        # The logic in find_violations treats it as Pattern 1.
-        # In Pattern 1: u1 = {t1.A=1, t1.B>15}, u2 = {}.
-        # _find_constant_implication_pandas: mask1 = [False, True, False], mask2 = [True, True, True]
-        # idx1 = [1], idx2 = [0, 1, 2]
-        # meshgrid -> (1,0), (1,1), (1,2)
-        # idx1 < idx2 -> (1, 2) is the only pair.
-        # So it returns violations as PAIRS of tuples where the FIRST tuple satisfies the condition.
-        
-        self.assertEqual(len(violations), 1)
-        self.assertEqual(violations.iloc[0]['idx1'], 1)
-        self.assertEqual(violations.iloc[0]['idx2'], 2)
+        self.assertEqual(len(violations), 2)
+        actual_pairs = set(zip(violations['idx1'], violations['idx2']))
+        self.assertEqual(actual_pairs, {(0, 1), (1, 2)})
 
     def test_functional_dependency(self):
         # Pattern 2: FD-like (Value-Partitioned Join)

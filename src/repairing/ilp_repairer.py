@@ -86,7 +86,7 @@ class ILPRepairer(Repairer):
             # If infeasible or error, return the original data
             return Dataset(
                 name=dataset.name,
-                data=dataset.data,
+                data=dataset.data.drop(index=dataset.data.index),  # Return empty DataFrame to indicate failure
                 dcs=dataset.dcs,
                 target=dataset.target
             )

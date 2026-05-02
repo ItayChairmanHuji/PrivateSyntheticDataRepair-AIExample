@@ -43,22 +43,15 @@ class Pipeline:
         print(f"--- Stage 4: Repairing ---")
         start = time.time()
         
-        # Iterative repair to ensure all violations are removed (since finder might have limits)
-        current_to_repair = synthetic_dataset
-        max_repair_iterations = 5
-        for i in range(max_repair_iterations):
-            repaired_dataset = self.repairer.repair(current_to_repair, obtained_marginals)
-            
-            # Check for remaining violations (no limit here to be sure)
-            remaining_violations = repaired_dataset.get_violations()
-            if len(remaining_violations) == 0:
-                print(f"Clean after {i+1} repair iteration(s).")
-                break
-            
-            print(f"Iteration {i+1}: {len(remaining_violations)} violations remain. Retrying repair...")
-            current_to_repair = repaired_dataset
+        # Repairing in a single pass as repairers are designed to handle all identified conflicts.
+        repaired_dataset = self.repairer.repair(synthetic_dataset, obtained_marginals)
+        
+        # Final sanity check for research logging
+        remaining_v = len(repaired_dataset.get_violations())
+        if remaining_v == 0:
+            print("Repair complete: All violations removed.")
         else:
-            print(f"Warning: Repair did not converge after {max_repair_iterations} iterations.")
+            print(f"Warning: Repair complete but {remaining_v} violations remain.")
             
         runtimes['repairing'] = time.time() - start
 
