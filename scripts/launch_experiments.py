@@ -18,8 +18,8 @@ def generate_experiments(test_mode=False):
             "ilp_marginals": "repairing=ilp repairing.use_marginals=True",
             "ilp_no_marginals": "repairing=ilp repairing.use_marginals=False"
         }
-        seeds = [42, 43, 44, 45, 46, 47, 48, 49]
-        sweeps_to_run = ["iters", "k", "sel_budget", "gen_budget", "alpha"]
+        seeds = [42, 43, 44]
+        sweeps_to_run = ["iters"]
     
     # Default values
     defaults = {
