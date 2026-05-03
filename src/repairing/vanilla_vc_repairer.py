@@ -8,6 +8,9 @@ class VanillaVCRepairer(VertexCoverRepairer):
     """
     Implements Vanilla Vertex Cover repair (Max Degree).
     """
+    def __init__(self, alpha: float = 0.5, **kwargs):
+        super().__init__()
+
     def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> int:
         degrees = graph.degree()
         # Max degree vertex
