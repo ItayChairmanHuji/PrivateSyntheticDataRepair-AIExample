@@ -44,6 +44,7 @@ Ensures the quality and reliability of stage implementations through standardize
 - /notebooks- Notebooks to test the code.
 - /data- Datasets to use to test the system and run it. 
 - /legacy- A folder that holds legacy code of the project. DO NOT COPY IT OR EDIT IT! This is a read only folder to allow you get ideas. The code there is not tested and not always well written, use only to get ideas.
+- /slides- A set of slides meant to give presentation of  the project
 
 ## Routing
 | Task | Go to | Read |
@@ -52,6 +53,9 @@ Ensures the quality and reliability of stage implementations through standardize
 | Write config | /config | CONTEXT.md |
 | Write script | /scripts | CONTEXT.md |
 | Test a feature | /notebooks | CONTEXT.md | 
+| Add/modify slides | /slides | CONTEXT.md |
+
+## Context
 
 ## Naming Conventions
 - Directory names: snake_case

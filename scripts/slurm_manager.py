@@ -19,13 +19,20 @@ def run_remote(host, cmd):
 def push(cfg):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
-    print(f"Pushing code via git to origin and pulling on {host}:{remote_dir}...")
+    
+    # Get current branch
+    branch_res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+    branch = branch_res.stdout.strip()
+    if not branch:
+        branch = "main"
+
+    print(f"Pushing code via git to origin and pulling on {host}:{remote_dir} (branch: {branch})...")
     
     # 1. Push locally to origin
-    subprocess.run(["git", "push", "origin"])
+    subprocess.run(["git", "push", "origin", branch])
     
     # 2. Pull on remote
-    res = run_remote(host, f"cd {remote_dir} && git pull origin main")
+    res = run_remote(host, f"cd {remote_dir} && git pull origin {branch}")
     print(res.stdout)
     if res.stderr:
         print(f"Errors/Warnings:\n{res.stderr}")
@@ -109,10 +116,17 @@ def status(cfg):
 def pull(cfg):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
-    print(f"Transferring results from {host} via Git...")
+    
+    # Get current branch locally
+    branch_res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+    branch = branch_res.stdout.strip()
+    if not branch:
+        branch = "main"
+
+    print(f"Transferring results from {host} via Git (branch: {branch})...")
     
     # 1. Commit and push on remote
-    commit_cmd = f"cd {remote_dir} && git add results/ outputs/ && git commit -m 'Sync results' && git push origin main"
+    commit_cmd = f"cd {remote_dir} && git add -f results/ outputs/ && git commit -m 'Sync results' && git push origin {branch}"
     print("Committing and pushing on remote...")
     res = run_remote(host, commit_cmd)
     print(res.stdout)
@@ -121,7 +135,7 @@ def pull(cfg):
     
     # 2. Pull locally
     print("Pulling locally...")
-    subprocess.run(["git", "pull", "origin", "main"])
+    subprocess.run(["git", "pull", "origin", branch])
     print("Pull complete via Git.")
 
 def logs(cfg, lines=50, job_id=None):

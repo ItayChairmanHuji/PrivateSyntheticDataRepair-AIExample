@@ -13,7 +13,6 @@ ENV/
 */.ipynb_checkpoints/*
 
 # Hydra
-outputs/
 multirun/
 
 # Remote execution
@@ -21,7 +20,6 @@ logs/
 codebase.zip
 
 # Project Specific
-results/
 myeasylog.log
 license.json
 test*.csv
@@ -29,3 +27,11 @@ tmp*.json
 
 # VS Code
 .vscode/
+
+# Node.js
+node_modules/
+dist/
+out.mp4
+
+results/
+outputs/
