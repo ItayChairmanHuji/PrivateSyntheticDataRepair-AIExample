@@ -53,7 +53,6 @@ Ensures the quality and reliability of stage implementations through standardize
 | Write config | /config | CONTEXT.md |
 | Write script | /scripts | CONTEXT.md |
 | Test a feature | /notebooks | CONTEXT.md | 
-| Add/modify slides | /slides | CONTEXT.md |
 
 ## Context
 
@@ -88,3 +87,14 @@ Ensures the quality and reliability of stage implementations through standardize
 - Avoid helper indirection unless it clearly improves readability.
 - Trust input/config in this experiments framework (skip defensive validation unless explicitly required).
 - Use standard libraries when they make intent obvious (e.g., sklearn LabelEncoder for categorical encoding).
+
+## Experiments Management 
+- The system runs the experiments on a remote slurm server called snorlax-login (can be connected via ssh). 
+- Each experiment is one pipeline run. 
+- Each experiment can be part of experiment group which dictates what is changing in this experiment group (for instance an experiment group could be changing the number of noise iterations, and each experiment in group would be identical but with different noise iterations). 
+- A slurm job can contain more than one experiment but IT HAS TO BE NOTIFIED AND ADVISED BY THE USER. 
+- Everything needs to be named. 
+- Code config and scripts should be passed to server via git
+- Results and logs are transferred from the server via scp ON THE NAMED EXPERIMENT/GROUP.
+- Libraries should be transferred via the requirements.txt file.  
+- USE HYDRA EXPERIMENTS PATTERN TO MANAGE THE EXPERIMENTS/GROUPS AND MAKE SURE THAT EVERY EXPERIMENT/GROUP HAVE A CLEAN YAML TO WORK WITH.  
