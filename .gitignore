@@ -35,3 +35,5 @@ out.mp4
 
 results/
 outputs/
+models/
+synthetic_data/

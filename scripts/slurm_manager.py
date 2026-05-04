@@ -42,7 +42,7 @@ def push(cfg):
     run_remote(host, f"cd {remote_dir} && ./.venv/bin/pip install -r requirements.txt")
     print("Push complete.")
 
-def submit(cfg, experiments, group_name=None, experiments_per_job=None):
+def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="main.py"):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
@@ -92,7 +92,7 @@ def submit(cfg, experiments, group_name=None, experiments_per_job=None):
             "export HYDRA_FULL_ERROR=1",
             "",
             f"# Run experiments in parallel using the dedicated script",
-            f"./.venv/bin/python scripts/run_parallel_experiments.py --workers {slurm_cfg['cpus_per_task']} --overrides_file {remote_overrides_path}"
+            f"./.venv/bin/python scripts/run_parallel_experiments.py --script {script} --workers {slurm_cfg['cpus_per_task']} --overrides_file {remote_overrides_path}"
         ]
         
         script_name = f"submit_{job_name}.sh"
@@ -205,6 +205,7 @@ def main():
     submit_parser.add_argument("--file", type=str, help="File containing experiments (one per line)")
     submit_parser.add_argument("--name", type=str, help="Name for the experiment group")
     submit_parser.add_argument("--group", type=int, help="Number of experiments per job (defaults to cpus_per_task)")
+    submit_parser.add_argument("--script", type=str, default="main.py", help="Script to run (default: main.py)")
     
     subparsers.add_parser("status", help="Check job status")
     
@@ -240,7 +241,7 @@ def main():
         if not exps:
             print("No experiments provided.")
             return
-        submit(cfg, exps, args.name, args.group)
+        submit(cfg, exps, args.name, args.group, args.script)
     elif args.command == "status":
         status(cfg)
     elif args.command == "pull":

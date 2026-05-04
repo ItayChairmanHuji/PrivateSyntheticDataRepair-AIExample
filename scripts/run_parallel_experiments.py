@@ -4,11 +4,11 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import sys
 import time
 
-def run_experiment(overrides: list):
+def run_experiment(script: str, overrides: list):
     """
-    Runs a single experiment using main.py with provided overrides.
+    Runs a single experiment using the specified script with provided overrides.
     """
-    cmd = [sys.executable, "main.py"] + overrides
+    cmd = [sys.executable, script] + overrides
     print(f"Starting: {' '.join(cmd)}")
     start_time = time.time()
     
@@ -26,6 +26,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run multiple research experiments in parallel.")
     parser.add_argument("--workers", type=int, default=4, help="Maximum number of parallel workers.")
     parser.add_argument("--overrides_file", type=str, help="Path to a file containing sets of overrides (one set per line).")
+    parser.add_argument("--script", type=str, default="main.py", help="Script to run (default: main.py).")
     
     # Optional: allow passing overrides directly via CLI for simple cases
     # Example: python scripts/run_parallel_experiments.py --workers 2 "repairing=ilp" "repairing=weighted_vc"
@@ -52,10 +53,10 @@ def main():
         print("No experiments to run. Provide overrides via CLI or --overrides_file.")
         return
 
-    print(f"Running {len(all_experiment_overrides)} experiments with {args.workers} workers...")
+    print(f"Running {len(all_experiment_overrides)} experiments using {args.script} with {args.workers} workers...")
     
     with ProcessPoolExecutor(max_workers=args.workers) as executor:
-        futures = {executor.submit(run_experiment, overrides): overrides for overrides in all_experiment_overrides}
+        futures = {executor.submit(run_experiment, args.script, overrides): overrides for overrides in all_experiment_overrides}
         
         results = []
         for future in as_completed(futures):
