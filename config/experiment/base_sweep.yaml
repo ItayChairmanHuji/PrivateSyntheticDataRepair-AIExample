@@ -1,0 +1,34 @@
+# @package _global_
+defaults:
+  - override /loading: adult
+  - override /synthesizing: co_noise
+  - override /marginals_obtaining: top_k
+  - override /repairing: weighted_vc
+  - override /evaluating: default
+
+# Experiment Metadata
+experiment_name: iterations_sweep
+
+# Pipeline Parameters (Explicitly defined as requested)
+loading:
+  name: adult
+  base_path: data
+  size: 500000
+  seed: 42
+
+synthesizing:
+  num_of_iterations: 100
+  seed: 42
+
+marginals_obtaining:
+  selection_budget: 0.5
+  generation_budget: 0.5
+  k: 20
+  seed: 42
+
+repairing:
+  alpha: 0.5
+  use_marginals: true  # Relevant for ILP
+
+evaluating:
+  output_dir: results

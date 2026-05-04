@@ -17,12 +17,16 @@ class TopKObtainer(Obtainer):
     generation_budget: float
     k: int
     utility_function: UtilityFunction
+    seed: int = 42
 
     def obtain(
         self, private_dataset: Dataset, synthetic_dataset: Dataset
     ) -> MarginalSet:
         p_data = private_dataset.data
         s_data = synthetic_dataset.data
+        
+        # Initialize random generator with the seed
+        rng = np.random.default_rng(self.seed)
 
         # 1. Compute all 2-way marginals for private and synthetic data
         p_marginals_freq = self._compute_all_2way_marginals(p_data)
@@ -47,7 +51,8 @@ class TopKObtainer(Obtainer):
             * selection_sensitivity
             * np.sqrt(num_to_select / (8 * self.selection_budget))
         )
-        noise = np.random.gumbel(
+        # Using Gumbel distribution from rng
+        noise = rng.gumbel(
             loc=0.0, scale=selection_noise_scale, size=len(utilities)
         )
 
@@ -60,11 +65,14 @@ class TopKObtainer(Obtainer):
         generation_noise_scale = (
             generation_sensitivity * np.sqrt(num_to_select)
         ) / np.sqrt(2 * self.generation_budget)
-        gen_noise = np.random.normal(
+        
+        # Using Normal distribution from rng
+        gen_noise = rng.normal(
             loc=0, scale=generation_noise_scale, size=num_to_select
         )
 
         selected_p_values = np.array([p_marginals_freq[k] for k in selected_keys])
+
         noisy_p_values = selected_p_values + gen_noise
         # Clip frequencies to [0, 1]
         noisy_p_values = np.clip(noisy_p_values, 0.0, 1.0)

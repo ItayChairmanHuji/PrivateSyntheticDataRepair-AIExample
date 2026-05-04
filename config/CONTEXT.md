@@ -9,6 +9,8 @@ Configurations are organized into groups corresponding to the pipeline stages:
 - `marginals_obtaining/`: Configurations for marginal extraction.
 - `repairing/`: Configurations for data repair algorithms.
 - `evaluating/`: Configurations for evaluation metrics.
+- `experiment/`: High-level experiment definitions that combine multiple stage configurations.
+- `remote/`: Configurations for remote execution (e.g., Slurm).
 
 ## Standards (Hydra-Configurator)
 1. **Orchestration Pattern**: Every configuration should define a `_target_` field pointing to the Python class to be instantiated.

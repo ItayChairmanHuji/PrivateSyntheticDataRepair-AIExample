@@ -1,0 +1,9 @@
+# @package _global_
+defaults:
+  - override /loading: adult
+  - override /repairing: ilp
+
+repairing:
+  use_marginals: true
+
+experiment_name: adult_ilp_marginals

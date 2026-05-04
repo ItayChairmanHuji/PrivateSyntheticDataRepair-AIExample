@@ -5,36 +5,35 @@ This directory contains scripts for running experiments, benchmarking components
 ## Key Scripts
 
 ### Experiment Execution
-- `run_parallel_experiments.py`: Runs multiple research experiments in parallel using a `ProcessPoolExecutor`. Supports a configurable worker limit.
-- `slurm_manager.py`: Manages the lifecycle of experiments on a remote Slurm cluster. Supports pushing code, submitting jobs, checking status, and pulling results/logs.
-- `run_adult_experiments.bat`: Runs the full suite of experiments for the Adult dataset using various repair algorithms.
-- `run_adult5000_experiments.bat`: Similar to the above, but specifically for a 5000-row subset.
+- `slurm_manager.py`: Manages the lifecycle of experiments on a remote Slurm cluster. Supports:
+    - `push`: Sync code and update requirements on the remote.
+    - `submit`: Submit a group of experiments to Slurm (supports naming and file-based overrides).
+    - `status`: Check the status of active and recent jobs.
+    - `pull`: Retrieve results and logs via rsync/scp (supports pulling by group name).
+    - `logs`: Tail the output and error logs of a job.
+    - `clean`: Remove results and logs from the remote server.
+- `run_parallel_experiments.py`: A helper script used on both local and remote to run multiple Hydra experiments in parallel within a single process/job.
+- `launch_experiments.py`: A script to programmatically generate and launch large experiment grids.
 
-### Remote Slurm Workflow
-To run experiments on a remote cluster:
-1.  **Configure**: Set remote host and Slurm defaults in `config/remote/slurm.yaml`.
-2.  **Push**: Run `python scripts/slurm_manager.py push` to sync code to the server.
-3.  **Submit**: Run `python scripts/slurm_manager.py submit "loading.name=adult" "loading.name=compas"` to queue jobs.
-4.  **Status**: Run `python scripts/slurm_manager.py status` to check progress.
-5.  **Pull**: Run `python scripts/slurm_manager.py pull` and `python scripts/slurm_manager.py logs` to retrieve results and logs once jobs are done.
+### Result Collection & Analysis
+- `aggregate_results.py`: Aggregates all JSON result files from the `results/` directory into a single `experiment_results_summary.csv` for analysis.
 
-### Result Collection
-- `collect_results_full.py`: Aggregates results from multiple experiment runs into a summary table.
-- `collect_results.py`: A simpler version of result collection.
-
-### Benchmarking
+### Benchmarking & Testing
 - `benchmark_violation_finder.py`: Measures the performance of the `ViolationFinder` on large datasets.
 - `benchmark_census_logic.py`: Specifically benchmarks the logic used for Census data.
-- `benchmark_large.py`: General performance benchmark for large data.
-- `benchmark_noisy_datasets.py`: Benchmarks performance when varying noise levels.
-
-### Utility & Testing
 - `compare_engines.py`: Compares the performance of Pandas vs. DuckDB for violation finding.
-- `inspect_compas_violations.py`: Utility to inspect violations in the COMPAS dataset.
 - `test_new_finder.py`: Validation script for the optimized `ViolationFinder`.
 - `test_synthetic_violations.py`: Tests the detection of synthetically injected violations.
 
+## Remote Slurm Workflow
+1.  **Configure**: Set remote host and Slurm defaults in `config/remote/slurm.yaml`.
+2.  **Push**: `python scripts/slurm_manager.py push`
+3.  **Submit**: `python scripts/slurm_manager.py submit "experiment=adult_weighted" "experiment=census_weighted" --name my_experiment_group`
+4.  **Status**: `python scripts/slurm_manager.py status`
+5.  **Pull**: `python scripts/slurm_manager.py pull --name my_experiment_group`
+6.  **Analyze**: `python scripts/aggregate_results.py`
+
 ## Workflow
-1. Use `main.py` with Hydra overrides to run specific configurations.
-2. Use `.bat` files to run batches of experiments.
-3. Use `collect_results_full.py` to view the summary of findings.
+1. Use `main.py` with Hydra overrides or `experiment=...` to run specific configurations.
+2. Use `slurm_manager.py` for remote execution on the Snorelax cluster.
+3. Use `aggregate_results.py` to compile findings into a CSV.

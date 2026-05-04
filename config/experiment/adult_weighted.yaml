@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - override /loading: adult
+  - override /repairing: weighted_vc
+
+experiment_name: adult_weighted

@@ -4,6 +4,7 @@ defaults:
   - marginals_obtaining: top_k
   - repairing: ilp
   - evaluating: default
+  - experiment: null
   - _self_
 
 experiment_name: default

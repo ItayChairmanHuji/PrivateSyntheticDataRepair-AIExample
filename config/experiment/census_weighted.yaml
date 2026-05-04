@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - override /loading: census
+  - override /repairing: weighted_vc
+
+experiment_name: census_weighted
