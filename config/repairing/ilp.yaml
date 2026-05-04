@@ -4,4 +4,4 @@ use_marginals: True
 gurobi_params:
   OutputFlag: 1
   MIPGap: 0
-  TimeLimit: 300
+  TimeLimit: 14400
