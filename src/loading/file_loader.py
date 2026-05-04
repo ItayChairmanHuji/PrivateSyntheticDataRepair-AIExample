@@ -1,14 +1,15 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-import pandas as pd
+
 from src.entities.dataset import Dataset
-from src.loading.loader import Loader
+from src.loading.components.data_encoder import DataEncoder
 from src.loading.components.data_loader import DataLoader
+from src.loading.components.dcs_encoder import DCsEncoder
 from src.loading.components.dcs_loader import DCsLoader
 from src.loading.components.metadata_loader import MetadataLoader
-from src.loading.components.data_encoder import DataEncoder
-from src.loading.components.dcs_encoder import DCsEncoder
+from src.loading.loader import Loader
+
 
 @dataclass
 class FileLoader(Loader):
@@ -25,27 +26,26 @@ class FileLoader(Loader):
     def load(self) -> Dataset:
         # Orchestration logic
         raw_data = self.data_loader.load(self.data_path)
-        
+
         if self.size is not None and self.size < len(raw_data):
-            raw_data = raw_data.sample(n=self.size, random_state=self.seed).reset_index(drop=True)
-            
+            raw_data = raw_data.sample(n=self.size, random_state=self.seed).reset_index(
+                drop=True
+            )
+
         raw_dcs = self.dcs_loader.load(self.dcs_path)
         metadata = self.metadata_loader.load(self.metadata_path)
-        
+
         # Ensure "all data is numbers"
         encoded_data = self.data_encoder.encode(raw_data)
         mappings = self.data_encoder.get_mappings()
-        
+
         # Encode DCs to match the numeric data
         encoded_dcs = self.dcs_encoder.encode(raw_dcs, mappings)
-        
+
         target = metadata.get("target", "")
-        
+
         return Dataset(
-            name=self.name, 
-            data=encoded_data, 
-            dcs=encoded_dcs, 
-            target=target
+            name=self.name, data=encoded_data, dcs=encoded_dcs, target=target
         )
 
     @property
