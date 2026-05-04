@@ -74,9 +74,11 @@ Ensures the quality and reliability of stage implementations through standardize
     2. **Branching**: Open a new git branch for the feature.
     3. **Implementation**: Read the needed files and make the changes.
     4. **Testing**: Add tests for the changes and make sure nothing is broken (fix if needed).
-    5. **Documentation**: Update the documentation to reflect the changes.
-    6. **Review**: Open a sub-agent that does not have context besides the given task and `AGENT.md`. The sub-agent should review the changes and give comments on the work.
-    7. **Resolution**: Fix the comments or reach an agreement with the sub-agent about the changes. The sub-agent can state that a change is too risky and requires human intervention. In that case, request a review from the user.
+    5. **Canary Run (Research Standard)**: Before deploying large experiment grids to Slurm, you MUST run a single, representative experiment directly on the remote server via SSH. Monitor its output for environment issues (missing packages, path errors) or runtime bugs. Only proceed to full grid submission once the canary run succeeds.
+    6. **Documentation**: Update the documentation to reflect the changes.
+    7. **Review**: Open a sub-agent that does not have context besides the given task and `AGENT.md`. The sub-agent should review the changes and give comments on the work.
+    8. **Resolution**: Fix the comments or reach an agreement with the sub-agent about the changes.
+ The sub-agent can state that a change is too risky and requires human intervention. In that case, request a review from the user.
 - **Documentation Parity**: If you modify any code, implementation, or configuration, you MUST update the corresponding `.md` files (e.g., `CONTEXT.md`, `AGENT.md`) to reflect the changes.
 - **Test Documentation**: When adding or updating tests for a module, you MUST update the `CONTEXT.md` in that module's directory to exactly describe the tests, what is being tested, and the testing strategy.
 
