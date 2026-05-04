@@ -28,7 +28,6 @@ marginals_obtaining:
 
 repairing:
   alpha: 0.5
-  use_marginals: true  # Relevant for ILP
 
 evaluating:
   output_dir: results
