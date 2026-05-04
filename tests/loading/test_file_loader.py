@@ -52,5 +52,57 @@ class TestFileLoaderIntegration(unittest.TestCase):
         self.assertIn('idx1', violations.columns)
         self.assertIn('idx2', violations.columns)
 
+    def test_size_filtering(self):
+        base_path = Path(__file__).parent.parent.parent / "data"
+        if not (base_path / "dummy").exists():
+            self.skipTest("Dummy dataset not found in data/dummy")
+
+        size = 5
+        loader = FileLoader(
+            name="dummy",
+            base_path=str(base_path),
+            data_loader=DataLoader(),
+            dcs_loader=DCsLoader(),
+            metadata_loader=MetadataLoader(),
+            data_encoder=DataEncoder(),
+            dcs_encoder=DCsEncoder(),
+            size=size,
+            seed=42
+        )
+        
+        dataset = loader.load()
+        self.assertEqual(len(dataset.data), size)
+
+        # Verify reproducibility
+        loader2 = FileLoader(
+            name="dummy",
+            base_path=str(base_path),
+            data_loader=DataLoader(),
+            dcs_loader=DCsLoader(),
+            metadata_loader=MetadataLoader(),
+            data_encoder=DataEncoder(),
+            dcs_encoder=DCsEncoder(),
+            size=size,
+            seed=42
+        )
+        dataset2 = loader2.load()
+        pd.testing.assert_frame_equal(dataset.data, dataset2.data)
+
+        # Verify different seed gives different sample (highly likely)
+        loader3 = FileLoader(
+            name="dummy",
+            base_path=str(base_path),
+            data_loader=DataLoader(),
+            dcs_loader=DCsLoader(),
+            metadata_loader=MetadataLoader(),
+            data_encoder=DataEncoder(),
+            dcs_encoder=DCsEncoder(),
+            size=size,
+            seed=43
+        )
+        dataset3 = loader3.load()
+        with self.assertRaises(AssertionError):
+            pd.testing.assert_frame_equal(dataset.data, dataset3.data)
+
 if __name__ == "__main__":
     unittest.main()

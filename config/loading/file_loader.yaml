@@ -1,6 +1,8 @@
 _target_: src.loading.file_loader.FileLoader
 name: adult
 base_path: data
+size: null
+seed: 42
 data_loader:
   _target_: src.loading.components.data_loader.DataLoader
 dcs_loader:

@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional
 import pandas as pd
 from src.entities.dataset import Dataset
 from src.loading.loader import Loader
@@ -18,10 +19,16 @@ class FileLoader(Loader):
     metadata_loader: MetadataLoader
     data_encoder: DataEncoder
     dcs_encoder: DCsEncoder
+    size: Optional[int] = None
+    seed: int = 42
 
     def load(self) -> Dataset:
         # Orchestration logic
         raw_data = self.data_loader.load(self.data_path)
+        
+        if self.size is not None and self.size < len(raw_data):
+            raw_data = raw_data.sample(n=self.size, random_state=self.seed).reset_index(drop=True)
+            
         raw_dcs = self.dcs_loader.load(self.dcs_path)
         metadata = self.metadata_loader.load(self.metadata_path)
         
