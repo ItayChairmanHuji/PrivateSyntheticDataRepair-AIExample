@@ -30,7 +30,7 @@ def train(cfg: DictConfig):
     
     print(f"Training {engine} on {dataset.name} with epsilon={epsilon}...")
     synth = SnSynthesizer.create(engine, epsilon=epsilon, **kwargs)
-    synth.fit(dataset.data)
+    synth.fit(dataset.data, categorical_columns=dataset.data.columns.tolist())
     
     # Save model
     models_dir = Path("models")
