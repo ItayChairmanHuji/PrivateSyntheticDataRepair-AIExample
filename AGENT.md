@@ -98,3 +98,4 @@ Ensures the quality and reliability of stage implementations through standardize
 - Results and logs are transferred from the server via scp ON THE NAMED EXPERIMENT/GROUP.
 - Libraries should be transferred via the requirements.txt file.  
 - USE HYDRA EXPERIMENTS PATTERN TO MANAGE THE EXPERIMENTS/GROUPS AND MAKE SURE THAT EVERY EXPERIMENT/GROUP HAVE A CLEAN YAML TO WORK WITH.  
+- From host, we should be able to run experiments/groups on remote, check status of experiment/group and pull them back. 
