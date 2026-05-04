@@ -1,0 +1,78 @@
+{
+    "runtimes": {
+        "loading": 0.15336155891418457,
+        "synthesizing": 0.06811070442199707,
+        "marginals_obtaining": 0.6772165298461914,
+        "repairing": 16.42507529258728
+    },
+    "deletion_ratio": {
+        "before": 48842,
+        "after": 48734,
+        "ratio": 0.0022112116620940994
+    },
+    "marginals_error": {
+        "synthetic_avg": 0.42053428942824506,
+        "repaired_avg": 0.40839826987624556
+    },
+    "tvd_2way": {
+        "synthetic_avg": 0.0002807887824881385,
+        "repaired_avg": 0.000548203389626292
+    },
+    "ml_accuracy": {
+        "private_gold_standard": {
+            "logistic_regression": 0.5501822202203022,
+            "random_forest": 0.974530117521805,
+            "mlp": 0.5760615863396258
+        },
+        "synthetic": {
+            "logistic_regression": 0.5505302813152615,
+            "random_forest": 0.9738544695139429,
+            "mlp": 0.5754268866958765
+        },
+        "repaired": {
+            "logistic_regression": 0.5504074362229229,
+            "random_forest": 0.973567830965153,
+            "mlp": 0.5747102903239015
+        }
+    },
+    "violations": {
+        "private": 0,
+        "synthetic": 1744202,
+        "repaired": 0
+    },
+    "loss_function": {
+        "synthetic": {
+            "total": 7.699623595687897e-05,
+            "size_component": 0.0,
+            "marginal_component": 0.00015399247191375795
+        },
+        "repaired": {
+            "total": 0.001137720674677352,
+            "size_component": 0.0022112116620940994,
+            "marginal_component": 6.422968726060473e-05
+        }
+    },
+    "dataset_name": "adult",
+    "timestamp": "2026-05-03T15:39:44.788338",
+    "experiment_id": "016aa880",
+    "experiment_name": "grid_adult_weighted_vc",
+    "metadata": {
+        "loader": "FileLoader",
+        "synthesizer": "CoNoise",
+        "obtainer": "TopKObtainer",
+        "repairer": "WeightedVCRepairer",
+        "synthesizer_params": {
+            "num_of_iterations": 100,
+            "seed": 42
+        },
+        "obtainer_params": {
+            "selection_budget": 0.5,
+            "generation_budget": 0.5,
+            "k": 20,
+            "utility_function": {}
+        },
+        "repairer_params": {
+            "alpha": 0.5
+        }
+    }
+}

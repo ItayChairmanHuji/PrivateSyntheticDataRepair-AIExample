@@ -1,0 +1,199 @@
+[2026-05-03 15:39:15,249][gurobipy][INFO] - Set parameter WLSAccessID
+[2026-05-03 15:39:15,249][gurobipy][INFO] - Set parameter WLSSecret
+[2026-05-03 15:39:15,249][gurobipy][INFO] - Set parameter LicenseID to value 2619742
+[2026-05-03 15:39:15,256][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 15:39:15,257][gurobipy][INFO] - Set parameter OutputFlag to value 1
+[2026-05-03 15:39:15,257][gurobipy][INFO] - Set parameter MIPGap to value 0
+[2026-05-03 15:39:15,257][gurobipy][INFO] - Set parameter TimeLimit to value 300
+[2026-05-03 15:39:15,353][gurobipy][INFO] - Set parameter WLSAccessID
+[2026-05-03 15:39:15,354][gurobipy][INFO] - Set parameter WLSSecret
+[2026-05-03 15:39:15,354][gurobipy][INFO] - Set parameter LicenseID to value 2619742
+[2026-05-03 15:39:15,358][gurobipy][INFO] - Set parameter WLSAccessID
+[2026-05-03 15:39:15,359][gurobipy][INFO] - Set parameter WLSSecret
+[2026-05-03 15:39:15,359][gurobipy][INFO] - Set parameter LicenseID to value 2619742
+[2026-05-03 15:39:15,366][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 15:39:15,367][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 15:39:15,367][gurobipy][INFO] - Set parameter OutputFlag to value 1
+[2026-05-03 15:39:15,367][gurobipy][INFO] - Set parameter MIPGap to value 0
+[2026-05-03 15:39:15,367][gurobipy][INFO] - Set parameter TimeLimit to value 300
+[2026-05-03 15:39:15,368][gurobipy][INFO] - Set parameter OutputFlag to value 1
+[2026-05-03 15:39:15,368][gurobipy][INFO] - Set parameter MIPGap to value 0
+[2026-05-03 15:39:15,368][gurobipy][INFO] - Set parameter TimeLimit to value 300
+[2026-05-03 15:39:27,895][gurobipy][INFO] - Set parameter NonConvex to value 2
+[2026-05-03 15:39:29,919][gurobipy][INFO] - Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+[2026-05-03 15:39:29,919][gurobipy][INFO] - 
+[2026-05-03 15:39:29,919][gurobipy][INFO] - CPU model: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+[2026-05-03 15:39:29,920][gurobipy][INFO] - Thread count: 64 physical cores, 128 logical processors, using up to 32 threads
+[2026-05-03 15:39:29,920][gurobipy][INFO] - 
+[2026-05-03 15:39:29,920][gurobipy][INFO] - Non-default parameters:
+[2026-05-03 15:39:29,920][gurobipy][INFO] - TimeLimit  300
+[2026-05-03 15:39:29,920][gurobipy][INFO] - MIPGap  0
+[2026-05-03 15:39:29,920][gurobipy][INFO] - NonConvex  2
+[2026-05-03 15:39:29,920][gurobipy][INFO] - 
+[2026-05-03 15:39:29,920][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 15:39:29,920][gurobipy][INFO] - Optimize a model with 282878 rows, 48862 columns and 565756 nonzeros (Min)
+[2026-05-03 15:39:29,952][gurobipy][INFO] - Model fingerprint: 0x4776f74b
+[2026-05-03 15:39:29,952][gurobipy][INFO] - Model has 48862 linear objective coefficients and an objective constant of 0.5
+[2026-05-03 15:39:29,952][gurobipy][INFO] - Model has 40 quadratic constraints
+[2026-05-03 15:39:29,953][gurobipy][INFO] - Variable types: 20 continuous, 48842 integer (48842 binary)
+[2026-05-03 15:39:29,957][gurobipy][INFO] - Coefficient statistics:
+[2026-05-03 15:39:29,957][gurobipy][INFO] -   Matrix range     [1e+00, 1e+00]
+[2026-05-03 15:39:29,957][gurobipy][INFO] -   QMatrix range    [1e+00, 1e+00]
+[2026-05-03 15:39:29,957][gurobipy][INFO] -   QLMatrix range   [4e-05, 1e+00]
+[2026-05-03 15:39:29,958][gurobipy][INFO] -   Objective range  [1e-05, 3e-02]
+[2026-05-03 15:39:29,958][gurobipy][INFO] -   Bounds range     [1e+00, 1e+00]
+[2026-05-03 15:39:29,958][gurobipy][INFO] -   RHS range        [1e+00, 1e+00]
+[2026-05-03 15:39:29,958][gurobipy][INFO] - 
+[2026-05-03 15:39:29,970][gurobipy][INFO] - Found heuristic solution: objective 0.5000000
+[2026-05-03 15:39:35,039][gurobipy][INFO] - Presolve removed 85703 rows and 0 columns (presolve time = 5s)...
+[2026-05-03 15:39:42,629][gurobipy][INFO] - Presolve removed 85703 rows and 0 columns (presolve time = 13s)...
+[2026-05-03 15:39:42,629][gurobipy][INFO] - Presolve added 0 rows and 17 columns
+[2026-05-03 15:39:42,629][gurobipy][INFO] - Presolve removed 85669 rows and 0 columns
+[2026-05-03 15:39:42,629][gurobipy][INFO] - Presolve time: 12.59s
+[2026-05-03 15:39:42,635][gurobipy][INFO] - Presolved: 2150909 rows, 2979399 columns, 8001752 nonzeros
+[2026-05-03 15:39:42,635][gurobipy][INFO] - Presolved model has 1953680 SOS constraint(s)
+[2026-05-03 15:39:52,778][gurobipy][INFO] - Variable types: 1953717 continuous, 1025682 integer (1025682 binary)
+[2026-05-03 15:39:53,055][gurobipy][INFO] - Set parameter NonConvex to value 2
+[2026-05-03 15:39:55,092][gurobipy][INFO] - Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+[2026-05-03 15:39:55,093][gurobipy][INFO] - 
+[2026-05-03 15:39:55,093][gurobipy][INFO] - CPU model: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+[2026-05-03 15:39:55,093][gurobipy][INFO] - Thread count: 64 physical cores, 128 logical processors, using up to 32 threads
+[2026-05-03 15:39:55,093][gurobipy][INFO] - 
+[2026-05-03 15:39:55,093][gurobipy][INFO] - Non-default parameters:
+[2026-05-03 15:39:55,093][gurobipy][INFO] - TimeLimit  300
+[2026-05-03 15:39:55,093][gurobipy][INFO] - MIPGap  0
+[2026-05-03 15:39:55,093][gurobipy][INFO] - NonConvex  2
+[2026-05-03 15:39:55,093][gurobipy][INFO] - 
+[2026-05-03 15:39:55,093][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 15:39:55,093][gurobipy][INFO] - Optimize a model with 955505 rows, 48862 columns and 1911010 nonzeros (Min)
+[2026-05-03 15:39:55,138][gurobipy][INFO] - Model fingerprint: 0x1c66dcce
+[2026-05-03 15:39:55,138][gurobipy][INFO] - Model has 48862 linear objective coefficients and an objective constant of 0.5
+[2026-05-03 15:39:55,138][gurobipy][INFO] - Model has 40 quadratic constraints
+[2026-05-03 15:39:55,138][gurobipy][INFO] - Variable types: 20 continuous, 48842 integer (48842 binary)
+[2026-05-03 15:39:55,145][gurobipy][INFO] - Coefficient statistics:
+[2026-05-03 15:39:55,145][gurobipy][INFO] -   Matrix range     [1e+00, 1e+00]
+[2026-05-03 15:39:55,145][gurobipy][INFO] -   QMatrix range    [1e+00, 1e+00]
+[2026-05-03 15:39:55,145][gurobipy][INFO] -   QLMatrix range   [4e-05, 1e+00]
+[2026-05-03 15:39:55,145][gurobipy][INFO] -   Objective range  [1e-05, 3e-02]
+[2026-05-03 15:39:55,145][gurobipy][INFO] -   Bounds range     [1e+00, 1e+00]
+[2026-05-03 15:39:55,145][gurobipy][INFO] -   RHS range        [1e+00, 1e+00]
+[2026-05-03 15:39:55,145][gurobipy][INFO] - 
+[2026-05-03 15:39:55,169][gurobipy][INFO] - Found heuristic solution: objective 0.5000000
+[2026-05-03 15:40:00,297][gurobipy][INFO] - Presolve removed 0 rows and 0 columns (presolve time = 5s)...
+[2026-05-03 15:40:05,358][gurobipy][INFO] - Presolve removed 170195 rows and 0 columns (presolve time = 10s)...
+[2026-05-03 15:40:10,365][gurobipy][INFO] - Presolve removed 170195 rows and 0 columns (presolve time = 15s)...
+[2026-05-03 15:40:15,322][gurobipy][INFO] - Presolve removed 170195 rows and 0 columns (presolve time = 20s)...
+[2026-05-03 15:40:27,765][gurobipy][INFO] - Presolve removed 170195 rows and 0 columns (presolve time = 32s)...
+[2026-05-03 15:40:27,766][gurobipy][INFO] - Presolve added 0 rows and 17 columns
+[2026-05-03 15:40:27,766][gurobipy][INFO] - Presolve removed 170161 rows and 0 columns
+[2026-05-03 15:40:27,766][gurobipy][INFO] - Presolve time: 32.47s
+[2026-05-03 15:40:27,770][gurobipy][INFO] - Presolved: 2739044 rows, 2979399 columns, 9262527 nonzeros
+[2026-05-03 15:40:27,771][gurobipy][INFO] - Presolved model has 1953680 SOS constraint(s)
+[2026-05-03 15:40:39,399][gurobipy][INFO] - Variable types: 1953717 continuous, 1025682 integer (1025682 binary)
+[2026-05-03 15:42:02,702][gurobipy][INFO] - Set parameter NonConvex to value 2
+[2026-05-03 15:42:06,395][gurobipy][INFO] - Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+[2026-05-03 15:42:06,396][gurobipy][INFO] - 
+[2026-05-03 15:42:06,396][gurobipy][INFO] - CPU model: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+[2026-05-03 15:42:06,396][gurobipy][INFO] - Thread count: 64 physical cores, 128 logical processors, using up to 32 threads
+[2026-05-03 15:42:06,396][gurobipy][INFO] - 
+[2026-05-03 15:42:06,396][gurobipy][INFO] - Non-default parameters:
+[2026-05-03 15:42:06,396][gurobipy][INFO] - TimeLimit  300
+[2026-05-03 15:42:06,396][gurobipy][INFO] - MIPGap  0
+[2026-05-03 15:42:06,396][gurobipy][INFO] - NonConvex  2
+[2026-05-03 15:42:06,396][gurobipy][INFO] - 
+[2026-05-03 15:42:06,396][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 15:42:06,396][gurobipy][INFO] - Optimize a model with 4095570 rows, 48862 columns and 8191140 nonzeros (Min)
+[2026-05-03 15:42:06,519][gurobipy][INFO] - Model fingerprint: 0x4f7cd376
+[2026-05-03 15:42:06,519][gurobipy][INFO] - Model has 48862 linear objective coefficients and an objective constant of 0.5
+[2026-05-03 15:42:06,519][gurobipy][INFO] - Model has 40 quadratic constraints
+[2026-05-03 15:42:06,519][gurobipy][INFO] - Variable types: 20 continuous, 48842 integer (48842 binary)
+[2026-05-03 15:42:06,543][gurobipy][INFO] - Coefficient statistics:
+[2026-05-03 15:42:06,543][gurobipy][INFO] -   Matrix range     [1e+00, 1e+00]
+[2026-05-03 15:42:06,543][gurobipy][INFO] -   QMatrix range    [1e+00, 1e+00]
+[2026-05-03 15:42:06,543][gurobipy][INFO] -   QLMatrix range   [7e-05, 1e+00]
+[2026-05-03 15:42:06,543][gurobipy][INFO] -   Objective range  [1e-05, 3e-02]
+[2026-05-03 15:42:06,543][gurobipy][INFO] -   Bounds range     [1e+00, 1e+00]
+[2026-05-03 15:42:06,543][gurobipy][INFO] -   RHS range        [1e+00, 1e+00]
+[2026-05-03 15:42:06,543][gurobipy][INFO] - 
+[2026-05-03 15:42:06,694][gurobipy][INFO] - Found heuristic solution: objective 0.5000000
+[2026-05-03 15:42:12,643][gurobipy][INFO] - Presolve removed 0 rows and 0 columns (presolve time = 5s)...
+[2026-05-03 15:42:17,603][gurobipy][INFO] - Presolve removed 0 rows and 0 columns (presolve time = 10s)...
+[2026-05-03 15:42:22,606][gurobipy][INFO] - Presolve removed 0 rows and 0 columns (presolve time = 15s)...
+[2026-05-03 15:42:27,664][gurobipy][INFO] - Presolve removed 346003 rows and 0 columns (presolve time = 20s)...
+[2026-05-03 15:42:32,662][gurobipy][INFO] - Presolve removed 346251 rows and 0 columns (presolve time = 25s)...
+[2026-05-03 15:42:37,652][gurobipy][INFO] - Presolve removed 346488 rows and 0 columns (presolve time = 30s)...
+[2026-05-03 15:42:42,635][gurobipy][INFO] - Presolve removed 346734 rows and 0 columns (presolve time = 35s)...
+[2026-05-03 15:42:47,623][gurobipy][INFO] - Presolve removed 346887 rows and 0 columns (presolve time = 40s)...
+[2026-05-03 15:42:52,641][gurobipy][INFO] - Presolve removed 350595 rows and 0 columns (presolve time = 45s)...
+[2026-05-03 15:42:57,855][gurobipy][INFO] - Presolve removed 354136 rows and 0 columns (presolve time = 50s)...
+[2026-05-03 15:43:02,627][gurobipy][INFO] - Presolve removed 354312 rows and 0 columns (presolve time = 55s)...
+[2026-05-03 15:43:07,626][gurobipy][INFO] - Presolve removed 354938 rows and 0 columns (presolve time = 60s)...
+[2026-05-03 15:43:13,388][gurobipy][INFO] - Presolve removed 354981 rows and 0 columns (presolve time = 66s)...
+[2026-05-03 15:43:17,879][gurobipy][INFO] - Presolve removed 357730 rows and 0 columns (presolve time = 70s)...
+[2026-05-03 15:43:22,606][gurobipy][INFO] - Presolve removed 357874 rows and 0 columns (presolve time = 75s)...
+[2026-05-03 15:43:27,734][gurobipy][INFO] - Presolve removed 359817 rows and 0 columns (presolve time = 80s)...
+[2026-05-03 15:43:32,971][gurobipy][INFO] - Presolve removed 359925 rows and 0 columns (presolve time = 85s)...
+[2026-05-03 15:43:38,241][gurobipy][INFO] - Presolve removed 361403 rows and 0 columns (presolve time = 91s)...
+[2026-05-03 15:43:42,634][gurobipy][INFO] - Presolve removed 362993 rows and 0 columns (presolve time = 95s)...
+[2026-05-03 15:43:47,943][gurobipy][INFO] - Presolve removed 363244 rows and 0 columns (presolve time = 100s)...
+[2026-05-03 15:43:52,623][gurobipy][INFO] - Presolve removed 364166 rows and 0 columns (presolve time = 105s)...
+[2026-05-03 15:43:58,146][gurobipy][INFO] - Presolve removed 365319 rows and 0 columns (presolve time = 111s)...
+[2026-05-03 15:44:02,625][gurobipy][INFO] - Presolve removed 365319 rows and 0 columns (presolve time = 115s)...
+[2026-05-03 15:44:07,762][gurobipy][INFO] - Presolve removed 365319 rows and 0 columns (presolve time = 120s)...
+[2026-05-03 15:44:12,907][gurobipy][INFO] - Presolve removed 367558 rows and 0 columns (presolve time = 125s)...
+[2026-05-03 15:44:18,264][gurobipy][INFO] - Presolve removed 367558 rows and 0 columns (presolve time = 131s)...
+[2026-05-03 15:44:23,128][gurobipy][INFO] - Presolve removed 368326 rows and 0 columns (presolve time = 136s)...
+[2026-05-03 15:44:27,747][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 140s)...
+[2026-05-03 15:44:32,606][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 145s)...
+[2026-05-03 15:44:37,753][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 150s)...
+[2026-05-03 15:44:42,807][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 155s)...
+[2026-05-03 15:44:47,944][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 160s)...
+[2026-05-03 15:44:52,972][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 165s)...
+[2026-05-03 15:44:55,653][gurobipy][INFO] - 
+[2026-05-03 15:44:55,654][gurobipy][INFO] - Explored 1 nodes (0 simplex iterations) in 300.56 seconds (411.79 work units)
+[2026-05-03 15:44:55,654][gurobipy][INFO] - Thread count was 32 (of 128 available processors)
+[2026-05-03 15:44:55,654][gurobipy][INFO] - 
+[2026-05-03 15:44:55,654][gurobipy][INFO] - Solution count 1: 0.5 
+[2026-05-03 15:44:55,654][gurobipy][INFO] - 
+[2026-05-03 15:44:55,654][gurobipy][INFO] - Time limit reached
+[2026-05-03 15:44:55,673][gurobipy][INFO] - Best objective 5.000000000000e-01, best bound 1.811682958329e-13, gap 100.0000%
+[2026-05-03 15:44:57,958][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 170s)...
+[2026-05-03 15:45:02,626][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 175s)...
+[2026-05-03 15:45:07,730][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 180s)...
+[2026-05-03 15:45:12,608][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 185s)...
+[2026-05-03 15:45:17,723][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 190s)...
+[2026-05-03 15:45:22,647][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 195s)...
+[2026-05-03 15:45:27,625][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 200s)...
+[2026-05-03 15:45:32,613][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 205s)...
+[2026-05-03 15:45:37,617][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 210s)...
+[2026-05-03 15:45:42,703][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 215s)...
+[2026-05-03 15:45:47,604][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 220s)...
+[2026-05-03 15:45:52,676][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 225s)...
+[2026-05-03 15:45:57,890][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 230s)...
+[2026-05-03 15:46:02,611][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 235s)...
+[2026-05-03 15:46:07,610][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 240s)...
+[2026-05-03 15:46:13,018][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 245s)...
+[2026-05-03 15:46:17,686][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 250s)...
+[2026-05-03 15:46:29,062][gurobipy][INFO] - Presolve removed 372629 rows and 0 columns (presolve time = 261s)...
+[2026-05-03 15:46:29,062][gurobipy][INFO] - Presolve added 0 rows and 20 columns
+[2026-05-03 15:46:29,062][gurobipy][INFO] - Presolve removed 372589 rows and 0 columns
+[2026-05-03 15:46:29,062][gurobipy][INFO] - Presolve time: 261.46s
+[2026-05-03 15:46:29,082][gurobipy][INFO] - Presolved: 5676681 rows, 2979402 columns, 15640454 nonzeros
+[2026-05-03 15:46:29,083][gurobipy][INFO] - Presolved model has 1953680 SOS constraint(s)
+[2026-05-03 15:46:46,948][gurobipy][INFO] - Variable types: 1953720 continuous, 1025682 integer (1025682 binary)
+[2026-05-03 15:47:06,622][gurobipy][INFO] - 
+[2026-05-03 15:47:06,622][gurobipy][INFO] - Explored 1 nodes (0 simplex iterations) in 300.23 seconds (161.00 work units)
+[2026-05-03 15:47:06,622][gurobipy][INFO] - Thread count was 32 (of 128 available processors)
+[2026-05-03 15:47:06,623][gurobipy][INFO] - 
+[2026-05-03 15:47:06,623][gurobipy][INFO] - Solution count 1: 0.5 
+[2026-05-03 15:47:06,623][gurobipy][INFO] - 
+[2026-05-03 15:47:06,623][gurobipy][INFO] - Time limit reached
+[2026-05-03 15:47:06,680][gurobipy][INFO] - Best objective 5.000000000000e-01, best bound 1.811682958329e-13, gap 100.0000%
+[2026-05-03 16:03:24,185][gurobipy][INFO] - 
+[2026-05-03 16:03:24,185][gurobipy][INFO] - Explored 1 nodes (0 simplex iterations) in 1434.26 seconds (1367.63 work units)
+[2026-05-03 16:03:24,185][gurobipy][INFO] - Thread count was 32 (of 128 available processors)
+[2026-05-03 16:03:24,185][gurobipy][INFO] - 
+[2026-05-03 16:03:24,185][gurobipy][INFO] - Solution count 1: 0.5 
+[2026-05-03 16:03:24,185][gurobipy][INFO] - 
+[2026-05-03 16:03:24,185][gurobipy][INFO] - Time limit reached
+[2026-05-03 16:03:24,192][gurobipy][INFO] - Best objective 5.000000000000e-01, best bound 1.811682958329e-13, gap 100.0000%

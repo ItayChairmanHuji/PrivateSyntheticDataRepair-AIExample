@@ -1,0 +1,5 @@
+- loading.name=adult5000
+- synthesizing.num_of_iterations=100
+- synthesizing.seed=43
+- repairing=weighted_vc
+- experiment_name=adult5000_iters_weighted_vc

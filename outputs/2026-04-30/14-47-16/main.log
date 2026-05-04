@@ -1,0 +1,174 @@
+[2026-04-30 14:47:17,975][gurobipy][INFO] - Set parameter WLSAccessID
+[2026-04-30 14:47:17,976][gurobipy][INFO] - Set parameter WLSSecret
+[2026-04-30 14:47:17,976][gurobipy][INFO] - Set parameter LicenseID to value 2619742
+[2026-04-30 14:47:18,046][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-04-30 14:47:18,047][gurobipy][INFO] - Set parameter OutputFlag to value 1
+[2026-04-30 14:47:18,048][gurobipy][INFO] - Set parameter MIPGap to value 0
+[2026-04-30 14:47:18,048][gurobipy][INFO] - Set parameter TimeLimit to value 300
+[2026-04-30 14:47:23,003][gurobipy][INFO] - Set parameter NonConvex to value 2
+[2026-04-30 14:47:23,240][gurobipy][INFO] - Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+[2026-04-30 14:47:23,240][gurobipy][INFO] - 
+[2026-04-30 14:47:23,240][gurobipy][INFO] - CPU model: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+[2026-04-30 14:47:23,240][gurobipy][INFO] - Thread count: 64 physical cores, 128 logical processors, using up to 32 threads
+[2026-04-30 14:47:23,240][gurobipy][INFO] - 
+[2026-04-30 14:47:23,240][gurobipy][INFO] - Non-default parameters:
+[2026-04-30 14:47:23,240][gurobipy][INFO] - TimeLimit  300
+[2026-04-30 14:47:23,241][gurobipy][INFO] - MIPGap  0
+[2026-04-30 14:47:23,241][gurobipy][INFO] - NonConvex  2
+[2026-04-30 14:47:23,241][gurobipy][INFO] - 
+[2026-04-30 14:47:23,241][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-04-30 14:47:23,241][gurobipy][INFO] - Optimize a model with 100283 rows, 5020 columns and 200566 nonzeros (Min)
+[2026-04-30 14:47:23,246][gurobipy][INFO] - Model fingerprint: 0x8db3e5c0
+[2026-04-30 14:47:23,246][gurobipy][INFO] - Model has 5020 linear objective coefficients and an objective constant of 0.5
+[2026-04-30 14:47:23,246][gurobipy][INFO] - Model has 40 quadratic constraints
+[2026-04-30 14:47:23,246][gurobipy][INFO] - Variable types: 20 continuous, 5000 integer (5000 binary)
+[2026-04-30 14:47:23,247][gurobipy][INFO] - Coefficient statistics:
+[2026-04-30 14:47:23,247][gurobipy][INFO] -   Matrix range     [1e+00, 1e+00]
+[2026-04-30 14:47:23,247][gurobipy][INFO] -   QMatrix range    [1e+00, 1e+00]
+[2026-04-30 14:47:23,247][gurobipy][INFO] -   QLMatrix range   [2e-04, 1e+00]
+[2026-04-30 14:47:23,247][gurobipy][INFO] -   Objective range  [1e-04, 3e-02]
+[2026-04-30 14:47:23,247][gurobipy][INFO] -   Bounds range     [1e+00, 1e+00]
+[2026-04-30 14:47:23,247][gurobipy][INFO] -   RHS range        [1e+00, 1e+00]
+[2026-04-30 14:47:23,247][gurobipy][INFO] - 
+[2026-04-30 14:47:23,249][gurobipy][INFO] - Found heuristic solution: objective 0.5000000
+[2026-04-30 14:47:28,268][gurobipy][INFO] - Presolve removed 32470 rows and 0 columns (presolve time = 5s)...
+[2026-04-30 14:47:30,623][gurobipy][INFO] - Presolve added 0 rows and 14 columns
+[2026-04-30 14:47:30,624][gurobipy][INFO] - Presolve removed 32442 rows and 0 columns
+[2026-04-30 14:47:30,624][gurobipy][INFO] - Presolve time: 7.36s
+[2026-04-30 14:47:30,625][gurobipy][INFO] - Presolved: 267861 rows, 305034 columns, 908265 nonzeros
+[2026-04-30 14:47:30,625][gurobipy][INFO] - Presolved model has 200000 SOS constraint(s)
+[2026-04-30 14:47:31,825][gurobipy][INFO] - Variable types: 200034 continuous, 105000 integer (105000 binary)
+[2026-04-30 14:48:36,825][gurobipy][INFO] - 
+[2026-04-30 14:48:36,826][gurobipy][INFO] - Deterministic concurrent LP optimizer: primal simplex, dual simplex, and barrier
+[2026-04-30 14:48:36,826][gurobipy][INFO] - Showing barrier log only...
+[2026-04-30 14:48:36,826][gurobipy][INFO] - 
+[2026-04-30 14:48:38,290][gurobipy][INFO] - Root barrier log...
+[2026-04-30 14:48:38,290][gurobipy][INFO] - 
+[2026-04-30 14:48:39,378][gurobipy][INFO] - Ordering time: 0.96s
+[2026-04-30 14:48:39,479][gurobipy][INFO] - 
+[2026-04-30 14:48:39,479][gurobipy][INFO] - Barrier statistics:
+[2026-04-30 14:48:39,479][gurobipy][INFO] -  Dense cols : 70
+[2026-04-30 14:48:39,479][gurobipy][INFO] -  AA' NZ     : 2.154e+06
+[2026-04-30 14:48:39,479][gurobipy][INFO] -  Factor NZ  : 4.016e+06 (roughly 70 MB of memory)
+[2026-04-30 14:48:39,480][gurobipy][INFO] -  Factor Ops : 4.124e+08 (less than 1 second per iteration)
+[2026-04-30 14:48:39,480][gurobipy][INFO] -  Threads    : 30
+[2026-04-30 14:48:39,899][gurobipy][INFO] - 
+[2026-04-30 14:48:39,899][gurobipy][INFO] -                   Objective                Residual
+[2026-04-30 14:48:39,899][gurobipy][INFO] - Iter       Primal          Dual         Primal    Dual     Compl     Time
+[2026-04-30 14:48:40,011][gurobipy][INFO] -    0   6.58988919e+01 -2.08624587e+04  4.71e+03 6.87e-04  1.37e+00    77s
+[2026-04-30 14:48:40,656][gurobipy][INFO] -    1   8.36244074e+00 -1.23745794e+04  7.28e+02 4.22e-02  3.38e-01    77s
+[2026-04-30 14:48:41,500][gurobipy][INFO] -    2   6.54555455e+00 -6.17264438e+03  4.22e+02 8.50e-03  1.45e-01    78s
+[2026-04-30 14:48:42,498][gurobipy][INFO] -    3   5.08080158e+00 -2.41571415e+03  1.78e+02 9.93e-04  4.25e-02    79s
+[2026-04-30 14:48:43,215][gurobipy][INFO] -    4   3.96259092e+00 -7.15516342e+02  9.91e-01 1.61e-04  6.94e-03    80s
+[2026-04-30 14:48:43,776][gurobipy][INFO] -    5   3.86954444e+00 -4.15427271e+01  2.90e-02 1.04e-05  4.35e-04    81s
+[2026-04-30 14:48:44,354][gurobipy][INFO] -    6   2.67787132e+00 -7.34633525e+00  2.49e-06 1.95e-06  9.61e-05    81s
+[2026-04-30 14:48:44,727][gurobipy][INFO] -    7   1.73922571e+00 -1.26977060e+00  1.25e-06 2.29e-07  2.87e-05    81s
+[2026-04-30 14:48:45,061][gurobipy][INFO] -    8   3.47149200e-01 -1.42309052e-01  1.45e-07 1.25e-08  4.65e-06    82s
+[2026-04-30 14:48:45,349][gurobipy][INFO] -    9   3.82402862e-02 -2.15898704e-02  5.55e-09 5.62e-09  5.71e-07    82s
+[2026-04-30 14:48:45,679][gurobipy][INFO] -   10   7.41056002e-03  4.01797912e-03  3.68e-10 1.22e-15  3.21e-08    82s
+[2026-04-30 14:48:46,060][gurobipy][INFO] -   11   6.77160285e-03  5.00516032e-03  2.84e-10 1.22e-15  1.67e-08    83s
+[2026-04-30 14:48:46,395][gurobipy][INFO] -   12   6.52497580e-03  5.06763358e-03  2.44e-10 6.38e-16  1.38e-08    83s
+[2026-04-30 14:48:46,699][gurobipy][INFO] -   13   6.15279471e-03  5.11568921e-03  1.70e-10 1.03e-15  9.81e-09    83s
+[2026-04-30 14:48:46,938][gurobipy][INFO] -   14   5.95862813e-03  5.16262124e-03  1.39e-10 9.44e-16  7.53e-09    84s
+[2026-04-30 14:48:47,249][gurobipy][INFO] -   15   5.87622816e-03  5.20443184e-03  1.19e-10 7.49e-16  6.35e-09    84s
+[2026-04-30 14:48:47,624][gurobipy][INFO] -   16   5.63445465e-03  5.25275391e-03  7.19e-11 9.71e-16  3.61e-09    84s
+[2026-04-30 14:48:47,918][gurobipy][INFO] -   17   5.52840363e-03  5.26943889e-03  5.23e-11 3.33e-16  2.45e-09    85s
+[2026-04-30 14:48:48,298][gurobipy][INFO] -   18   5.47042739e-03  5.28859478e-03  4.18e-11 4.72e-16  1.72e-09    85s
+[2026-04-30 14:48:48,588][gurobipy][INFO] -   19   5.39632585e-03  5.29670005e-03  3.09e-11 4.44e-16  9.42e-10    85s
+[2026-04-30 14:48:49,055][gurobipy][INFO] -   20   5.38224992e-03  5.30220674e-03  2.91e-11 1.39e-16  7.57e-10    86s
+[2026-04-30 14:48:49,482][gurobipy][INFO] -   21   5.33311151e-03  5.30392132e-03  3.64e-11 2.50e-16  2.76e-10    86s
+[2026-04-30 14:48:49,873][gurobipy][INFO] -   22   5.31685697e-03  5.30491049e-03  3.82e-11 1.11e-16  1.13e-10    87s
+[2026-04-30 14:48:50,086][gurobipy][INFO] -   23   5.31500587e-03  5.30501515e-03  4.00e-11 2.22e-16  9.45e-11    87s
+[2026-04-30 14:48:50,355][gurobipy][INFO] -   24   5.31107754e-03  5.30521830e-03  3.64e-11 2.22e-16  5.54e-11    87s
+[2026-04-30 14:48:50,692][gurobipy][INFO] -   25   5.30824730e-03  5.30546239e-03  3.27e-11 1.11e-16  2.63e-11    87s
+[2026-04-30 14:48:51,114][gurobipy][INFO] -   26   5.30676735e-03  5.30550084e-03  3.27e-11 1.94e-16  1.20e-11    88s
+[2026-04-30 14:48:51,542][gurobipy][INFO] -   27   5.30668925e-03  5.30552176e-03  4.00e-11 1.94e-16  1.10e-11    88s
+[2026-04-30 14:48:51,918][gurobipy][INFO] -   28   5.30648911e-03  5.30561817e-03  3.27e-11 1.67e-16  8.24e-12    89s
+[2026-04-30 14:48:52,207][gurobipy][INFO] -   29   5.30645650e-03  5.30565970e-03  3.46e-11 1.67e-16  7.54e-12    89s
+[2026-04-30 14:48:52,684][gurobipy][INFO] -   30   5.30607167e-03  5.30572305e-03  6.18e-11 2.78e-16  3.30e-12    89s
+[2026-04-30 14:48:53,105][gurobipy][INFO] -   31   5.30582617e-03  5.30572915e-03  5.64e-11 2.78e-16  9.17e-13    90s
+[2026-04-30 14:48:53,465][gurobipy][INFO] -   32   5.30579585e-03  5.30573009e-03  3.64e-11 2.78e-16  6.22e-13    90s
+[2026-04-30 14:48:53,760][gurobipy][INFO] -   33   5.30574612e-03  5.30573676e-03  3.27e-11 2.50e-16  8.86e-14    91s
+[2026-04-30 14:48:54,077][gurobipy][INFO] -   34   5.30573763e-03  5.30573763e-03  1.46e-10 7.49e-16  1.45e-17    91s
+[2026-04-30 14:48:54,079][gurobipy][INFO] - 
+[2026-04-30 14:48:54,079][gurobipy][INFO] - Barrier solved model in 34 iterations and 90.84 seconds (58.72 work units)
+[2026-04-30 14:48:54,079][gurobipy][INFO] - Optimal objective 5.30573763e-03
+[2026-04-30 14:48:54,079][gurobipy][INFO] - 
+[2026-04-30 14:48:54,351][gurobipy][INFO] - 
+[2026-04-30 14:48:54,351][gurobipy][INFO] - Root crossover log...
+[2026-04-30 14:48:54,351][gurobipy][INFO] - 
+[2026-04-30 14:48:54,569][gurobipy][INFO] -    28563 DPushes remaining with DInf 0.0000000e+00                91s
+[2026-04-30 14:48:58,245][gurobipy][INFO] -    11130 DPushes remaining with DInf 0.0000000e+00                95s
+[2026-04-30 14:48:59,926][gurobipy][INFO] -        0 DPushes remaining with DInf 0.0000000e+00                97s
+[2026-04-30 14:48:59,943][gurobipy][INFO] - 
+[2026-04-30 14:48:59,943][gurobipy][INFO] -        0 PPushes remaining with PInf 0.0000000e+00                97s
+[2026-04-30 14:48:59,949][gurobipy][INFO] - 
+[2026-04-30 14:48:59,949][gurobipy][INFO] -   Push phase complete: Pinf 0.0000000e+00, Dinf 4.1759193e-14     97s
+[2026-04-30 14:48:59,949][gurobipy][INFO] - 
+[2026-04-30 14:48:59,986][gurobipy][INFO] - 
+[2026-04-30 14:48:59,986][gurobipy][INFO] - Root simplex log...
+[2026-04-30 14:48:59,986][gurobipy][INFO] - 
+[2026-04-30 14:48:59,986][gurobipy][INFO] - Iteration    Objective       Primal Inf.    Dual Inf.      Time
+[2026-04-30 14:48:59,986][gurobipy][INFO] -    15556    5.3057376e-03   0.000000e+00   0.000000e+00     97s
+[2026-04-30 14:48:59,986][gurobipy][INFO] - Crossover time: 5.84 seconds (1.86 work units)
+[2026-04-30 14:49:00,048][gurobipy][INFO] -    15556    5.3057376e-03   0.000000e+00   0.000000e+00     97s
+[2026-04-30 14:49:00,298][gurobipy][INFO] - 
+[2026-04-30 14:49:00,298][gurobipy][INFO] - Use crossover to convert LP symmetric solution to basic solution...
+[2026-04-30 14:49:00,423][gurobipy][INFO] - 
+[2026-04-30 14:49:00,423][gurobipy][INFO] - Root crossover log...
+[2026-04-30 14:49:00,423][gurobipy][INFO] - 
+[2026-04-30 14:49:09,848][gurobipy][INFO] -   259873 variables added to crossover basis                      107s
+[2026-04-30 14:49:13,372][gurobipy][INFO] -   260593 variables added to crossover basis                      110s
+[2026-04-30 14:49:18,613][gurobipy][INFO] -   261013 variables added to crossover basis                      115s
+[2026-04-30 14:49:23,751][gurobipy][INFO] -   261253 variables added to crossover basis                      121s
+[2026-04-30 14:49:28,934][gurobipy][INFO] -   261463 variables added to crossover basis                      126s
+[2026-04-30 14:49:33,903][gurobipy][INFO] -   261643 variables added to crossover basis                      131s
+[2026-04-30 14:49:38,354][gurobipy][INFO] -   261793 variables added to crossover basis                      135s
+[2026-04-30 14:49:44,070][gurobipy][INFO] -   261973 variables added to crossover basis                      141s
+[2026-04-30 14:49:49,130][gurobipy][INFO] -   262123 variables added to crossover basis                      146s
+[2026-04-30 14:49:53,366][gurobipy][INFO] -   262243 variables added to crossover basis                      150s
+[2026-04-30 14:49:58,874][gurobipy][INFO] -   262393 variables added to crossover basis                      156s
+[2026-04-30 14:50:03,442][gurobipy][INFO] -   262513 variables added to crossover basis                      160s
+[2026-04-30 14:50:09,347][gurobipy][INFO] -   262663 variables added to crossover basis                      166s
+[2026-04-30 14:50:14,219][gurobipy][INFO] -   262783 variables added to crossover basis                      171s
+[2026-04-30 14:50:19,207][gurobipy][INFO] -   262903 variables added to crossover basis                      176s
+[2026-04-30 14:50:24,302][gurobipy][INFO] -   263023 variables added to crossover basis                      181s
+[2026-04-30 14:50:29,508][gurobipy][INFO] -   263143 variables added to crossover basis                      186s
+[2026-04-30 14:50:33,492][gurobipy][INFO] -   263233 variables added to crossover basis                      190s
+[2026-04-30 14:50:38,862][gurobipy][INFO] -   263353 variables added to crossover basis                      196s
+[2026-04-30 14:50:44,325][gurobipy][INFO] -   263473 variables added to crossover basis                      201s
+[2026-04-30 14:50:48,476][gurobipy][INFO] -   263563 variables added to crossover basis                      205s
+[2026-04-30 14:50:54,054][gurobipy][INFO] -   263683 variables added to crossover basis                      211s
+[2026-04-30 14:50:58,272][gurobipy][INFO] -   263773 variables added to crossover basis                      215s
+[2026-04-30 14:51:03,941][gurobipy][INFO] -   263893 variables added to crossover basis                      221s
+[2026-04-30 14:51:09,668][gurobipy][INFO] -   264013 variables added to crossover basis                      226s
+[2026-04-30 14:51:14,010][gurobipy][INFO] -   264103 variables added to crossover basis                      231s
+[2026-04-30 14:51:18,397][gurobipy][INFO] -   264193 variables added to crossover basis                      235s
+[2026-04-30 14:51:24,229][gurobipy][INFO] -   264313 variables added to crossover basis                      241s
+[2026-04-30 14:51:28,582][gurobipy][INFO] -   264403 variables added to crossover basis                      245s
+[2026-04-30 14:51:34,391][gurobipy][INFO] -   264523 variables added to crossover basis                      251s
+[2026-04-30 14:51:38,763][gurobipy][INFO] -   264613 variables added to crossover basis                      256s
+[2026-04-30 14:51:44,627][gurobipy][INFO] -   264733 variables added to crossover basis                      261s
+[2026-04-30 14:51:48,982][gurobipy][INFO] -   264823 variables added to crossover basis                      266s
+[2026-04-30 14:51:53,270][gurobipy][INFO] -   265183 variables added to crossover basis                      270s
+[2026-04-30 14:51:58,356][gurobipy][INFO] -   265693 variables added to crossover basis                      275s
+[2026-04-30 14:52:03,415][gurobipy][INFO] -   265993 variables added to crossover basis                      280s
+[2026-04-30 14:52:08,434][gurobipy][INFO] -   266233 variables added to crossover basis                      285s
+[2026-04-30 14:52:13,505][gurobipy][INFO] -   266443 variables added to crossover basis                      290s
+[2026-04-30 14:52:18,345][gurobipy][INFO] -   266623 variables added to crossover basis                      295s
+[2026-04-30 14:52:23,653][gurobipy][INFO] - 
+[2026-04-30 14:52:23,673][gurobipy][INFO] - 
+[2026-04-30 14:52:23,673][gurobipy][INFO] - Root relaxation: time limit, 266803 iterations, 226.85 seconds (347.16 work units)
+[2026-04-30 14:52:23,675][gurobipy][INFO] - 
+[2026-04-30 14:52:23,675][gurobipy][INFO] -     Nodes    |    Current Node    |     Objective Bounds      |     Work
+[2026-04-30 14:52:23,675][gurobipy][INFO] -  Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+[2026-04-30 14:52:23,675][gurobipy][INFO] - 
+[2026-04-30 14:52:23,675][gurobipy][INFO] -      0     0          -    0         0.50000    0.00000   100%     -  300s
+[2026-04-30 14:52:23,681][gurobipy][INFO] - 
+[2026-04-30 14:52:23,681][gurobipy][INFO] - Explored 1 nodes (266803 simplex iterations) in 300.44 seconds (400.97 work units)
+[2026-04-30 14:52:23,681][gurobipy][INFO] - Thread count was 32 (of 128 available processors)
+[2026-04-30 14:52:23,681][gurobipy][INFO] - 
+[2026-04-30 14:52:23,682][gurobipy][INFO] - Solution count 1: 0.5 
+[2026-04-30 14:52:23,682][gurobipy][INFO] - 
+[2026-04-30 14:52:23,682][gurobipy][INFO] - Time limit reached
+[2026-04-30 14:52:23,683][gurobipy][INFO] - Best objective 5.000000000000e-01, best bound 3.875049695186e-14, gap 100.0000%

@@ -1,0 +1,93 @@
+[2026-04-30 14:49:55,959][gurobipy][INFO] - Set parameter WLSAccessID
+[2026-04-30 14:49:55,960][gurobipy][INFO] - Set parameter WLSSecret
+[2026-04-30 14:49:55,960][gurobipy][INFO] - Set parameter LicenseID to value 2619742
+[2026-04-30 14:49:56,038][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-04-30 14:49:56,041][gurobipy][INFO] - Set parameter OutputFlag to value 1
+[2026-04-30 14:49:56,041][gurobipy][INFO] - Set parameter MIPGap to value 0
+[2026-04-30 14:49:56,041][gurobipy][INFO] - Set parameter TimeLimit to value 300
+[2026-04-30 14:50:14,026][gurobipy][INFO] - Set parameter NonConvex to value 2
+[2026-04-30 14:50:14,330][gurobipy][INFO] - Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+[2026-04-30 14:50:14,330][gurobipy][INFO] - 
+[2026-04-30 14:50:14,330][gurobipy][INFO] - CPU model: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+[2026-04-30 14:50:14,330][gurobipy][INFO] - Thread count: 64 physical cores, 128 logical processors, using up to 32 threads
+[2026-04-30 14:50:14,330][gurobipy][INFO] - 
+[2026-04-30 14:50:14,330][gurobipy][INFO] - Non-default parameters:
+[2026-04-30 14:50:14,330][gurobipy][INFO] - TimeLimit  300
+[2026-04-30 14:50:14,330][gurobipy][INFO] - MIPGap  0
+[2026-04-30 14:50:14,330][gurobipy][INFO] - NonConvex  2
+[2026-04-30 14:50:14,330][gurobipy][INFO] - 
+[2026-04-30 14:50:14,330][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-04-30 14:50:14,330][gurobipy][INFO] - Optimize a model with 383918 rows, 5020 columns and 767836 nonzeros (Min)
+[2026-04-30 14:50:14,341][gurobipy][INFO] - Model fingerprint: 0x1fbe7a4b
+[2026-04-30 14:50:14,341][gurobipy][INFO] - Model has 5020 linear objective coefficients and an objective constant of 0.5
+[2026-04-30 14:50:14,341][gurobipy][INFO] - Model has 40 quadratic constraints
+[2026-04-30 14:50:14,341][gurobipy][INFO] - Variable types: 20 continuous, 5000 integer (5000 binary)
+[2026-04-30 14:50:14,343][gurobipy][INFO] - Coefficient statistics:
+[2026-04-30 14:50:14,343][gurobipy][INFO] -   Matrix range     [1e+00, 1e+00]
+[2026-04-30 14:50:14,343][gurobipy][INFO] -   QMatrix range    [1e+00, 1e+00]
+[2026-04-30 14:50:14,343][gurobipy][INFO] -   QLMatrix range   [9e-05, 1e+00]
+[2026-04-30 14:50:14,343][gurobipy][INFO] -   Objective range  [1e-04, 3e-02]
+[2026-04-30 14:50:14,343][gurobipy][INFO] -   Bounds range     [1e+00, 1e+00]
+[2026-04-30 14:50:14,343][gurobipy][INFO] -   RHS range        [1e+00, 1e+00]
+[2026-04-30 14:50:14,343][gurobipy][INFO] - 
+[2026-04-30 14:50:14,354][gurobipy][INFO] - Found heuristic solution: objective 0.5000000
+[2026-04-30 14:50:19,410][gurobipy][INFO] - Presolve removed 169140 rows and 0 columns (presolve time = 5s)...
+[2026-04-30 14:50:24,436][gurobipy][INFO] - Presolve removed 170912 rows and 0 columns (presolve time = 10s)...
+[2026-04-30 14:50:29,484][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 15s)...
+[2026-04-30 14:50:34,507][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 20s)...
+[2026-04-30 14:50:39,426][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 25s)...
+[2026-04-30 14:50:44,448][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 30s)...
+[2026-04-30 14:50:49,414][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 35s)...
+[2026-04-30 14:50:54,413][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 40s)...
+[2026-04-30 14:50:59,458][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 45s)...
+[2026-04-30 14:51:04,521][gurobipy][INFO] - Presolve removed 170988 rows and 0 columns (presolve time = 50s)...
+[2026-04-30 14:51:07,015][gurobipy][INFO] - Presolve added 0 rows and 16 columns
+[2026-04-30 14:51:07,015][gurobipy][INFO] - Presolve removed 170956 rows and 0 columns
+[2026-04-30 14:51:07,015][gurobipy][INFO] - Presolve time: 52.61s
+[2026-04-30 14:51:07,017][gurobipy][INFO] - Presolved: 412982 rows, 305036 columns, 1352304 nonzeros
+[2026-04-30 14:51:07,017][gurobipy][INFO] - Presolved model has 200000 SOS constraint(s)
+[2026-04-30 14:51:08,607][gurobipy][INFO] - Variable types: 200036 continuous, 105000 integer (105000 binary)
+[2026-04-30 14:54:47,376][gurobipy][INFO] - 
+[2026-04-30 14:54:47,376][gurobipy][INFO] - Deterministic concurrent LP optimizer: primal simplex, dual simplex, and barrier
+[2026-04-30 14:54:47,376][gurobipy][INFO] - Showing barrier log only...
+[2026-04-30 14:54:47,376][gurobipy][INFO] - 
+[2026-04-30 14:54:50,117][gurobipy][INFO] - Root barrier log...
+[2026-04-30 14:54:50,118][gurobipy][INFO] - 
+[2026-04-30 14:54:56,010][gurobipy][INFO] - Elapsed ordering time = 5s
+[2026-04-30 14:55:01,010][gurobipy][INFO] - Elapsed ordering time = 10s
+[2026-04-30 14:55:03,962][gurobipy][INFO] - Ordering time: 12.95s
+[2026-04-30 14:55:04,358][gurobipy][INFO] - 
+[2026-04-30 14:55:04,358][gurobipy][INFO] - Barrier statistics:
+[2026-04-30 14:55:04,358][gurobipy][INFO] -  Dense cols : 216
+[2026-04-30 14:55:04,358][gurobipy][INFO] -  AA' NZ     : 1.155e+07
+[2026-04-30 14:55:04,358][gurobipy][INFO] -  Factor NZ  : 2.516e+07 (roughly 300 MB of memory)
+[2026-04-30 14:55:04,358][gurobipy][INFO] -  Factor Ops : 4.358e+09 (less than 1 second per iteration)
+[2026-04-30 14:55:04,358][gurobipy][INFO] -  Threads    : 30
+[2026-04-30 14:55:07,182][gurobipy][INFO] - 
+[2026-04-30 14:55:07,182][gurobipy][INFO] -                   Objective                Residual
+[2026-04-30 14:55:07,183][gurobipy][INFO] - Iter       Primal          Dual         Primal    Dual     Compl     Time
+[2026-04-30 14:55:07,420][gurobipy][INFO] -    0   1.20993009e+02 -3.08379992e+04  2.01e+04 1.91e-04  2.32e+00   293s
+[2026-04-30 14:55:08,698][gurobipy][INFO] -    1   1.66611049e+01 -2.32182970e+04  4.41e+03 4.45e-02  6.84e-01   294s
+[2026-04-30 14:55:10,784][gurobipy][INFO] -    2   1.39448191e+01 -1.85766772e+04  3.53e+03 1.64e-02  4.44e-01   296s
+[2026-04-30 14:55:12,947][gurobipy][INFO] -    3   7.83374286e+00 -1.46769517e+04  1.32e+03 2.85e-03  1.62e-01   299s
+[2026-04-30 14:55:14,708][gurobipy][INFO] -    4   6.05586311e+00 -9.49327184e+03  6.86e+02 1.86e-04  7.06e-02   300s
+[2026-04-30 14:55:14,781][gurobipy][INFO] - 
+[2026-04-30 14:55:14,781][gurobipy][INFO] - Barrier performed 4 iterations in 300.41 seconds (196.12 work units)
+[2026-04-30 14:55:14,781][gurobipy][INFO] - Time limit reached
+[2026-04-30 14:55:14,781][gurobipy][INFO] - 
+[2026-04-30 14:55:14,953][gurobipy][INFO] - 
+[2026-04-30 14:55:15,400][gurobipy][INFO] - 
+[2026-04-30 14:55:15,400][gurobipy][INFO] - Root relaxation: time limit, 16838 iterations, 28.02 seconds (29.69 work units)
+[2026-04-30 14:55:15,401][gurobipy][INFO] - 
+[2026-04-30 14:55:15,401][gurobipy][INFO] -     Nodes    |    Current Node    |     Objective Bounds      |     Work
+[2026-04-30 14:55:15,401][gurobipy][INFO] -  Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+[2026-04-30 14:55:15,401][gurobipy][INFO] - 
+[2026-04-30 14:55:15,401][gurobipy][INFO] -      0     0          -    0         0.50000    0.00000   100%     -  301s
+[2026-04-30 14:55:15,516][gurobipy][INFO] - 
+[2026-04-30 14:55:15,516][gurobipy][INFO] - Explored 1 nodes (16838 simplex iterations) in 301.19 seconds (185.34 work units)
+[2026-04-30 14:55:15,516][gurobipy][INFO] - Thread count was 32 (of 128 available processors)
+[2026-04-30 14:55:15,516][gurobipy][INFO] - 
+[2026-04-30 14:55:15,516][gurobipy][INFO] - Solution count 1: 0.5 
+[2026-04-30 14:55:15,516][gurobipy][INFO] - 
+[2026-04-30 14:55:15,516][gurobipy][INFO] - Time limit reached
+[2026-04-30 14:55:15,586][gurobipy][INFO] - Best objective 5.000000000000e-01, best bound 3.875049695186e-14, gap 100.0000%

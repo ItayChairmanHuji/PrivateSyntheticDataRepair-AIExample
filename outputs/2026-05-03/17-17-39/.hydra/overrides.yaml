@@ -1,0 +1,9 @@
+- loading.name=tax
+- synthesizing.seed=42
+- repairing=classic_vc
+- synthesizing.num_of_iterations=100
+- marginals_obtaining.k=20
+- marginals_obtaining.selection_budget=0.5
+- marginals_obtaining.generation_budget=0.5
+- repairing.alpha=0.5
+- experiment_name=grid_tax_classic_vc

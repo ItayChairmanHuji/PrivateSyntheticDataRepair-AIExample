@@ -1,0 +1,80 @@
+{
+    "runtimes": {
+        "loading": 0.16489672660827637,
+        "synthesizing": 0.011049032211303711,
+        "marginals_obtaining": 0.6862766742706299,
+        "repairing": 1593.9151747226715
+    },
+    "deletion_ratio": {
+        "before": 60798,
+        "after": 0,
+        "ratio": 1.0
+    },
+    "marginals_error": {
+        "synthetic_avg": 0.44086609718092823,
+        "repaired_avg": 387614.0600894358
+    },
+    "tvd_2way": {
+        "synthetic_avg": 1.8503898154544914e-05,
+        "repaired_avg": 0.5
+    },
+    "ml_accuracy": {
+        "private_gold_standard": {
+            "logistic_regression": 0.767443007993684,
+            "random_forest": 0.81672094476792,
+            "mlp": 0.7838251258265074
+        },
+        "synthetic": {
+            "logistic_regression": 0.7674923517220961,
+            "random_forest": 0.81672094476792,
+            "mlp": 0.7825257409783216
+        },
+        "repaired": {
+            "logistic_regression": 0.0,
+            "random_forest": 0.0,
+            "mlp": 0.0
+        }
+    },
+    "violations": {
+        "private": 0,
+        "synthetic": 272732,
+        "repaired": 0
+    },
+    "loss_function": {
+        "synthetic": {
+            "total": 3.864372571824803e-05,
+            "size_component": 0.0,
+            "marginal_component": 7.728745143649606e-05
+        },
+        "repaired": {
+            "total": 0.5193807030044718,
+            "size_component": 1.0,
+            "marginal_component": 0.03876140600894357
+        }
+    },
+    "dataset_name": "compas",
+    "timestamp": "2026-05-03T16:37:43.903293",
+    "experiment_id": "72ff2c2c",
+    "experiment_name": "grid_compas_ilp_marginals",
+    "metadata": {
+        "loader": "FileLoader",
+        "synthesizer": "CoNoise",
+        "obtainer": "TopKObtainer",
+        "repairer": "ILPRepairer",
+        "synthesizer_params": {
+            "num_of_iterations": 10,
+            "seed": 43
+        },
+        "obtainer_params": {
+            "selection_budget": 0.5,
+            "generation_budget": 0.5,
+            "k": 20,
+            "utility_function": {}
+        },
+        "repairer_params": {
+            "alpha": 0.5,
+            "gurobi_params": {},
+            "use_marginals": true
+        }
+    }
+}

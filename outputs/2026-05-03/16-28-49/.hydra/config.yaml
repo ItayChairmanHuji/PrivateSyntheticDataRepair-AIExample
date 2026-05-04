@@ -1,0 +1,48 @@
+loading:
+  _target_: src.loading.file_loader.FileLoader
+  name: tax
+  base_path: data
+  data_loader:
+    _target_: src.loading.components.data_loader.DataLoader
+  dcs_loader:
+    _target_: src.loading.components.dcs_loader.DCsLoader
+  metadata_loader:
+    _target_: src.loading.components.metadata_loader.MetadataLoader
+  data_encoder:
+    _target_: src.loading.components.data_encoder.DataEncoder
+  dcs_encoder:
+    _target_: src.loading.components.dcs_encoder.DCsEncoder
+synthesizing:
+  _target_: src.synthesizing.co_noise.CoNoise
+  num_of_iterations: 200
+  seed: 43
+marginals_obtaining:
+  _target_: src.marginals_obtaining.top_k_obtainer.TopKObtainer
+  selection_budget: 0.5
+  generation_budget: 0.5
+  k: 20
+  utility_function:
+    _target_: src.marginals_obtaining.utility_functions.distance_utility.DistanceUtility
+repairing:
+  _target_: src.repairing.weighted_vc_repairer.WeightedVCRepairer
+  alpha: 0.5
+evaluating:
+  _target_: src.evaluating.evaluation_orchestrator.EvaluationOrchestrator
+  output_dir: results
+  experiment_name: ${experiment_name}
+  evaluators:
+  - _target_: src.evaluating.runtime_evaluator.RuntimeEvaluator
+  - _target_: src.evaluating.deletion_ratio_evaluator.DeletionRatioEvaluator
+  - _target_: src.evaluating.marginals_error_evaluator.MarginalsErrorEvaluator
+  - _target_: src.evaluating.tvd_evaluator.TwoWayTVDEvaluator
+  - _target_: src.evaluating.ml_accuracy_evaluator.MLAccuracyEvaluator
+  - _target_: src.evaluating.violation_evaluator.ViolationEvaluator
+  - _target_: src.evaluating.loss_function_evaluator.LossFunctionEvaluator
+experiment_name: grid_tax_weighted_vc
+pipeline:
+  _target_: src.pipeline.Pipeline
+  loader: ${loading}
+  synthesizer: ${synthesizing}
+  obtainer: ${marginals_obtaining}
+  repairer: ${repairing}
+  evaluator: ${evaluating}

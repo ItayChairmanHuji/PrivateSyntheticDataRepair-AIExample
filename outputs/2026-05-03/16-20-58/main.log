@@ -1,0 +1,40 @@
+[2026-05-03 16:21:00,319][gurobipy][INFO] - Set parameter WLSAccessID
+[2026-05-03 16:21:00,319][gurobipy][INFO] - Set parameter WLSSecret
+[2026-05-03 16:21:00,319][gurobipy][INFO] - Set parameter LicenseID to value 2619742
+[2026-05-03 16:21:00,328][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 16:21:00,329][gurobipy][INFO] - Set parameter OutputFlag to value 1
+[2026-05-03 16:21:00,329][gurobipy][INFO] - Set parameter MIPGap to value 0
+[2026-05-03 16:21:00,329][gurobipy][INFO] - Set parameter TimeLimit to value 300
+[2026-05-03 16:21:11,298][gurobipy][INFO] - Gurobi Optimizer version 13.0.1 build v13.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+[2026-05-03 16:21:11,299][gurobipy][INFO] - 
+[2026-05-03 16:21:11,299][gurobipy][INFO] - CPU model: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+[2026-05-03 16:21:11,299][gurobipy][INFO] - Thread count: 64 physical cores, 128 logical processors, using up to 32 threads
+[2026-05-03 16:21:11,299][gurobipy][INFO] - 
+[2026-05-03 16:21:11,299][gurobipy][INFO] - Non-default parameters:
+[2026-05-03 16:21:11,299][gurobipy][INFO] - TimeLimit  300
+[2026-05-03 16:21:11,299][gurobipy][INFO] - MIPGap  0
+[2026-05-03 16:21:11,299][gurobipy][INFO] - 
+[2026-05-03 16:21:11,299][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
+[2026-05-03 16:21:11,300][gurobipy][INFO] - Optimize a model with 272732 rows, 60798 columns and 545464 nonzeros (Min)
+[2026-05-03 16:21:11,306][gurobipy][INFO] - Model fingerprint: 0x57eede0d
+[2026-05-03 16:21:11,306][gurobipy][INFO] - Model has 60798 linear objective coefficients and an objective constant of 9.9999999999999989e-01
+[2026-05-03 16:21:11,306][gurobipy][INFO] - Variable types: 0 continuous, 60798 integer (60798 binary)
+[2026-05-03 16:21:11,307][gurobipy][INFO] - Coefficient statistics:
+[2026-05-03 16:21:11,307][gurobipy][INFO] -   Matrix range     [1e+00, 1e+00]
+[2026-05-03 16:21:11,307][gurobipy][INFO] -   Objective range  [2e-05, 2e-05]
+[2026-05-03 16:21:11,307][gurobipy][INFO] -   Bounds range     [1e+00, 1e+00]
+[2026-05-03 16:21:11,307][gurobipy][INFO] -   RHS range        [1e+00, 1e+00]
+[2026-05-03 16:21:11,307][gurobipy][INFO] - 
+[2026-05-03 16:21:11,316][gurobipy][INFO] - Found heuristic solution: objective 0.0001645
+[2026-05-03 16:21:12,790][gurobipy][INFO] - Presolve removed 272702 rows and 60784 columns
+[2026-05-03 16:21:12,790][gurobipy][INFO] - Presolve time: 1.45s
+[2026-05-03 16:21:12,791][gurobipy][INFO] - Presolved: 30 rows, 14 columns, 71 nonzeros
+[2026-05-03 16:21:12,793][gurobipy][INFO] - Variable types: 0 continuous, 14 integer (14 binary)
+[2026-05-03 16:21:12,800][gurobipy][INFO] - 
+[2026-05-03 16:21:12,800][gurobipy][INFO] - Explored 0 nodes (0 simplex iterations) in 1.50 seconds (3.56 work units)
+[2026-05-03 16:21:12,800][gurobipy][INFO] - Thread count was 32 (of 128 available processors)
+[2026-05-03 16:21:12,800][gurobipy][INFO] - 
+[2026-05-03 16:21:12,800][gurobipy][INFO] - Solution count 1: 0.000164479 
+[2026-05-03 16:21:12,800][gurobipy][INFO] - 
+[2026-05-03 16:21:12,800][gurobipy][INFO] - Optimal solution found (tolerance 0.00e+00)
+[2026-05-03 16:21:12,802][gurobipy][INFO] - Best objective 1.644790946479e-04, best bound 1.644790946479e-04, gap 0.0000%
