@@ -1,8 +1,0 @@
-[2026-05-03 15:42:27,890][gurobipy][INFO] - Set parameter WLSAccessID
-[2026-05-03 15:42:27,891][gurobipy][INFO] - Set parameter WLSSecret
-[2026-05-03 15:42:27,891][gurobipy][INFO] - Set parameter LicenseID to value 2619742
-[2026-05-03 15:42:28,141][gurobipy][INFO] - Academic license 2619742 - for non-commercial use only - registered to it___@mail.huji.ac.il
-[2026-05-03 15:42:28,143][gurobipy][INFO] - Set parameter OutputFlag to value 1
-[2026-05-03 15:42:28,143][gurobipy][INFO] - Set parameter MIPGap to value 0
-[2026-05-03 15:42:28,143][gurobipy][INFO] - Set parameter TimeLimit to value 300
-[2026-05-03 17:00:27,851][gurobipy][INFO] - Set parameter NonConvex to value 2

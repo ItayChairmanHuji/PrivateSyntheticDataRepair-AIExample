@@ -1,5 +1,0 @@
-- loading.name=adult5000
-- synthesizing.num_of_iterations=100
-- synthesizing.seed=42
-- repairing=vanilla_vc
-- experiment_name=adult5000_iters_vanilla_vc

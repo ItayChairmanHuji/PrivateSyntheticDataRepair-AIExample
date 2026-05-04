@@ -1,6 +1,0 @@
-- loading.name=adult5000
-- synthesizing.num_of_iterations=20
-- synthesizing.seed=43
-- repairing=ilp
-- repairing.use_marginals=True
-- experiment_name=adult5000_iters_ilp_marginals
