@@ -1,5 +1,6 @@
 _target_: src.synthesizing.smart_noise.SmartNoiseSynthesizer
 engine: patectgan
 epsilon: 1.0
+seed: 42
 delta: null
 kwargs: {}

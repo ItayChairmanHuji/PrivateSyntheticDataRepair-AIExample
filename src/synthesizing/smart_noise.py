@@ -1,3 +1,6 @@
+import random
+import numpy as np
+import torch
 import pandas as pd
 from snsynth import Synthesizer as SnSynthesizer
 from src.entities.dataset import Dataset
@@ -14,19 +17,22 @@ class SmartNoiseSynthesizer(Synthesizer):
     Attributes:
         engine (str): The name of the synthesis algorithm (e.g., "mst", "aim", "patectgan").
         epsilon (float): The privacy budget.
+        seed (int): Random seed for reproducibility.
         kwargs (dict): Additional parameters passed directly to the underlying SmartNoise algorithm.
     """
-    def __init__(self, engine: str, epsilon: float = 1.0, **kwargs):
+    def __init__(self, engine: str, epsilon: float = 1.0, seed: int = 42, **kwargs):
         """
         Initializes the synthesizer with a specific engine and privacy parameters.
         
         Args:
             engine (str): Algorithm name.
             epsilon (float): Privacy budget (default: 1.0).
+            seed (int): Random seed (default: 42).
             **kwargs: Extra arguments. Supports a nested 'kwargs' dictionary for compatibility.
         """
         self.engine = engine
         self.epsilon = epsilon
+        self.seed = seed
         
         # Support both flattened kwargs and a nested 'kwargs' dictionary
         # Handle both dict and Hydra's DictConfig
@@ -36,6 +42,14 @@ class SmartNoiseSynthesizer(Synthesizer):
                 kwargs.update(dict(extra_args))
         
         self.kwargs = kwargs
+
+    def _set_seed(self):
+        """Sets the seed for all relevant libraries to ensure reproducibility."""
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+        torch.manual_seed(self.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(self.seed)
 
     def synthesize(self, dataset: Dataset) -> Dataset:
         """
@@ -47,6 +61,8 @@ class SmartNoiseSynthesizer(Synthesizer):
         Returns:
             Dataset: A new dataset object containing the synthetic data.
         """
+        self._set_seed()
+        
         # Filter out None and empty dicts to avoid TypeError in some SmartNoise engines
         filtered_kwargs = {k: v for k, v in self.kwargs.items() if v is not None}
         
