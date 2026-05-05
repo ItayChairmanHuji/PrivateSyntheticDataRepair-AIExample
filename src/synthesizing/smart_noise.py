@@ -27,10 +27,14 @@ class SmartNoiseSynthesizer(Synthesizer):
         """
         self.engine = engine
         self.epsilon = epsilon
+        
         # Support both flattened kwargs and a nested 'kwargs' dictionary
-        if 'kwargs' in kwargs and isinstance(kwargs['kwargs'], dict):
+        # Handle both dict and Hydra's DictConfig
+        if 'kwargs' in kwargs:
             extra_args = kwargs.pop('kwargs')
-            kwargs.update(extra_args)
+            if extra_args and hasattr(extra_args, 'items'):
+                kwargs.update(dict(extra_args))
+        
         self.kwargs = kwargs
 
     def synthesize(self, dataset: Dataset) -> Dataset:
@@ -43,7 +47,14 @@ class SmartNoiseSynthesizer(Synthesizer):
         Returns:
             Dataset: A new dataset object containing the synthetic data.
         """
-        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **self.kwargs)
+        # Filter out None and empty dicts to avoid TypeError in some SmartNoise engines
+        filtered_kwargs = {k: v for k, v in self.kwargs.items() if v is not None}
+        
+        # If 'kwargs' still somehow exists and is empty, remove it
+        if 'kwargs' in filtered_kwargs and not filtered_kwargs['kwargs']:
+            filtered_kwargs.pop('kwargs')
+
+        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
         synth.fit(dataset.data)
         synthetic_df = synth.sample(len(dataset.data))
         
