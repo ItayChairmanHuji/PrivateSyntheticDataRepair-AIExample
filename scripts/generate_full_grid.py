@@ -14,12 +14,16 @@ def generate():
     overrides = []
     for ds in datasets:
         for eng in engines:
+            model_path = f"models/{ds}_{eng}.pkl"
             for seed in seeds:
                 for rep_name, rep_base in repairers.items():
                     o = (
                         f"loading.name={ds} "
                         f"loading.size=5000 "
-                        f"synthesizing={eng} "
+                        f"loading.seed={seed} "
+                        f"synthesizing=model_loader "
+                        f"synthesizing.model_path={model_path} "
+                        f"synthesizing.size=5000 "
                         f"synthesizing.seed={seed} "
                         f"{rep_base} "
                         f"marginals_obtaining.k=20 "

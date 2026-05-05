@@ -3,5 +3,4 @@ engine: patectgan
 epsilon: 1.0
 seed: 42
 delta: null
-kwargs:
-  preprocessor_eps: 0.1
+kwargs: {}
