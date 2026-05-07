@@ -126,27 +126,57 @@ def pull(cfg, group_name=None):
     remote_dir = cfg['remote_dir']
     
     if group_name:
-        print(f"Pulling results for group '{group_name}' from {host}...")
+        print(f"Pulling results and outputs for group '{group_name}' from {host}...")
         
         os.makedirs("results", exist_ok=True)
         os.makedirs("outputs", exist_ok=True)
         
-        # Use rsync if available, otherwise scp -r
-        res = subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/results/", "results/"])
-        if res.returncode != 0:
-            print("rsync failed or not available, falling back to scp...")
-            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/results/*", "results/"])
+        remote_results = f"{remote_dir}/results/{group_name}"
+        remote_outputs = f"{remote_dir}/outputs/{group_name}"
+        
+        # Pull results
+        try:
+            res = subprocess.run(["rsync", "-avz", f"{host}:{remote_results}/", f"results/{group_name}/"])
+            if res.returncode != 0:
+                print(f"rsync for results failed, falling back to scp...")
+                subprocess.run(["scp", "-r", f"{host}:{remote_results}", f"results/"])
+        except FileNotFoundError:
+            subprocess.run(["scp", "-r", f"{host}:{remote_results}", f"results/"])
             
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/outputs/", "outputs/"])
+        # Pull outputs
+        try:
+            res = subprocess.run(["rsync", "-avz", f"{host}:{remote_outputs}/", f"outputs/{group_name}/"])
+            if res.returncode != 0:
+                print(f"rsync for outputs failed, falling back to scp...")
+                subprocess.run(["scp", "-r", f"{host}:{remote_outputs}", f"outputs/"])
+        except FileNotFoundError:
+            subprocess.run(["scp", "-r", f"{host}:{remote_outputs}", f"outputs/"])
         
         # Also pull logs for this group
         os.makedirs(f"logs/{group_name}", exist_ok=True)
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/logs/{group_name}/", f"logs/{group_name}/"])
+        try:
+            res = subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/logs/{group_name}/", f"logs/{group_name}/"])
+            if res.returncode != 0:
+                print("rsync for logs failed, falling back to scp...")
+                subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs/{group_name}/*", f"logs/{group_name}/"])
+        except FileNotFoundError:
+            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs/{group_name}/*", f"logs/{group_name}/"])
     else:
         print("Pulling all results and outputs from remote...")
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/results/", "results/"])
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/outputs/", "outputs/"])
-        subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/logs/", "logs/"])
+        try:
+            subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/results/", "results/"])
+        except FileNotFoundError:
+            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/results/*", "results/"])
+            
+        try:
+            subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/outputs/", "outputs/"])
+        except FileNotFoundError:
+            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/outputs/*", "outputs/"])
+            
+        try:
+            subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/logs/", "logs/"])
+        except FileNotFoundError:
+            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs/*", "logs/"])
     
     print("Pull complete.")
 
