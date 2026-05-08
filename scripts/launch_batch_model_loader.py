@@ -2,9 +2,9 @@ import subprocess
 import sys
 import os
 from pathlib import Path
+import argparse
 
-def generate_experiments():
-    datasets = ["adult", "compas", "census", "tax"]
+def generate_experiments(datasets):
     models = ["aim", "patectgan", "mst"]
     repairers = {
         "classic_vc": "repairing=classic_vc",
@@ -22,9 +22,6 @@ def generate_experiments():
             for rep_name, rep_base in repairers.items():
                 for seed in seeds:
                     # Construct overrides
-                    # Synthesizer is model_loader
-                    # Size is 1000
-                    # Marginals k is 20
                     override = (
                         f"loading.name={ds} "
                         f"loading.seed={seed} "
@@ -42,16 +39,17 @@ def generate_experiments():
     return overrides_list
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser(description="Launch the model loader experiment batch.")
     parser.add_argument("--local", action="store_true", help="Run locally instead of Slurm")
     parser.add_argument("--workers", type=int, default=4, help="Local workers")
     parser.add_argument("--dry-run", action="store_true", help="Just print the experiments and exit")
     parser.add_argument("--group", type=int, default=10, help="Number of experiments per Slurm job")
+    parser.add_argument("--datasets", type=str, default="adult,compas,census,tax", help="Comma separated list of datasets")
     
     args = parser.parse_args()
+    datasets = args.datasets.split(",")
     
-    overrides = generate_experiments()
+    overrides = generate_experiments(datasets)
     print(f"Generated {len(overrides)} experiments.")
     
     if args.dry_run:
