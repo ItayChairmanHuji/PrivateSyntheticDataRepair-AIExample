@@ -72,7 +72,12 @@ class SmartNoiseSynthesizer(Synthesizer):
 
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
         synth.fit(dataset.data)
-        synthetic_df = synth.sample(len(dataset.data))
+
+        # Pass seed directly to sample() for engines that support it
+        try:
+            synthetic_df = synth.sample(len(dataset.data), seed=self.seed)
+        except TypeError:
+            synthetic_df = synth.sample(len(dataset.data))
         
         # Ensure it's a DataFrame (some engines might return numpy)
         if not isinstance(synthetic_df, pd.DataFrame):

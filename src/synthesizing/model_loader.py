@@ -63,9 +63,13 @@ class SmartNoiseModelLoader(Synthesizer):
         
         print(f"Generating {gen_size} rows using model from {self.model_path} (seed={self.seed})...")
         
-        # SmartNoise sample() usually supports a 'seed' argument in some versions, 
-        # but we've already set the global seeds which should cover it.
-        synthetic_df = self._model.sample(gen_size)
+        # Pass the seed directly to sample() for engines that support it (like SmartNoise/snsynth)
+        # while also relying on the global seeds set in _set_seed().
+        try:
+            synthetic_df = self._model.sample(gen_size, seed=self.seed)
+        except TypeError:
+            # Fallback for models whose sample() doesn't accept a seed argument
+            synthetic_df = self._model.sample(gen_size)
         
         # Ensure it's a DataFrame
         if not isinstance(synthetic_df, pd.DataFrame):
