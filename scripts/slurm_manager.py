@@ -13,67 +13,99 @@ def get_config():
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-def run_remote(host, cmd):
+def run_remote(cfg, cmd):
+    host = cfg['host']
     return subprocess.run(["ssh", host, cmd], capture_output=True, text=True)
 
-def push(cfg):
+def push(cfg, use_git=False):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
-    # Get current branch
-    branch_res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
-    branch = branch_res.stdout.strip()
-    if not branch:
-        branch = "main"
+    if use_git:
+        # Get current branch
+        branch_res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+        branch = branch_res.stdout.strip()
+        if not branch:
+            branch = "main"
 
-    print(f"Pushing code via git to origin and pulling on {host}:{remote_dir} (branch: {branch})...")
-    
-    # 1. Push locally to origin
-    subprocess.run(["git", "push", "origin", branch])
-    
-    # 2. Pull on remote
-    res = run_remote(host, f"cd {remote_dir} && git pull origin {branch}")
-    print(res.stdout)
-    if res.stderr:
-        print(f"Errors/Warnings:\n{res.stderr}")
+        print(f"Pushing code via git to origin and pulling on {host}:{remote_dir} (branch: {branch})...")
+        
+        # 1. Push locally to origin
+        subprocess.run(["git", "push", "origin", branch])
+        
+        # 2. Pull on remote
+        res = run_remote(cfg, f"cd {remote_dir} && git pull origin {branch}")
+        print(res.stdout)
+        if res.stderr:
+            print(f"Errors/Warnings:\n{res.stderr}")
+    else:
+        print(f"Pushing updates to {host}:{remote_dir} via rsync...")
+        exclude = [
+            ".git/", ".venv/", "__pycache__/", "results/", "outputs/", "logs/",
+            ".pytest_cache/", "*.pyc", ".DS_Store", "models/", "synthetic_data/"
+        ]
+        exclude_args = [f"--exclude={e}" for e in exclude]
+        # Use rsync to push local changes (including uncommitted)
+        cmd = ["rsync", "-avz", "--delete"] + exclude_args + ["./", f"{host}:{remote_dir}/"]
+        subprocess.run(cmd)
     
     # 3. Pip install requirements
     print("Updating requirements on remote...")
-    run_remote(host, f"cd {remote_dir} && ./.venv/bin/pip install -r requirements.txt")
+    run_remote(cfg, f"cd {remote_dir} && ./.venv/bin/pip install -r requirements.txt")
     print("Push complete.")
 
-def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="main.py"):
+def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="main.py", remote_submit=False):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
+    if group_name is None:
+        group_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    if remote_submit:
+        # 1. Write all experiments to a local file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, newline='\n') as tmp:
+            for exp in experiments:
+                tmp.write(exp + "\n")
+            tmp_path = tmp.name
+        
+        # 2. Upload the file to remote
+        remote_file = f"{remote_dir}/logs/experiments_{group_name}.txt"
+        run_remote(cfg, f"mkdir -p {remote_dir}/logs")
+        subprocess.run(["scp", tmp_path, f"{host}:{remote_file}"])
+        os.remove(tmp_path)
+        
+        # 3. Trigger remote submit
+        print(f"Triggering remote submission for {len(experiments)} experiments...")
+        cmd = f"cd {remote_dir} && ./.venv/bin/python scripts/slurm_manager.py submit-local --file logs/experiments_{group_name}.txt --name {group_name} --script {script}"
+        if experiments_per_job:
+            cmd += f" --group {experiments_per_job}"
+        
+        res = run_remote(cfg, cmd)
+        print(res.stdout)
+        if res.stderr:
+            print(f"Remote Errors:\n{res.stderr}")
+        return
+
+    # Local submission logic (either called locally or on remote)
     slurm_cfg = cfg['slurm_defaults']
     if experiments_per_job is None:
         experiments_per_job = slurm_cfg.get('cpus_per_task', 8)
     
-    if group_name is None:
-        group_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    # Ensure directories exist on remote
-    run_remote(host, f"mkdir -p {remote_dir}/logs/{group_name} {remote_dir}/results {remote_dir}/outputs")
+    # Ensure directories exist
+    os.makedirs(f"logs/{group_name}", exist_ok=True)
+    os.makedirs("results", exist_ok=True)
+    os.makedirs("outputs", exist_ok=True)
     
     for i in range(0, len(experiments), experiments_per_job):
         chunk = experiments[i : i + experiments_per_job]
         job_name = f"{group_name}_{i//experiments_per_job}"
         
-        # Write overrides to a local temporary file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, newline='\n') as tmp:
+        overrides_path = f"logs/{group_name}/{job_name}_overrides.txt"
+        with open(overrides_path, 'w', newline='\n') as f:
             for exp in chunk:
-                # Add experiment_name if not present or append to it
                 if "experiment_name=" not in exp:
                     exp += f" experiment_name={group_name}"
-                tmp.write(exp + "\n")
-            tmp_path = tmp.name
-        
-        remote_overrides_path = f"{remote_dir}/logs/{group_name}/{job_name}_overrides.txt"
-        
-        # Copy overrides file to remote
-        subprocess.run(["scp", tmp_path, f"{host}:{remote_overrides_path}"])
-        os.remove(tmp_path)
+                f.write(exp + "\n")
         
         script_content = [
             "#!/bin/bash",
@@ -87,96 +119,62 @@ def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="
             f"#SBATCH --output=logs/{group_name}/%x_%j.out",
             f"#SBATCH --error=logs/{group_name}/%x_%j.err",
             "",
-            f"cd {remote_dir}",
+            f"cd {os.getcwd()}",
             f"export PYTHONPATH=$PYTHONPATH:. ",
             "export HYDRA_FULL_ERROR=1",
             "",
-            f"# Run experiments in parallel using the dedicated script",
-            f"./.venv/bin/python scripts/run_parallel_experiments.py --script {script} --workers {slurm_cfg['cpus_per_task']} --overrides_file {remote_overrides_path}"
+            f"./.venv/bin/python scripts/run_parallel_experiments.py --script {script} --workers {slurm_cfg['cpus_per_task']} --overrides_file {overrides_path}"
         ]
         
         script_name = f"submit_{job_name}.sh"
         with open(script_name, "w", newline='\n') as f:
             f.write("\n".join(script_content))
             
-        subprocess.run(["scp", script_name, f"{host}:{remote_dir}/"])
-        res = run_remote(host, f"cd {remote_dir} && sbatch {script_name} && rm {script_name}")
-        print(f"Submitted job {job_name} with {len(chunk)} experiments: {res.stdout.strip()}")
-        
+        res = subprocess.run(["sbatch", script_name], capture_output=True, text=True)
+        print(f"Submitted job {job_name}: {res.stdout.strip()}")
         os.remove(script_name)
 
 def status(cfg):
     host = cfg['host']
     print(f"--- Active Jobs for {host} ---")
-    res = run_remote(host, "squeue -u $(whoami)")
+    res = run_remote(cfg, "squeue -u $(whoami)")
     if res.stdout:
         print(res.stdout)
     else:
         print("No active jobs found.")
     
     print("--- Recent Job History (sacct) ---")
-    res = run_remote(host, "sacct --format=JobID,JobName,State,ExitCode,TimeLimit,Elapsed -n -X | tail -n 20")
+    res = run_remote(cfg, "sacct --format=JobID,JobName,State,ExitCode,TimeLimit,Elapsed -n -X | tail -n 20")
     if res.stdout:
         print(res.stdout)
     else:
         print("No history found.")
 
-def pull(cfg, group_name=None):
+def pull(cfg, names=None, types=None):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
-    if group_name:
-        print(f"Pulling results and outputs for group '{group_name}' from {host}...")
-        
-        os.makedirs("results", exist_ok=True)
-        os.makedirs("outputs", exist_ok=True)
-        
-        remote_results = f"{remote_dir}/results/{group_name}"
-        remote_outputs = f"{remote_dir}/outputs/{group_name}"
-        
-        # Pull results
-        try:
-            res = subprocess.run(["rsync", "-avz", f"{host}:{remote_results}/", f"results/{group_name}/"])
-            if res.returncode != 0:
-                print(f"rsync for results failed, falling back to scp...")
-                subprocess.run(["scp", "-r", f"{host}:{remote_results}", f"results/"])
-        except FileNotFoundError:
-            subprocess.run(["scp", "-r", f"{host}:{remote_results}", f"results/"])
+    if not types:
+        types = ["results", "outputs", "logs"]
+    
+    if not names:
+        names = [""] # Pull everything in the type directory
+    
+    for t in types:
+        for name in names:
+            print(f"Pulling {t} {name}...")
+            remote_path = f"{remote_dir}/{t}/"
+            local_path = f"{t}/"
             
-        # Pull outputs
-        try:
-            res = subprocess.run(["rsync", "-avz", f"{host}:{remote_outputs}/", f"outputs/{group_name}/"])
-            if res.returncode != 0:
-                print(f"rsync for outputs failed, falling back to scp...")
-                subprocess.run(["scp", "-r", f"{host}:{remote_outputs}", f"outputs/"])
-        except FileNotFoundError:
-            subprocess.run(["scp", "-r", f"{host}:{remote_outputs}", f"outputs/"])
-        
-        # Also pull logs for this group
-        os.makedirs(f"logs/{group_name}", exist_ok=True)
-        try:
-            res = subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/logs/{group_name}/", f"logs/{group_name}/"])
-            if res.returncode != 0:
-                print("rsync for logs failed, falling back to scp...")
-                subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs/{group_name}/*", f"logs/{group_name}/"])
-        except FileNotFoundError:
-            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs/{group_name}/*", f"logs/{group_name}/"])
-    else:
-        print("Pulling all results and outputs from remote...")
-        try:
-            subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/results/", "results/"])
-        except FileNotFoundError:
-            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/results/*", "results/"])
+            if name:
+                remote_path += f"{name}/"
+                local_path += f"{name}/"
             
-        try:
-            subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/outputs/", "outputs/"])
-        except FileNotFoundError:
-            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/outputs/*", "outputs/"])
+            os.makedirs(local_path, exist_ok=True)
             
-        try:
-            subprocess.run(["rsync", "-avz", f"{host}:{remote_dir}/logs/", "logs/"])
-        except FileNotFoundError:
-            subprocess.run(["scp", "-r", f"{host}:{remote_dir}/logs/*", "logs/"])
+            # Use rsync for efficient transfer
+            cmd = ["rsync", "-avz", "--progress", f"{host}:{remote_path}", local_path]
+            subprocess.run(cmd)
     
     print("Pull complete.")
 
@@ -190,7 +188,7 @@ def clean(cfg):
         return
         
     print(f"Cleaning results, outputs and logs on {host}...")
-    run_remote(host, f"cd {remote_dir} && rm -rf results/* outputs/* logs/*")
+    run_remote(cfg, f"cd {remote_dir} && rm -rf results/* outputs/* logs/*")
     print("Remote clean complete.")
 
 def logs(cfg, group_name=None, lines=50, job_id=None):
@@ -207,7 +205,7 @@ def logs(cfg, group_name=None, lines=50, job_id=None):
     else:
         # Find the latest .out file in the log_dir
         find_cmd = f"ls -t {log_dir}/*.out | head -n 1"
-        res = run_remote(host, find_cmd)
+        res = run_remote(cfg, find_cmd)
         out_pattern = res.stdout.strip()
         if not out_pattern:
             print(f"No logs found in {log_dir}")
@@ -216,11 +214,11 @@ def logs(cfg, group_name=None, lines=50, job_id=None):
 
     print(f"Checking logs from {host}: {out_pattern}")
     
-    res = run_remote(host, f"tail -n {lines} {out_pattern}")
+    res = run_remote(cfg, f"tail -n {lines} {out_pattern}")
     print(f"--- Tail of Output Log ({os.path.basename(out_pattern)}) ---")
     print(res.stdout)
     
-    res = run_remote(host, f"tail -n {lines} {err_pattern}")
+    res = run_remote(cfg, f"tail -n {lines} {err_pattern}")
     print(f"--- Tail of Error Log ({os.path.basename(err_pattern)}) ---")
     print(res.stdout)
 
@@ -228,21 +226,34 @@ def main():
     parser = argparse.ArgumentParser(description="Slurm Experiment Manager")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
     
-    subparsers.add_parser("push", help="Push code to remote server via git and update requirements")
+    push_parser = subparsers.add_parser("push", help="Push code to remote server")
+    push_parser.add_argument("--git", action="store_true", help="Use git instead of rsync")
     
     submit_parser = subparsers.add_parser("submit", help="Submit experiments to Slurm")
     submit_parser.add_argument("experiments", nargs="*", help="Hydra overrides for each experiment")
     submit_parser.add_argument("--file", type=str, help="File containing experiments (one per line)")
     submit_parser.add_argument("--name", type=str, help="Name for the experiment group")
-    submit_parser.add_argument("--group", type=int, help="Number of experiments per job (defaults to cpus_per_task)")
-    submit_parser.add_argument("--script", type=str, default="main.py", help="Script to run (default: main.py)")
+    submit_parser.add_argument("--group", type=int, help="Number of experiments per job")
+    submit_parser.add_argument("--script", type=str, default="main.py", help="Script to run")
+    submit_parser.add_argument("--remote", action="store_true", default=True, help="Trigger submission on remote (default)")
+    submit_parser.add_argument("--local", action="store_false", dest="remote", help="Submit from local machine (legacy mode)")
     
-    subparsers.add_parser("status", help="Check job status")
+    # Internal command for remote execution
+    local_submit_parser = subparsers.add_parser("submit-local", help="Internal command for remote execution")
+    local_submit_parser.add_argument("--file", type=str)
+    local_submit_parser.add_argument("--name", type=str)
+    local_submit_parser.add_argument("--group", type=int)
+    local_submit_parser.add_argument("--script", type=str)
+
+    status_parser = subparsers.add_parser("status", help="Check job status")
     
-    pull_parser = subparsers.add_parser("pull", help="Pull results from remote server via rsync/scp")
-    pull_parser.add_argument("--name", type=str, help="Specific experiment group name to pull")
+    pull_parser = subparsers.add_parser("pull", help="Pull results from remote")
+    pull_parser.add_argument("--name", nargs="*", help="Specific group names or patterns to pull")
+    pull_parser.add_argument("--results", action="store_true", help="Pull only results")
+    pull_parser.add_argument("--outputs", action="store_true", help="Pull only outputs")
+    pull_parser.add_argument("--logs", action="store_true", help="Pull only logs")
     
-    subparsers.add_parser("clean", help="Clean results and logs on remote server")
+    clean_parser = subparsers.add_parser("clean", help="Clean results and logs on remote server")
     
     logs_parser = subparsers.add_parser("logs", help="Check recent logs")
     logs_parser.add_argument("--name", type=str, help="Experiment group name")
@@ -262,7 +273,7 @@ def main():
         return
 
     if args.command == "push":
-        push(cfg)
+        push(cfg, args.git)
     elif args.command == "submit":
         exps = args.experiments
         if args.file:
@@ -271,11 +282,21 @@ def main():
         if not exps:
             print("No experiments provided.")
             return
-        submit(cfg, exps, args.name, args.group, args.script)
+        submit(cfg, exps, args.name, args.group, args.script, args.remote)
+    elif args.command == "submit-local":
+        exps = []
+        if args.file:
+            with open(args.file, "r") as f:
+                exps.extend([line.strip() for line in f if line.strip() and not line.startswith("#")])
+        submit(cfg, exps, args.name, args.group, args.script, remote_submit=False)
     elif args.command == "status":
         status(cfg)
     elif args.command == "pull":
-        pull(cfg, args.name)
+        types = []
+        if args.results: types.append("results")
+        if args.outputs: types.append("outputs")
+        if args.logs: types.append("logs")
+        pull(cfg, args.name, types)
     elif args.command == "clean":
         clean(cfg)
     elif args.command == "logs":

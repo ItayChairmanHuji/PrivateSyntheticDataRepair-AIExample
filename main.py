@@ -1,6 +1,10 @@
 import hydra
 from omegaconf import DictConfig
 from src.pipeline import Pipeline
+from src.utils.mbi_patch import apply_patch
+
+# Apply reproducibility patch for AIM/mbi
+apply_patch()
 
 @hydra.main(version_base=None, config_path="config", config_name="config")
 def main(cfg: DictConfig):

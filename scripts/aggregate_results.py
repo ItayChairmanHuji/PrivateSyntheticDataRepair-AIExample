@@ -3,7 +3,17 @@ import json
 import pandas as pd
 from pathlib import Path
 
-def aggregate_results(results_dir="results"):
+def flatten_dict(d, parent_key='', sep='_'):
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+def aggregate_results(results_dir="results", output_file="experiment_results_summary.csv"):
     all_data = []
     
     results_path = Path(results_dir)
@@ -20,7 +30,7 @@ def aggregate_results(results_dir="results"):
                     with open(filepath, "r") as f:
                         data = json.load(f)
                     
-                    # Extract key metrics and parameters
+                    # Extract key info
                     row = {
                         "dataset": data.get("dataset_name"),
                         "experiment_name": data.get("experiment_name"),
@@ -28,12 +38,7 @@ def aggregate_results(results_dir="results"):
                         "timestamp": data.get("timestamp")
                     }
                     
-                    # Extract runtimes
-                    runtimes = data.get("runtimes", {})
-                    for k, v in runtimes.items():
-                        row[f"runtime_{k}"] = v
-                    
-                    # Extract metadata (parameters)
+                    # Metadata extraction (parameters)
                     metadata = data.get("metadata", {})
                     row["repairer"] = metadata.get("repairer")
                     row["synthesizer"] = metadata.get("synthesizer")
@@ -62,17 +67,15 @@ def aggregate_results(results_dir="results"):
                     row["alpha"] = rep_params.get("alpha")
                     row["use_marginals"] = rep_params.get("use_marginals")
                     
-                    # Extract evaluation metrics
-                    # Note: We flatten the metrics structure
-                    for k, v in data.items():
-                        if k in ["dataset_name", "experiment_name", "experiment_id", "timestamp", "runtimes", "metadata"]:
-                            continue
-                        
-                        if isinstance(v, dict):
-                            for sub_k, sub_v in v.items():
-                                if not isinstance(sub_v, (dict, list)):
-                                    row[f"{k}_{sub_k}"] = sub_v
-                        elif not isinstance(v, (dict, list)):
+                    # Flatten the rest of the metrics
+                    metrics = {k: v for k, v in data.items() if k not in ["dataset_name", "experiment_name", "experiment_id", "timestamp", "metadata"]}
+                    flattened_metrics = flatten_dict(metrics)
+                    
+                    # Fix runtime keys to match expected runtime_repairing etc if needed
+                    for k, v in flattened_metrics.items():
+                        if k.startswith("runtimes_"):
+                            row[k.replace("runtimes_", "runtime_")] = v
+                        else:
                             row[k] = v
                             
                     all_data.append(row)
@@ -86,7 +89,6 @@ def aggregate_results(results_dir="results"):
     df = pd.DataFrame(all_data)
     
     # Save to CSV
-    output_file = "experiment_results_summary.csv"
     df.to_csv(output_file, index=False)
     print(f"Aggregated {len(all_data)} results into {output_file}")
     
@@ -99,6 +101,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Aggregate all JSON results into a single CSV.")
     parser.add_argument("--dir", type=str, default="results", help="Directory containing results")
+    parser.add_argument("--output", type=str, default="experiment_results_summary.csv", help="Output CSV file")
     args = parser.parse_args()
     
-    aggregate_results(args.dir)
+    aggregate_results(args.dir, args.output)
