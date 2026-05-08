@@ -1,6 +1,6 @@
 import itertools
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
 import numpy as np
 import pandas as pd
@@ -28,71 +28,86 @@ class TopKObtainer(Obtainer):
         # Initialize random generator with the seed
         rng = np.random.default_rng(self.seed)
 
-        # 1. Compute all 2-way marginals for private and synthetic data
-        p_marginals_freq = self._compute_all_2way_marginals(p_data)
-        s_marginals_freq = self._compute_all_2way_marginals(s_data)
-
-        # Ensure all keys from p are in s (default to 0.0)
-        all_keys = list(p_marginals_freq.keys())
-        p_values = np.array([p_marginals_freq[k] for k in all_keys])
-        s_values = np.array([s_marginals_freq.get(k, 0.0) for k in all_keys])
-
-        # 2. Selection using Exponential Mechanism (implemented via Gumbel trick)
-        num_to_select = min(self.k, len(all_keys))
-        if num_to_select == 0:
+        # 1. Compute and select top-k marginals using Exponential Mechanism (Gumbel trick)
+        # We do this per attribute pair to save memory.
+        selected_marginals_data = self._select_top_k_marginals(p_data, s_data, rng)
+        
+        if not selected_marginals_data:
             return MarginalSet(marginals=[])
 
-        selection_sensitivity = self.utility_function.sensitivity(p_data)
-        utilities = self.utility_function(p_values, s_values)
-
-        # Noise scale for selection
-        selection_noise_scale = (
-            2
-            * selection_sensitivity
-            * np.sqrt(num_to_select / (8 * self.selection_budget))
-        )
-        # Using Gumbel distribution from rng
-        noise = rng.gumbel(
-            loc=0.0, scale=selection_noise_scale, size=len(utilities)
-        )
-
-        noisy_utilities = utilities + noise
-        top_k_indices = np.argsort(noisy_utilities)[-num_to_select:]
-        selected_keys = [all_keys[i] for i in top_k_indices]
-
-        # 3. Generation: Add noise to the private frequencies of selected marginals
+        # 2. Generation: Add noise to the private frequencies of selected marginals
+        num_selected = len(selected_marginals_data)
         generation_sensitivity = 1.0 / len(p_data) if len(p_data) > 0 else 1.0
         generation_noise_scale = (
-            generation_sensitivity * np.sqrt(num_to_select)
+            generation_sensitivity * np.sqrt(num_selected)
         ) / np.sqrt(2 * self.generation_budget)
         
-        # Using Normal distribution from rng
         gen_noise = rng.normal(
-            loc=0, scale=generation_noise_scale, size=num_to_select
+            loc=0, scale=generation_noise_scale, size=num_selected
         )
 
-        selected_p_values = np.array([p_marginals_freq[k] for k in selected_keys])
-
-        noisy_p_values = selected_p_values + gen_noise
-        # Clip frequencies to [0, 1]
-        noisy_p_values = np.clip(noisy_p_values, 0.0, 1.0)
-
-        # 4. Create Marginal objects
         marginals = []
-        for key, val in zip(selected_keys, noisy_p_values):
+        for i, (key, p_val) in enumerate(selected_marginals_data):
+            noisy_val = np.clip(p_val + gen_noise[i], 0.0, 1.0)
             marginals.append(
                 Marginal(
-                    attrs=(key[0], key[1]), values=(key[2], key[3]), target=float(val)
+                    attrs=(key[0], key[1]), values=(key[2], key[3]), target=float(noisy_val)
                 )
             )
 
         return MarginalSet(marginals=marginals)
 
+    def _select_top_k_marginals(self, p_data: pd.DataFrame, s_data: pd.DataFrame, rng: np.random.Generator) -> List[Tuple[Tuple, float]]:
+        """
+        Computes utilities and selects top-k marginals without keeping all in memory.
+        """
+        num_to_select = self.k
+        selection_sensitivity = self.utility_function.sensitivity(p_data)
+        selection_noise_scale = (
+            2
+            * selection_sensitivity
+            * np.sqrt(num_to_select / (8 * self.selection_budget))
+        )
+        
+        candidates = [] # List of (noisy_utility, key, p_val)
+        columns = p_data.columns
+
+        for attr1, attr2 in itertools.combinations(columns, 2):
+            # Vectorized computation of frequencies for the attribute pair
+            p_counts = p_data[[attr1, attr2]].value_counts(normalize=True)
+            s_counts = s_data[[attr1, attr2]].value_counts(normalize=True)
+            
+            # Use index union to align p and s frequencies
+            all_indices = p_counts.index.union(s_counts.index)
+            p_vals = p_counts.reindex(all_indices, fill_value=0.0).values
+            s_vals = s_counts.reindex(all_indices, fill_value=0.0).values
+            
+            if len(p_vals) == 0:
+                continue
+                
+            # Vectorized utility and noise calculation
+            utilities = self.utility_function(p_vals, s_vals)
+            noise = rng.gumbel(loc=0.0, scale=selection_noise_scale, size=len(utilities))
+            noisy_utilities = utilities + noise
+            
+            # Store candidates for the global top-K selection
+            for i, idx_val in enumerate(all_indices):
+                key = (attr1, attr2, idx_val[0], idx_val[1])
+                candidates.append((noisy_utilities[i], key, p_vals[i]))
+            
+            # Prune candidates to keep memory usage bounded
+            if len(candidates) > 5 * self.k:
+                candidates.sort(key=lambda x: x[0], reverse=True)
+                candidates = candidates[:2 * self.k]
+
+        # Final selection of top K
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        top_k = candidates[:num_to_select]
+        
+        return [(c[1], c[2]) for c in top_k]
+
     def _compute_all_2way_marginals(self, data: pd.DataFrame) -> Dict[Tuple, float]:
-        """
-        Computes all 2-way marginal frequencies.
-        Returns a dict mapping (attr1, attr2, val1, val2) -> frequency.
-        """
+        """Deprecated: Use _select_top_k_marginals instead for memory efficiency."""
         marginals = {}
         columns = data.columns
         for attr1, attr2 in itertools.combinations(columns, 2):

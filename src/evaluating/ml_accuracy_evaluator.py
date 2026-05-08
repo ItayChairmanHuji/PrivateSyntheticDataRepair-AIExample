@@ -28,7 +28,6 @@ class MLAccuracyEvaluator(Evaluator):
             return {"ml_accuracy": {}}
 
         metrics = {
-            "private_gold_standard": self._train_and_score(p_data, p_data, target),
             "synthetic": self._train_and_score(s_data, p_data, target),
             "repaired": self._train_and_score(r_data, p_data, target),
         }

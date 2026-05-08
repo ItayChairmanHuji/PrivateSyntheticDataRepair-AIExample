@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+import time
 from datetime import datetime
 from typing import List
 
@@ -36,11 +37,16 @@ class EvaluationOrchestrator:
     def _run_evaluators(self, result: PipelineResult) -> dict:
         full_results = {}
         for evaluator in self.evaluators:
+            eval_name = evaluator.__class__.__name__
             try:
+                start_time = time.time()
+                print(f"    -> Running {eval_name}...")
                 eval_result = evaluator.evaluate(result)
                 full_results.update(eval_result)
+                duration = time.time() - start_time
+                print(f"    -> {eval_name} completed in {duration:.2f}s")
             except Exception as e:
-                print(f"Error in evaluator {evaluator.__class__.__name__}: {e}")
+                print(f"Error in evaluator {eval_name}: {e}")
         return full_results
 
     def _write_metadata(self, full_results, result: PipelineResult):
