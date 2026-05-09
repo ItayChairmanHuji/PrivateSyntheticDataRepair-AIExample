@@ -86,7 +86,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
         norm_weights = self._normalize(weights)
         norm_degrees = self._normalize(degrees)
 
-        ratios = (1 - self.alpha) * norm_weights + self.alpha * (1 / norm_degrees)
+        ratios = (1 - self.alpha) * norm_weights + self.alpha / norm_degrees
         best_local_idx = np.argmin(ratios)
         return active_indices[best_local_idx]
 
