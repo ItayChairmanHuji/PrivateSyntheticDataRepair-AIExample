@@ -77,7 +77,7 @@ def main():
     
     # Push code
     print("Pushing code to remote...")
-    subprocess.run([sys.executable, "scripts/slurm_manager.py", "push"])
+    subprocess.run([sys.executable, "scripts/slurm_manager.py", "push", "--git"])
     
     # Submit to Slurm
     print("Submitting to Slurm...")
