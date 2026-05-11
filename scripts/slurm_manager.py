@@ -39,22 +39,40 @@ def push(cfg, use_git=False):
         if res.stderr:
             print(f"Errors/Warnings:\n{res.stderr}")
     else:
-        print(f"Pushing updates to {host}:{remote_dir} via rsync...")
+        print(f"Pushing updates to {host}:{remote_dir} via rsync/scp...")
         exclude = [
             ".git/", ".venv/", "__pycache__/", "results/", "outputs/", "logs/",
             ".pytest_cache/", "*.pyc", ".DS_Store", "models/", "synthetic_data/"
         ]
-        exclude_args = [f"--exclude={e}" for e in exclude]
-        # Use rsync to push local changes (including uncommitted)
-        cmd = ["rsync", "-avz", "--delete"] + exclude_args + ["./", f"{host}:{remote_dir}/"]
-        subprocess.run(cmd)
+        
+        # Check if rsync is available
+        try:
+            rsync_available = subprocess.run(["rsync", "--version"], capture_output=True).returncode == 0
+        except FileNotFoundError:
+            rsync_available = False
+
+        if rsync_available:
+            exclude_args = [f"--exclude={e}" for e in exclude]
+            # Use rsync to push local changes (including uncommitted)
+            cmd = ["rsync", "-avz", "--delete"] + exclude_args + ["./", f"{host}:{remote_dir}/"]
+            subprocess.run(cmd)
+        else:
+            # Fallback to scp (manual exclude is harder, so we just copy core directories or everything)
+            print("rsync not found, using scp (note: this is less efficient and doesn't support easy excludes)")
+            # For simplicity, we copy the current directory but we'll try to avoid the big folders
+            # A better way is to copy src, scripts, config, and main.py individually
+            for folder in ["src", "scripts", "config"]:
+                subprocess.run(["scp", "-r", folder, f"{host}:{remote_dir}/"])
+            subprocess.run(["scp", "main.py", f"{host}:{remote_dir}/"])
+            if os.path.exists("requirements.txt"):
+                subprocess.run(["scp", "requirements.txt", f"{host}:{remote_dir}/"])
     
     # 3. Pip install requirements
     print("Updating requirements on remote...")
     run_remote(cfg, f"cd {remote_dir} && ./.venv/bin/pip install -r requirements.txt")
     print("Push complete.")
 
-def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="main.py", remote_submit=False):
+def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="main.py", remote_submit=False, mem_override=None):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
@@ -63,7 +81,7 @@ def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="
 
     if remote_submit:
         # 1. Write all experiments to a local file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, newline='\n') as tmp:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, newline='\n') as tmp:
             for exp in experiments:
                 tmp.write(exp + "\n")
             tmp_path = tmp.name
@@ -79,6 +97,8 @@ def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="
         cmd = f"cd {remote_dir} && ./.venv/bin/python scripts/slurm_manager.py submit-local --file logs/experiments_{group_name}.txt --name {group_name} --script {script}"
         if experiments_per_job:
             cmd += f" --group {experiments_per_job}"
+        if mem_override:
+            cmd += f" --mem {mem_override}"
         
         res = run_remote(cfg, cmd)
         print(res.stdout)
@@ -90,6 +110,8 @@ def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="
     slurm_cfg = cfg['slurm_defaults']
     if experiments_per_job is None:
         experiments_per_job = slurm_cfg.get('cpus_per_task', 8)
+    
+    mem = mem_override if mem_override else slurm_cfg['mem']
     
     # Ensure directories exist
     os.makedirs(f"logs/{group_name}", exist_ok=True)
@@ -115,7 +137,7 @@ def submit(cfg, experiments, group_name=None, experiments_per_job=None, script="
             f"#SBATCH --nodes={slurm_cfg['nodes']}",
             f"#SBATCH --ntasks={slurm_cfg['ntasks']}",
             f"#SBATCH --cpus-per-task={slurm_cfg['cpus_per_task']}",
-            f"#SBATCH --mem={slurm_cfg['mem']}",
+            f"#SBATCH --mem={mem}",
             f"#SBATCH --output=logs/{group_name}/%x_%j.out",
             f"#SBATCH --error=logs/{group_name}/%x_%j.err",
             "",
@@ -160,6 +182,12 @@ def pull(cfg, names=None, types=None):
     if not names:
         names = [""] # Pull everything in the type directory
     
+    # Check if rsync is available
+    try:
+        rsync_available = subprocess.run(["rsync", "--version"], capture_output=True).returncode == 0
+    except FileNotFoundError:
+        rsync_available = False
+    
     for t in types:
         for name in names:
             print(f"Pulling {t} {name}...")
@@ -172,8 +200,16 @@ def pull(cfg, names=None, types=None):
             
             os.makedirs(local_path, exist_ok=True)
             
-            # Use rsync for efficient transfer
-            cmd = ["rsync", "-avz", "--progress", f"{host}:{remote_path}", local_path]
+            if rsync_available:
+                # Use rsync for efficient transfer
+                cmd = ["rsync", "-avz", "--progress", f"{host}:{remote_path}", local_path]
+            else:
+                # Fallback to scp (available on Windows 10+)
+                # Note: scp -r follows different semantics than rsync with trailing slashes.
+                # To pull the CONTENTS of the remote dir into the local dir:
+                cmd = ["scp", "-r", f"{host}:{remote_path}*", local_path]
+            
+            print(f"Running: {' '.join(cmd)}")
             subprocess.run(cmd)
     
     print("Pull complete.")
@@ -235,6 +271,7 @@ def main():
     submit_parser.add_argument("--name", type=str, help="Name for the experiment group")
     submit_parser.add_argument("--group", type=int, help="Number of experiments per job")
     submit_parser.add_argument("--script", type=str, default="main.py", help="Script to run")
+    submit_parser.add_argument("--mem", type=str, help="Memory limit override (e.g., 64G)")
     submit_parser.add_argument("--remote", action="store_true", default=True, help="Trigger submission on remote (default)")
     submit_parser.add_argument("--local", action="store_false", dest="remote", help="Submit from local machine (legacy mode)")
     
@@ -244,6 +281,7 @@ def main():
     local_submit_parser.add_argument("--name", type=str)
     local_submit_parser.add_argument("--group", type=int)
     local_submit_parser.add_argument("--script", type=str)
+    local_submit_parser.add_argument("--mem", type=str)
 
     status_parser = subparsers.add_parser("status", help="Check job status")
     
@@ -282,13 +320,13 @@ def main():
         if not exps:
             print("No experiments provided.")
             return
-        submit(cfg, exps, args.name, args.group, args.script, args.remote)
+        submit(cfg, exps, args.name, args.group, args.script, args.remote, args.mem)
     elif args.command == "submit-local":
         exps = []
         if args.file:
             with open(args.file, "r") as f:
                 exps.extend([line.strip() for line in f if line.strip() and not line.startswith("#")])
-        submit(cfg, exps, args.name, args.group, args.script, remote_submit=False)
+        submit(cfg, exps, args.name, args.group, args.script, remote_submit=False, mem_override=args.mem)
     elif args.command == "status":
         status(cfg)
     elif args.command == "pull":

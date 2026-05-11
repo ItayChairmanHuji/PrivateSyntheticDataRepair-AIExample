@@ -14,6 +14,7 @@ This directory contains scripts for running experiments, benchmarking components
     - `clean`: Remove results and logs from the remote server.
 - `run_parallel_experiments.py`: A helper script used on both local and remote to run multiple Hydra experiments in parallel within a single process/job.
 - `launch_experiments.py`: A script to programmatically generate and launch large experiment grids.
+- `launch_alpha_sweep_v3.py`: Generates and launches a large-scale alpha sweep experiment with synthetic data size 50,000 across multiple datasets, models, seeds, and repair algorithms (weighted, classic, and vanilla VC).
 
 ### Result Collection & Analysis
 - `aggregate_results.py`: Aggregates all JSON result files from the `results/` directory into a single `experiment_results_summary.csv` for analysis.
