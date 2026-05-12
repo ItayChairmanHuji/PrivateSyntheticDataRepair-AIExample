@@ -15,13 +15,7 @@ def generate_overrides():
     alphas = sorted(list(set(alphas_fine + alphas_coarse)))
     
     # Repairers
-    # classic_vc and vanilla_vc don't depend on alpha, so we only run them once
-    # but to make plotting easier, we can just run them with alpha=0.5
-    # or run them for all alphas if we want to be absolutely sure nothing weird happens
-    # I will run weighted_vc and ilp for all alphas, and classic/vanilla for just one alpha.
-    
-    repairers_sweep = ["weighted_vc", "ilp"]
-    repairers_single = ["classic_vc", "vanilla_vc"]
+    repairers = ["weighted_vc", "ilp", "classic_vc", "vanilla_vc"]
     
     seed = 42
     size = 50000
@@ -31,8 +25,7 @@ def generate_overrides():
     
     for ds in datasets:
         for model in models:
-            # Sweep repairers
-            for rep in repairers_sweep:
+            for rep in repairers:
                 for alpha in alphas:
                     override = (
                         f"loading={ds} "
@@ -46,21 +39,6 @@ def generate_overrides():
                         f"experiment_name=alpha_sweep_may2026_{ds}_{model}_{rep}_a{alpha}"
                     )
                     overrides_list.append(override)
-            
-            # Single run repairers
-            for rep in repairers_single:
-                override = (
-                    f"loading={ds} "
-                    f"synthesizing=model_loader "
-                    f"synthesizing.model_path=models/{ds}_{model}_eps{eps}.pkl "
-                    f"synthesizing.size={size} "
-                    f"marginals_obtaining.k={k} "
-                    f"repairing={rep} "
-                    f"repairing.alpha=0.5 "
-                    f"synthesizing.seed={seed} "
-                    f"experiment_name=alpha_sweep_may2026_{ds}_{model}_{rep}"
-                )
-                overrides_list.append(override)
     
     return overrides_list
 
