@@ -29,7 +29,7 @@ def generate_alpha_sweep():
                     f"repairing=weighted_vc "
                     f"repairing.alpha={alpha} "
                     f"synthesizing.seed={seed} "
-                    f"experiment_name=weighted_updated_alpha_v3_{ds}_{model}_a{alpha}"
+                    f"experiment_name=weighted_updated_alpha_v4_{ds}_{model}_a{alpha}"
                 )
                 overrides_list.append(override)
     
@@ -50,7 +50,7 @@ def generate_epsilon_sweep():
         for eps in epsilons:
             model_path = f"models/{dataset}_{engine}_eps{eps}.pkl"
             # Distinguishable experiment name
-            exp_name = f"weighted_updated_eps_v3_{dataset}_{engine}_eps{eps}_a{alpha}"
+            exp_name = f"weighted_updated_eps_v4_{dataset}_{engine}_eps{eps}_a{alpha}"
             
             override = (
                 f"loading={dataset} "
@@ -98,7 +98,7 @@ def main():
     if args.canary:
         # Pick one representative experiment
         canary_exp = [o for o in overrides if "weighted_vc" in o][0]
-        canary_exp = canary_exp.replace("experiment_name=", "experiment_name=canary_weighted_v3_")
+        canary_exp = canary_exp.replace("experiment_name=", "experiment_name=canary_weighted_v4_")
         print(f"Running canary experiment: {canary_exp}")
         
         # Push code
