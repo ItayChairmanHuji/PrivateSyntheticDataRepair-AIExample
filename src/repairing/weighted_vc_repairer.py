@@ -59,11 +59,11 @@ class WeightedVCRepairer(VertexCoverRepairer):
         coeff = 1 / m_len
 
         # Vectorized base calculation
-        base_diffs = np.abs(C / N_prime - T)
+        base_diffs = np.abs(C / N_prime - T) / (C / N_prime)
         base_sum = base_diffs.sum()
 
         # Diffs if the tuple MATCHES the marginal: |(C-1)/N' - T|
-        hypo_diffs = np.abs((C - 1) / N_prime - T)
+        hypo_diffs = np.abs((C - 1) / N_prime - T) / ((C - 1) / N_prime)
         # Change in sum if we remove a tuple that matches marginal m
         diff_gain = hypo_diffs - base_diffs
 
@@ -83,10 +83,11 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self, active_indices: list, weights: np.ndarray, graph: ig.Graph
     ) -> int:
         degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
-        norm_weights = self._normalize(weights)
-        norm_degrees = self._normalize(degrees)
+        norm_weights = np.log(self._normalize(weights))
+        norm_degrees = np.log(self._normalize(degrees))
 
-        ratios = (1 - self.alpha) * norm_weights + self.alpha / norm_degrees
+        ratios = (1 - self.alpha) * norm_weights - self.alpha * norm_degrees
+
         best_local_idx = np.argmin(ratios)
         return active_indices[best_local_idx]
 
