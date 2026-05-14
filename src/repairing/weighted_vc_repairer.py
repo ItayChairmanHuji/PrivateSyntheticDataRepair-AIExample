@@ -59,11 +59,11 @@ class WeightedVCRepairer(VertexCoverRepairer):
         coeff = 1 / m_len
 
         # Vectorized base calculation
-        base_diffs = np.abs(C / N_prime - T) / (C / N_prime)
+        base_diffs = np.abs(C / N_prime - T) / T
         base_sum = base_diffs.sum()
 
         # Diffs if the tuple MATCHES the marginal: |(C-1)/N' - T|
-        hypo_diffs = np.abs((C - 1) / N_prime - T) / ((C - 1) / N_prime)
+        hypo_diffs = np.abs((C - 1) / N_prime - T) / T
         # Change in sum if we remove a tuple that matches marginal m
         diff_gain = hypo_diffs - base_diffs
 
