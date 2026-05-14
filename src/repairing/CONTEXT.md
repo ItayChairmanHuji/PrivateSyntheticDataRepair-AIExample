@@ -33,9 +33,9 @@ $$
 ### Weighted Vertex Cover Logic
 1. Build conflict graph for the data.
 2. Iteratively select vertices to remove:
-   - Calculate weight $w(v_t)$ as the distance between hypothetical marginals (after removing $v_t$) and target marginals: $w_i(v_t) = \frac{1-\alpha}{|\marginalset|} \sum_{m \in \marginalset} |m_{D^{(v_t)}}-m|$.
-   - Normalize weights and degrees.
-   - Select vertex with minimal ratio `weight/degree`.
+   - Calculate weight $w(v_t)$ as the distance between hypothetical marginals (after removing $v_t$) and target marginals. The distance is normalized by the current counts to emphasize relative changes.
+   - Normalize weights and degrees using log-scaling to handle different orders of magnitude.
+   - Select vertex with minimal balanced ratio: $(1 - \alpha) \cdot \log(\text{norm\_weight}) - \alpha \cdot \log(\text{norm\_degree})$.
    - Update internal counts and remove incident edges.
 3. Remove the selected vertices from the dataset.
 
