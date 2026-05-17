@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import unittest
+import itertools
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -35,10 +36,19 @@ class TestTopKObtainer(unittest.TestCase):
             utility_function=self.utility
         )
 
+    def _compute_all_2way_marginals(self, data: pd.DataFrame):
+        marginals = {}
+        columns = data.columns
+        for attr1, attr2 in itertools.combinations(columns, 2):
+            counts = data[[attr1, attr2]].value_counts(normalize=True).items()
+            for (val1, val2), freq in counts:
+                marginals[(attr1, attr2, val1, val2)] = freq
+        return marginals
+
     def test_compute_all_2way_marginals(self):
         # Only one pair (A, B)
         # Pairs: (1,1) -> 2/4 = 0.5, (0,1) -> 1/4 = 0.25, (0,0) -> 1/4 = 0.25
-        freqs = self.obtainer._compute_all_2way_marginals(self.p_data)
+        freqs = self._compute_all_2way_marginals(self.p_data)
         self.assertEqual(len(freqs), 3)
         self.assertEqual(freqs[('A', 'B', 1, 1)], 0.5)
         self.assertEqual(freqs[('A', 'B', 0, 1)], 0.25)

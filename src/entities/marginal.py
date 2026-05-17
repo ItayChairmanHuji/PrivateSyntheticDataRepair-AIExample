@@ -27,7 +27,7 @@ class Marginal:
     def calculate_error(self, data: pd.DataFrame) -> float:
         freq = self.calculate_frequency(data)
         distance = abs(freq - self.target)
-        return distance / (freq + 1e-7)
+        return distance / self.target
 
     def calculate_distance(self, data: pd.DataFrame) -> float:
         freq = self.calculate_frequency(data)

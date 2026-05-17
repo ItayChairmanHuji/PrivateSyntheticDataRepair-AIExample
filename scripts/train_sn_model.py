@@ -35,7 +35,7 @@ def train(cfg: DictConfig):
     # Save model
     models_dir = Path("models")
     models_dir.mkdir(exist_ok=True)
-    model_path = models_dir / f"{dataset.name}_{engine}.pkl"
+    model_path = models_dir / f"{dataset.name}_{engine}_eps{epsilon}.pkl"
     
     with open(model_path, "wb") as f:
         dill.dump(synth, f)

@@ -18,6 +18,8 @@ The evaluation stage is responsible for quantifying the quality of the synthetic
 |\margsimple{D}{i}{j} - \tmarg{D_p}{i}{j}|
 \end{split}
 \end{equation*}$$ for each dataset. In simple words, the change in the data size (the size of the original data minus the new size divided by the size of the original data) plus the average marginal distance of the obtained marginals. Please give the loss and each of the two components. 
+8. **Marginal Generation Quality**: Measures the average relative error between the noisy target values of the obtained marginals and their true frequencies in the private data. This evaluates the accuracy of the noise addition process.
+9. **Marginal Selection Quality**: Measures the precision at K for the selected marginals, comparing them to the "true" top-K marginals (those with the highest absolute difference between private and synthetic frequencies).
 
 
 

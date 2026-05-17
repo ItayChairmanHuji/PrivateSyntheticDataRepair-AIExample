@@ -13,6 +13,8 @@ from src.evaluating.tvd_evaluator import TwoWayTVDEvaluator
 from src.evaluating.runtime_evaluator import RuntimeEvaluator
 from src.evaluating.marginals_error_evaluator import MarginalsErrorEvaluator
 from src.evaluating.loss_function_evaluator import LossFunctionEvaluator
+from src.evaluating.marginal_generation_evaluator import MarginalGenerationEvaluator
+from src.evaluating.marginal_selection_evaluator import MarginalSelectionEvaluator
 from src.entities.pipeline_result import PipelineResult
 from src.entities.dataset import Dataset
 from src.entities.denial_constraints import DenialConstraints
@@ -89,9 +91,9 @@ class TestEvaluators(unittest.TestCase):
         evaluator = MarginalsErrorEvaluator()
         metrics = evaluator.evaluate(self.result)
         # Marginal: A=1, B=1, target=0.5
-        # Syn: (1,1) appears 1/3 times. Error = abs(1/3 - 0.5) / (1/3) = abs(-1/6) / (1/3) = 0.5
+        # Syn: (1,1) appears 1/3 times. Error = abs(1/3 - 0.5) / 0.5 = (1/6) / 0.5 = 1/3
         # Rep: (1,1) appears 1/2 times. Error = abs(0.5 - 0.5) / 0.5 = 0
-        self.assertAlmostEqual(metrics["marginals_error"]["synthetic_avg"], 0.5)
+        self.assertAlmostEqual(metrics["marginals_error"]["synthetic_avg"], 1/3)
         self.assertAlmostEqual(metrics["marginals_error"]["repaired_avg"], 0.0)
 
     def test_loss_function_evaluator(self):
@@ -116,6 +118,35 @@ class TestEvaluators(unittest.TestCase):
         # marginal_component: |1/2 - 0.5| = 0
         # total = 0
         self.assertAlmostEqual(metrics["loss_function"]["repaired"]["total"], 0.0)
+
+    def test_marginal_generation_evaluator(self):
+        evaluator = MarginalGenerationEvaluator()
+        metrics = evaluator.evaluate(self.result)
+        # Marginal: A=1, B=1, target=0.5
+        # Private: (1,1) is 1/2 = 0.5
+        # Rel Error = abs(0.5 - 0.5) / 0.5 = 0
+        self.assertAlmostEqual(metrics["marginal_generation_quality"]["avg_relative_error"], 0.0)
+        
+        # Change target to test error
+        self.result.obtained_marginals.marginals[0] = Marginal(attrs=('A', 'B'), values=(1, 1), target=0.6)
+        metrics = evaluator.evaluate(self.result)
+        # Rel Error = abs(0.6 - 0.5) / 0.5 = 0.1 / 0.5 = 0.2
+        self.assertAlmostEqual(metrics["marginal_generation_quality"]["avg_relative_error"], 0.2)
+
+    def test_marginal_selection_evaluator(self):
+        evaluator = MarginalSelectionEvaluator()
+        # P: (1,1)->0.5, (1,2)->0.5
+        # S: (1,1)->1/3, (1,2)->2/3
+        # True distance: 
+        # (1,1): |0.5 - 1/3| = 1/6
+        # (1,2): |0.5 - 2/3| = 1/6
+        # Top-1 could be either.
+        
+        # Current obtained: (1,1)
+        metrics = evaluator.evaluate(self.result)
+        self.assertEqual(metrics["marginal_selection_quality"]["k"], 1)
+        self.assertEqual(metrics["marginal_selection_quality"]["overlap_count"], 1)
+        self.assertEqual(metrics["marginal_selection_quality"]["precision_at_k"], 1.0)
 
 if __name__ == "__main__":
     unittest.main()

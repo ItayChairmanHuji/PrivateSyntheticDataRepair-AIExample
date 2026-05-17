@@ -9,3 +9,5 @@ evaluators:
   - _target_: src.evaluating.ml_accuracy_evaluator.MLAccuracyEvaluator
   - _target_: src.evaluating.violation_evaluator.ViolationEvaluator
   - _target_: src.evaluating.loss_function_evaluator.LossFunctionEvaluator
+  - _target_: src.evaluating.marginal_generation_evaluator.MarginalGenerationEvaluator
+  - _target_: src.evaluating.marginal_selection_evaluator.MarginalSelectionEvaluator
