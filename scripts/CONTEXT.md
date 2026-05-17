@@ -15,6 +15,7 @@ This directory contains scripts for running experiments, benchmarking components
 - `run_parallel_experiments.py`: A helper script used on both local and remote to run multiple Hydra experiments in parallel within a single process/job.
 - `launch_experiments.py`: A script to programmatically generate and launch large experiment grids.
 - `launch_alpha_sweep_may2026.py`: Generates and launches a large-scale alpha sweep experiment (May 2026) with synthetic data size 50,000 across multiple datasets (adult, census, compas, tax), models (AIM, MST at 0.5 eps), and all VC repair algorithms (weighted, classic, vanilla VC, and ILP).
+- `launch_alpha_eps01_b1000_sweep.py`: Generates and launches an alpha sweep experiment with eps=0.1 and a high budget (1000) for marginal selection and generation to evaluate the impact of near-perfect marginals.
 - `launch_alpha_sweep_v2.py`: Generates and launches an alpha sweep experiment.
 - `launch_weighted_updated_sweeps.py`: Generates and launches large-scale alpha and epsilon sweeps (May 2026) to evaluate the updated weight function in the `WeightedVCRepairer`. Distinguishes results using `weighted_updated_alpha_v3` and `weighted_updated_eps_v3` prefixes.
 
