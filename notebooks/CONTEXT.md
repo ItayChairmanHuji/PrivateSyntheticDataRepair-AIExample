@@ -33,3 +33,11 @@ Every notebook must include the following sections to be considered valid:
 - `test_violation_finder.ipynb`: Validates the `ViolationFinder` component.
 - `test_slurm_manager.ipynb`: Validates the remote Slurm execution manager logic.
 - `optimize_violation_finder.ipynb`: Benchmarks and optimizes the violation finding logic.
+
+## Analysis & Visualization
+- `alpha_eps01_b1000_analysis.ipynb`: Specifically analyzes the alpha sweep with eps=0.1 and near-perfect marginals (budget=1000), providing a baseline for the theoretical best repair performance.
+- `alpha_sweep_analysis.ipynb`: Visualizes the results of the alpha sweep experiments, showing the impact of the repair parameter on data utility.
+- `final_experiment_analysis.ipynb`: Comprehensive analysis of the final research experiments.
+- `weighted_vc_alpha_eps01_analysis.ipynb`: Analysis specifically for the weighted VC algorithm under eps=0.1.
+- `weighted_vc_may15_analysis.ipynb`: Analysis for experiments conducted on May 15th.
+- `weighted_vc_may2026_analysis.ipynb`: Current state analysis for the May 2026 experiments.

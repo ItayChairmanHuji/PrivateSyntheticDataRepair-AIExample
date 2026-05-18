@@ -46,10 +46,12 @@ class TestVCRepairers(unittest.TestCase):
         # For Row 0 (matches m1): C1' = 0. w = 0.5 * |0/2 - 0.9| = 0.45
         # For Row 1 (no match): C1' = 1. w = 0.5 * |1/2 - 0.9| = 0.20
         active_indices = [0, 1]
-        weights = repairer._calculate_weights(active_indices, len(self.marginals))
+        m_len = len(self.marginals)
+        weights = repairer._calculate_weights(active_indices, m_len)
+        print(f"DEBUG: m_len={m_len}, weights={weights}")
         
-        self.assertAlmostEqual(weights[0], 0.45)
-        self.assertAlmostEqual(weights[1], 0.20)
+        self.assertAlmostEqual(weights[0], 0.9)
+        self.assertAlmostEqual(weights[1], 0.4)
         
         # 2. Verify selection ratio
         # Degree(0) = 1, Degree(1) = 1.

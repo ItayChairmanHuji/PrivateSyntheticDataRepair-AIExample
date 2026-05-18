@@ -58,7 +58,9 @@ def main():
         print("...")
         return
 
-    group_name = "alpha_eps01_b1000_abserr"
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    group_name = f"alpha_eps01_b1000_abserr_{timestamp}"
     overrides_file = f"{group_name}_overrides.txt"
     with open(overrides_file, "w") as f:
         for o in overrides:

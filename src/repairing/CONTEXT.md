@@ -34,8 +34,8 @@ $$
 1. Build conflict graph for the data.
 2. Iteratively select vertices to remove:
    - Calculate weight $w(v_t)$ as the distance between hypothetical marginals (after removing $v_t$) and target marginals. The distance is normalized by the current counts to emphasize relative changes.
-   - Normalize weights and degrees using log-scaling to handle different orders of magnitude.
-   - Select vertex with minimal balanced ratio: $(1 - \alpha) \cdot \log(\text{norm\_weight}) - \alpha \cdot \log(\text{norm\_degree})$.
+   - Normalize weights and degrees linearly to [0, 1].
+   - Select vertex with minimal balanced score: $(1 - \alpha) \cdot \text{norm\_weight} + \alpha \cdot (1 - \text{norm\_degree})$.
    - Update internal counts and remove incident edges.
 3. Remove the selected vertices from the dataset.
 

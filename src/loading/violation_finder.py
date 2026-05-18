@@ -193,8 +193,20 @@ class ViolationFinder:
     def _get_pandas_mask(self, data, predicates):
         mask = np.ones(len(data), dtype=bool)
         for p in predicates:
-            val = float(p.right.attr) if p.right.is_value else float(p.left.attr)
+            # Handle constants correctly: try to match the data type of the column
             attr = p.left.attr if not p.left.is_value else p.right.attr
+            raw_val = p.right.attr if p.right.is_value else p.left.attr
+            
+            # Try to infer the type from the data column
+            col_dtype = data[attr].dtype
+            if pd.api.types.is_numeric_dtype(col_dtype):
+                try:
+                    val = float(raw_val)
+                except ValueError:
+                    val = raw_val
+            else:
+                val = raw_val
+            
             if p.opr == "=": mask &= (data[attr] == val)
             elif p.opr == "!=": mask &= (data[attr] != val)
             elif p.opr == "<": mask &= (data[attr] < val)

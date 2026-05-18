@@ -83,10 +83,15 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self, active_indices: list, weights: np.ndarray, graph: ig.Graph
     ) -> int:
         degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
-        norm_weights = np.log(self._normalize(weights))
-        norm_degrees = np.log(self._normalize(degrees))
+        
+        # Linear normalization to [0, 1]
+        nw = self._normalize(weights)
+        nd = self._normalize(degrees)
 
-        ratios = (1 - self.alpha) * norm_weights - self.alpha * norm_degrees
+        # Minimize combined score:
+        # nw: smaller is better (less error)
+        # 1 - nd: smaller is better (higher degree)
+        ratios = (1 - self.alpha) * nw + self.alpha * (1 - nd)
 
         best_local_idx = np.argmin(ratios)
         return active_indices[best_local_idx]

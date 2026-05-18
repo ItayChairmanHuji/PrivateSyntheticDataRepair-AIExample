@@ -61,11 +61,11 @@ class VertexCoverRepairer(Repairer):
     def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> int:
         pass
 
-    def _normalize(self, values: np.ndarray, eps=1e-9) -> np.ndarray:
+    def _normalize(self, values: np.ndarray) -> np.ndarray:
         if len(values) == 0:
             return values
         v_min = values.min()
         v_max = values.max()
         if v_max == v_min:
-            return np.ones_like(values)
-        return (values - v_min + eps) / (v_max - v_min + eps)
+            return np.zeros_like(values)
+        return (values - v_min) / (v_max - v_min)

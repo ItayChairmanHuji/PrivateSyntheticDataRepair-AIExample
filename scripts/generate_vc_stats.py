@@ -23,7 +23,7 @@ class StatWeightedVCRepairer(WeightedVCRepairer):
     def _pick_best_vertex(self, active_indices, weights, graph):
         degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
         nw, nd = self._normalize(weights), self._normalize(degrees)
-        ratios = (1-self.alpha)*np.log(nw) - self.alpha*np.log(nd)
+        ratios = (1-self.alpha)*nw + self.alpha*(1-nd)
         
         # Limit plotting to avoid thousands of files
         if self.iteration < self.max_plots:
