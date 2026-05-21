@@ -1,6 +1,6 @@
 ﻿import numpy as np
 import pandas as pd
-from s03_marginals.src.utility_functions.utility_function import UtilityFunction
+from s03_marginals.src.components.utility_functions.utility_function import UtilityFunction
 
 class DistanceUtility(UtilityFunction):
     """

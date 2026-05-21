@@ -7,8 +7,8 @@ import pandas as pd
 
 from shared.entities.dataset import Dataset
 from shared.entities.marginal import Marginal, MarginalSet
-from s03_marginals.src.obtainer import Obtainer
-from s03_marginals.src.utility_functions.utility_function import UtilityFunction
+from s03_marginals.src.components.obtainer import Obtainer
+from s03_marginals.src.components.utility_functions.utility_function import UtilityFunction
 
 
 @dataclass

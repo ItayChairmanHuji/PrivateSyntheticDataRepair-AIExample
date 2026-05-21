@@ -16,11 +16,15 @@ from s01_loading.src.components.dcs_loader import DCsLoader
 
 @hydra.main(version_base=None, config_path="../config", config_name="top_k")
 def main(cfg: DictConfig):
-    print(f"--- Stage 3: Obtaining Marginals ---")
+    dataset_name = cfg.get("dataset_name")
+    if not dataset_name:
+        raise ValueError("dataset_name MUST be provided in the configuration.")
+
+    print(f"--- Stage 3: Obtaining Marginals for {dataset_name} ---")
     
     # Define directories (relative to CWD)
-    input_dir = Path("s03_marginals/input")
-    output_dir = Path("s03_marginals/output")
+    input_dir = Path("s03_marginals/input") / dataset_name
+    output_dir = Path("s03_marginals/output") / dataset_name
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Load artifacts
