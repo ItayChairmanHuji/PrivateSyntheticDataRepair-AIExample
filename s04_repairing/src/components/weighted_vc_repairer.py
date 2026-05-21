@@ -6,8 +6,8 @@ import numpy as np
 
 from shared.entities.dataset import Dataset
 from shared.entities.marginal import MarginalSet
-from s04_repairing.src.vertex_cover_repairer import VertexCoverRepairer
-from s04_repairing.src.adaptive_alpha_calculator import AdaptiveAlphaCalculator
+from s04_repairing.src.components.vertex_cover_repairer import VertexCoverRepairer
+from s04_repairing.src.components.adaptive_alpha_calculator import AdaptiveAlphaCalculator
 
 
 @dataclass

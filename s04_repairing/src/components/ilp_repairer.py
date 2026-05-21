@@ -4,7 +4,7 @@ import gurobipy as gp
 
 from shared.entities.dataset import Dataset
 from shared.entities.marginal import MarginalSet
-from s04_repairing.src.repairer import Repairer
+from s04_repairing.src.components.repairer import Repairer
 from shared.utils.gurobi_helper import GurobiHelper
 
 

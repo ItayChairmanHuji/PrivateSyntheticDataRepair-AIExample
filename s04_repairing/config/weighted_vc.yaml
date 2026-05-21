@@ -1,3 +1,4 @@
-_target_: s04_repairing.src.weighted_vc_repairer.WeightedVCRepairer
+_target_: s04_repairing.src.components.weighted_vc_repairer.WeightedVCRepairer
+dataset_name: ???
 alpha: 0.5
 use_adaptive_alpha: False

@@ -2,7 +2,7 @@
 import igraph as ig
 from shared.entities.dataset import Dataset
 from shared.entities.marginal import MarginalSet
-from s04_repairing.src.vertex_cover_repairer import VertexCoverRepairer
+from s04_repairing.src.components.vertex_cover_repairer import VertexCoverRepairer
 
 class VanillaVCRepairer(VertexCoverRepairer):
     """

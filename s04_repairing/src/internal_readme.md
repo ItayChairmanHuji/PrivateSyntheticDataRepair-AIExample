@@ -40,7 +40,7 @@ $$
 3. Remove the selected vertices from the dataset.
 
 ## Testing
-The repairing system is verified by tests in `tests/repairing/`.
+The repairing system is verified by tests in `s04_repairing/tests/`.
 
 ### 1. Vertex Cover Repairer Tests (`test_vc_repairers.py`)
 Validates the heuristic repair strategies:
