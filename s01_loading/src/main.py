@@ -13,14 +13,15 @@ if str(root_path) not in sys.path:
 
 @hydra.main(version_base=None, config_path="../config", config_name="adult100")
 def main(cfg: DictConfig):
-    print(f"--- Stage 1: Loading Dataset '{cfg.name}' ---")
+    dataset_name = cfg.get("dataset_name", cfg.name)
+    print(f"--- Stage 1: Loading Dataset '{dataset_name}' ---")
     
     # Instantiate the loader
     loader = hydra.utils.instantiate(cfg)
     dataset = loader.load()
     
     # Define output directory (relative to CWD)
-    output_dir = Path("s01_loading/output") / cfg.name
+    output_dir = Path("s01_loading/output") / dataset_name
     output_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"Saving artifacts to {output_dir}...")

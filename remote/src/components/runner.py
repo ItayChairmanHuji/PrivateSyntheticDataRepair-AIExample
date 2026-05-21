@@ -74,47 +74,73 @@ def main():
     
     try:
         # Setup workspace structure
-        # Identify stages from blueprint if possible, or use defaults
         stages_needed = ["s01_loading", "s02_synthesizing", "s03_marginals", "s04_repairing", "s05_evaluating"]
         
-        for item in ["data", "shared", "route.py"] + stages_needed:
+        # Link core components and stages
+        for item in ["data", "shared", "models", "route.py"] + stages_needed:
             src = root / item
             dst = workspace / item
-            if not src.exists(): continue
+            if not src.exists(): 
+                continue
             
             if src.is_dir():
                 dst.mkdir(exist_ok=True)
                 for subitem in os.listdir(src):
+                    # We want fresh input/output for isolation
                     if subitem in ["input", "output", "__pycache__"]:
                         (dst / subitem).mkdir(exist_ok=True)
                     else:
                         create_link(src / subitem, dst / subitem)
             else:
                 create_link(src, dst)
-        
-        (workspace / "models").mkdir(exist_ok=True)
 
         env = os.environ.copy()
         env["PYTHONPATH"] = str(workspace)
 
-        # Implementation of the pipeline execution...
-        # For now, we assume s01 -> s05 as defined in run_experiment.py
-        # Actually, let's keep it flexible or follow s06's original logic.
-        
-        # ... (Stage execution logic from original s06_remote/src/run_experiment.py) ...
-        # I'll simplify here or copy the relevant parts.
+        # --- PIPELINE EXECUTION ---
+        dataset = params['dataset']
         
         # STAGE 01: Loading
-        run_command(f"python s01_loading/src/main.py --config-name={params['dataset']}", workspace, env=env)
+        run_command(f"python s01_loading/src/main.py --config-name={dataset} dataset_name={dataset}", workspace, env=env)
         
         # Handoff S1 -> S2
         copy_artifacts(workspace / "s01_loading/output", workspace / "s02_synthesizing/input")
 
-        # STAGE 02: Training
+        # STAGE 02: Synthesizing
         engine = params['synthesizer']
         epsilon = params['epsilon']
-        save_path = str(root / "models")
-        run_command(f"python s02_synthesizing/src/main.py --config-name=model_trainer engine={engine} epsilon={epsilon} +mode=train save_path={save_path}", workspace, env=env)
+        seed = params.get('seed', 42)
+        mode = params.get('mode', 'full') # Default to full (train + sample)
+        
+        # Ensure we point to the correct models directory (linked in workspace)
+        save_path = str(workspace / "models")
+        run_command(f"python s02_synthesizing/src/main.py --config-name={engine} engine={engine} epsilon={epsilon} seed={seed} dataset_name={dataset} mode={mode} save_path={save_path}", workspace, env=env)
+
+        # Handoff S1, S2 -> S3
+        copy_artifacts(workspace / "s01_loading/output", workspace / "s03_marginals/input")
+        copy_artifacts(workspace / "s02_synthesizing/output", workspace / "s03_marginals/input")
+
+        # STAGE 03: Marginals
+        # Assuming defaults in top_k.yaml are fine, but can override if needed
+        run_command(f"python s03_marginals/src/main.py dataset_name={dataset}", workspace, env=env)
+
+        # Handoff S1, S2, S3 -> S4
+        copy_artifacts(workspace / "s01_loading/output", workspace / "s04_repairing/input")
+        copy_artifacts(workspace / "s02_synthesizing/output", workspace / "s04_repairing/input")
+        copy_artifacts(workspace / "s03_marginals/output", workspace / "s04_repairing/input")
+
+        # STAGE 04: Repairing
+        repairer = params.get('repairer', 'vanilla_vc')
+        run_command(f"python s04_repairing/src/main.py --config-name={repairer} dataset_name={dataset}", workspace, env=env)
+
+        # Handoff ALL -> S5
+        copy_artifacts(workspace / "s01_loading/output", workspace / "s05_evaluating/input")
+        copy_artifacts(workspace / "s02_synthesizing/output", workspace / "s05_evaluating/input")
+        copy_artifacts(workspace / "s04_repairing/output", workspace / "s05_evaluating/input")
+        copy_artifacts(workspace / "s03_marginals/output", workspace / "s05_evaluating/input")
+
+        # STAGE 05: Evaluating
+        run_command(f"python s05_evaluating/src/main.py dataset_name={dataset}", workspace, env=env)
 
         # --- FINAL COLLECTION ---
         final_dir = root / "outputs" / group_name / exp_name
