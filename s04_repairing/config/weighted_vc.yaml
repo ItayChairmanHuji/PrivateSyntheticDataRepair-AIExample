@@ -1,0 +1,3 @@
+_target_: s04_repairing.src.weighted_vc_repairer.WeightedVCRepairer
+alpha: 0.5
+use_adaptive_alpha: False

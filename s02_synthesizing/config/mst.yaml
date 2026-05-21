@@ -1,0 +1,6 @@
+_target_: s02_synthesizing.src.smart_noise.SmartNoiseSynthesizer
+engine: mst
+epsilon: 1.0
+seed: 42
+delta: null
+kwargs: {}

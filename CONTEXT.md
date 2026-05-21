@@ -5,7 +5,7 @@ This sandbox implements the full research lifecycle for synthetic data repair us
 ## Stage Map
 | Stage | Name | Responsibility |
 | :--- | :--- | :--- |
-| **00** | [Experiment Design](./00_experiment_design/CONTEXT.md) | Define sweeps and generate experiment blueprints. |
+| **00** | [Experiment Design](./s00_experiment_design/CONTEXT.md) | Define sweeps and generate experiment blueprints. |
 | **01** | [Loading](./01_loading/CONTEXT.md) | Load private datasets and constraints. |
 | **02** | [Synthesizing](./02_synthesizing/CONTEXT.md) | Generate initial synthetic data. |
 | **03** | [Marginals Obtaining](./03_marginals_obtaining/CONTEXT.md) | Calculate noisy marginals from private/synthetic data. |

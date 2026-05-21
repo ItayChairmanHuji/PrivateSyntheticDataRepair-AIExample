@@ -1,0 +1,10 @@
+experiment_group: experiment_1_generation
+base_config:
+  dataset: adult
+  synthesizer: aim
+  epsilon: 1.0
+
+sweep_parameters:
+  dataset: [adult, census, compas, tax]
+  synthesizer: [aim, mst]
+  epsilon: [0.001, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]

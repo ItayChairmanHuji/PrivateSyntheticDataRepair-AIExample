@@ -1,0 +1,7 @@
+_target_: s02_synthesizing.src.model_trainer.SmartNoiseModelTrainer
+engine: mst
+epsilon: 1.0
+seed: 42
+save_path: models
+kwargs:
+  delta: 1e-5

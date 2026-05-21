@@ -8,11 +8,17 @@ Folder structure is agent architecture. Every stage of the research lifecycle is
 - **Isolation**: Each stage folder is a self-contained environment.
 - **Contracts**: Stages communicate via `input/` and `output/` folders.
 - **Interpretability**: Intermediate states are written to disk as plain text (CSV/JSON/MD) whenever possible.
-- **The "Glass Box"**: You should be able to stop at any stage, inspect the `output/`, and manually correct it before the next stage begins.
+- **The "Glass Box"**: You should be able to stop any stage, inspect the `output/`, and manually correct it before the next stage begins.
+
+## Hard Constraints
+- **No Environment Hacks**: Never use symlinks, junctions, or virtual directory mappings (like `mklink` or `New-Item -ItemType Junction`) to resolve import errors.
+- **Structural Integrity**: If the code's import structure (`from src...`) does not match the physical folder names, you must **refactor the code or folders** to be idiomatic Python packages. 
+- **Explicit Handoffs**: Data must only move between stages via the `route.py` script or manual copying to `input/`. Never point a stage's configuration directly at another stage's `output/` folder.
+- **Zero Cross-Stage Imports**: A file in `loading/` must never import from `synthesizing/`. Common logic MUST be moved to `shared/`.
 
 ## Workflow Patterns
 1. **Research & Development**: Develop locally within a stage. Use the `tests/` folder (notebooks or scripts) to verify logic.
-2. **Experiment Design**: Use `00_experiment_design` to generate "Blueprints" (configurations and folder structures for a sweep).
+2. **Experiment Design**: Use `s00_experiment_design` to generate "Blueprints" (configurations and folder structures for a sweep).
 3. **Remote Scaling**: Deploy blueprints via `06_remote_execution` to Slurm.
 4. **Analysis**: Use `08_analysis` to synthesize final insights and visualizations from aggregated results.
 

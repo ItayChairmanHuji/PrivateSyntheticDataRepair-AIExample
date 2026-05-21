@@ -4,10 +4,15 @@ import shutil
 import json
 
 def get_stage_path(stage_num_or_name):
-    base_dir = "icm_sandbox"
-    for item in os.listdir(base_dir):
-        if item.startswith(f"{stage_num_or_name:02}") or item.endswith(stage_num_or_name):
-            return os.path.join(base_dir, item)
+    # Search in current directory
+    for item in os.listdir("."):
+        if os.path.isdir(item):
+            # Matches 's01_loading' if input is '01', 'loading', or 's01_loading'
+            if (item == stage_num_or_name or 
+                item.endswith(stage_num_or_name) or 
+                item.startswith(f"s{stage_num_or_name}_") or
+                (isinstance(stage_num_or_name, int) and item.startswith(f"s{stage_num_or_name:02}_"))):
+                return item
     return None
 
 def main():
