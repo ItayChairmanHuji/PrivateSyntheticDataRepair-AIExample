@@ -1,7 +1,7 @@
 _target_: src.loading.file_loader.FileLoader
 name: adult
 base_path: data
-size: null
+size: 50000
 seed: 42
 data_loader:
   _target_: src.loading.components.data_loader.DataLoader

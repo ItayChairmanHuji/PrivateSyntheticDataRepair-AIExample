@@ -1,0 +1,3 @@
+_target_: src.synthesizing.co_noise.CoNoise
+num_of_iterations: 100
+seed: 42

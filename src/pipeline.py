@@ -22,25 +22,26 @@ class Pipeline:
         runtimes = {}
 
         # 1. Loading
-        print(f"--- Stage 1: Loading ---")
+        print(f"--- Stage 1: Loading ---", flush=True)
         start = time.time()
         private_dataset = self.loader.load()
+        print(f"Loaded dataset: {private_dataset.name} ({len(private_dataset)} rows)", flush=True)
         runtimes['loading'] = time.time() - start
 
         # 2. Synthesizing
-        print(f"--- Stage 2: Synthesizing ---")
+        print(f"--- Stage 2: Synthesizing ---", flush=True)
         start = time.time()
         synthetic_dataset = self.synthesizer.synthesize(private_dataset)
         runtimes['synthesizing'] = time.time() - start
 
         # 3. Marginals Obtaining
-        print(f"--- Stage 3: Marginals Obtaining ---")
+        print(f"--- Stage 3: Marginals Obtaining ---", flush=True)
         start = time.time()
         obtained_marginals = self.obtainer.obtain(private_dataset, synthetic_dataset)
         runtimes['marginals_obtaining'] = time.time() - start
 
         # 4. Repairing
-        print(f"--- Stage 4: Repairing ---")
+        print(f"--- Stage 4: Repairing ---", flush=True)
         start = time.time()
         
         # Repairing in a single pass as repairers are designed to handle all identified conflicts.
@@ -49,14 +50,14 @@ class Pipeline:
         # Final sanity check for research logging
         remaining_v = len(repaired_dataset.get_violations())
         if remaining_v == 0:
-            print("Repair complete: All violations removed.")
+            print("Repair complete: All violations removed.", flush=True)
         else:
-            print(f"Warning: Repair complete but {remaining_v} violations remain.")
+            print(f"Warning: Repair complete but {remaining_v} violations remain.", flush=True)
             
         runtimes['repairing'] = time.time() - start
 
         # 5. Evaluating
-        print(f"--- Stage 5: Evaluating ---")
+        print(f"--- Stage 5: Evaluating ---", flush=True)
         
         from src.utils.serialization_helper import get_serializable_params
         

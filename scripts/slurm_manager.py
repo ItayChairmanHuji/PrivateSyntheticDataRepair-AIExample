@@ -17,11 +17,11 @@ def run_remote(cfg, cmd):
     host = cfg['host']
     return subprocess.run(["ssh", host, cmd], capture_output=True, text=True)
 
-def push(cfg, use_git=False):
+def push(cfg, method="rsync"):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
-    if use_git:
+    if method == "git":
         # Get current branch
         branch_res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
         branch = branch_res.stdout.strip()
@@ -38,6 +38,40 @@ def push(cfg, use_git=False):
         print(res.stdout)
         if res.stderr:
             print(f"Errors/Warnings:\n{res.stderr}")
+    elif method == "zip":
+        print(f"Pushing updates to {host}:{remote_dir} via zip...")
+        zip_name = "code_push.zip"
+        exclude = [
+            ".git", ".venv", "__pycache__", "results", "outputs", "logs",
+            ".pytest_cache", "models", "synthetic_data", "*.zip", "*.tar.gz"
+        ]
+        
+        import zipfile
+        import shutil
+
+        def zip_dir(path, zip_file):
+            def is_excluded(p):
+                parts = Path(p).parts
+                for e in exclude:
+                    if e in parts: return True
+                    if e.startswith("*") and p.endswith(e[1:]): return True
+                return False
+
+            with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, dirs, files in os.walk(path):
+                    for file in files:
+                        p = os.path.join(root, file)
+                        rel_p = os.path.relpath(p, path)
+                        if not is_excluded(rel_p):
+                            zipf.write(p, rel_p)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_zip = os.path.join(tmpdir, zip_name)
+            zip_dir(".", tmp_zip)
+            subprocess.run(["scp", tmp_zip, f"{host}:{remote_dir}/{zip_name}"])
+            
+        run_remote(cfg, f"cd {remote_dir} && unzip -o {zip_name} && rm {zip_name}")
+        
     else:
         print(f"Pushing updates to {host}:{remote_dir} via rsync/scp...")
         exclude = [
@@ -172,7 +206,7 @@ def status(cfg):
     else:
         print("No history found.")
 
-def pull(cfg, names=None, types=None):
+def pull(cfg, names=None, types=None, method="rsync"):
     host = cfg['host']
     remote_dir = cfg['remote_dir']
     
@@ -182,6 +216,41 @@ def pull(cfg, names=None, types=None):
     if not names:
         names = [""] # Pull everything in the type directory
     
+    if method == "zip":
+        for t in types:
+            for name in names:
+                print(f"Pulling {t} {name} via zip...")
+                remote_path = f"{remote_dir}/{t}"
+                if name:
+                    remote_path += f"/{name}"
+                
+                safe_name = name.replace('/', '_') or 'all'
+                zip_name = f"{t}_{safe_name}.zip"
+                
+                # Zip on remote. Use -r for recursive, and -q for quiet.
+                # We need to handle the case where the directory might be empty or not exist.
+                zip_cmd = f"cd {os.path.dirname(remote_path)} && zip -rq {zip_name} {os.path.basename(remote_path)}"
+                run_remote(cfg, zip_cmd)
+                
+                local_dest = f"{t}/"
+                os.makedirs(local_dest, exist_ok=True)
+                
+                # Transfer zip
+                subprocess.run(["scp", f"{host}:{os.path.dirname(remote_path)}/{zip_name}", local_dest])
+                
+                # Unzip locally
+                import zipfile
+                zip_file_path = os.path.join(local_dest, zip_name)
+                if os.path.exists(zip_file_path):
+                    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+                        zip_ref.extractall(local_dest)
+                    # Clean up local zip
+                    os.remove(zip_file_path)
+                
+                # Clean up remote zip
+                run_remote(cfg, f"rm {os.path.dirname(remote_path)}/{zip_name}")
+        return
+
     # Check if rsync is available
     try:
         rsync_available = subprocess.run(["rsync", "--version"], capture_output=True).returncode == 0
@@ -264,6 +333,7 @@ def main():
     
     push_parser = subparsers.add_parser("push", help="Push code to remote server")
     push_parser.add_argument("--git", action="store_true", help="Use git instead of rsync")
+    push_parser.add_argument("--zip", action="store_true", help="Use zip instead of rsync")
     
     submit_parser = subparsers.add_parser("submit", help="Submit experiments to Slurm")
     submit_parser.add_argument("experiments", nargs="*", help="Hydra overrides for each experiment")
@@ -290,6 +360,7 @@ def main():
     pull_parser.add_argument("--results", action="store_true", help="Pull only results")
     pull_parser.add_argument("--outputs", action="store_true", help="Pull only outputs")
     pull_parser.add_argument("--logs", action="store_true", help="Pull only logs")
+    pull_parser.add_argument("--zip", action="store_true", help="Use zip to pull")
     
     clean_parser = subparsers.add_parser("clean", help="Clean results and logs on remote server")
     
@@ -311,7 +382,10 @@ def main():
         return
 
     if args.command == "push":
-        push(cfg, args.git)
+        method = "rsync"
+        if args.git: method = "git"
+        if args.zip: method = "zip"
+        push(cfg, method)
     elif args.command == "submit":
         exps = args.experiments
         if args.file:
@@ -334,7 +408,8 @@ def main():
         if args.results: types.append("results")
         if args.outputs: types.append("outputs")
         if args.logs: types.append("logs")
-        pull(cfg, args.name, types)
+        method = "zip" if args.zip else "rsync"
+        pull(cfg, args.name, types, method)
     elif args.command == "clean":
         clean(cfg)
     elif args.command == "logs":

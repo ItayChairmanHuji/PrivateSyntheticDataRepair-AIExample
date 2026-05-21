@@ -1,0 +1,4 @@
+_target_: src.synthesizing.model_loader.SmartNoiseModelLoader
+model_path: models/adult_mst.pkl
+size: null
+seed: 42

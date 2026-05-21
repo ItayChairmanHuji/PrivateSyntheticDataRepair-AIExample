@@ -1,0 +1,15 @@
+_target_: src.loading.file_loader.FileLoader
+name: tax
+base_path: data
+size: null
+seed: 42
+data_loader:
+  _target_: src.loading.components.data_loader.DataLoader
+dcs_loader:
+  _target_: src.loading.components.dcs_loader.DCsLoader
+metadata_loader:
+  _target_: src.loading.components.metadata_loader.MetadataLoader
+data_encoder:
+  _target_: src.loading.components.data_encoder.DataEncoder
+dcs_encoder:
+  _target_: src.loading.components.dcs_encoder.DCsEncoder
