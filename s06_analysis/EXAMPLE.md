@@ -1,10 +1,10 @@
-# Stage 08 Execution Example: Analysis Notebooks
+# Stage 06 Execution Example: Analysis Notebooks
 
 ## 1. What you need to insert (Input)
 - `aggregated_results.csv` from Stage 07.
 
 ## 2. What I expect to see (Process)
-You open a notebook in `08_analysis/notebooks/` and load the CSV.
+You open a notebook in `06_analysis/notebooks/` and load the CSV.
 
 **Example Logic:**
 ```python

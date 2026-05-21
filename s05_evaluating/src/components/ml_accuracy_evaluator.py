@@ -7,7 +7,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from shared.entities.pipeline_result import PipelineResult
-from s05_evaluating.src.evaluator import Evaluator
+from s05_evaluating.src.components.evaluator import Evaluator
 
 
 class MLAccuracyEvaluator(Evaluator):

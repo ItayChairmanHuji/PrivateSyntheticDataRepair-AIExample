@@ -1,4 +1,4 @@
-# Stage 08: Analysis
+# Stage 06: Analysis
 
 ## Purpose
 The final destination of the research lifecycle. Synthesize results from all experiments into interpretable insights, plots, and tables.

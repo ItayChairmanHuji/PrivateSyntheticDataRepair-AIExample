@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List
 
 from shared.entities.pipeline_result import PipelineResult
-from s05_evaluating.src.evaluator import Evaluator
+from s05_evaluating.src.components.evaluator import Evaluator
 
 
 class EvaluationOrchestrator:

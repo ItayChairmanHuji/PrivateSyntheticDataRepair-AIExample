@@ -45,8 +45,8 @@ The ICM system is designed for **Pair Researching**.
 3. **Monitor**: You ask "How are my jobs doing?" and I check the queue.
 4. **Sync**: Once jobs are done, I pull the results in Stage 07 and aggregate them.
 
-### C. The Analysis Loop (Stage 08)
-1. **Explore**: We open a notebook in Stage 08.
+### C. The Analysis Loop (Stage 06)
+1. **Explore**: We open a notebook in Stage 06
 2. **Visualize**: I write plotting code to show the results of the sweep.
 3. **Insight**: I analyze the data and suggest "Epsilon 1.0 is the sweet spot for utility."
 

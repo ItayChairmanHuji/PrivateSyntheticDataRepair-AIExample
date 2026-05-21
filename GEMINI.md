@@ -14,6 +14,9 @@ Folder structure is agent architecture. Every stage of the research lifecycle is
 ## Stage Standardization (The "API" Protocol)
 To ensure consistency and reduce cognitive load, every stage MUST adhere to the following directory and execution standard:
 
+### 0. Special Folders
+- **`remote/`**: A utility folder for cluster interaction. While not a sequential pipeline stage (it doesn't follow the 01->02 flow), it still adheres to the `src/`, `config/`, and `CONTEXT.md` standards. It handles `push`, `pull`, and `deploy` operations.
+
 ### 1. Source Structure (`src/`)
 Every stage's `src/` directory MUST follow this layout:
 - `main.py`: The primary entry point. MUST use Hydra for configuration and support `dataset_name` as a parameter.

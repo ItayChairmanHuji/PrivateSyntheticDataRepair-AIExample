@@ -1,13 +1,17 @@
-_target_: s05_evaluating.src.evaluation_orchestrator.EvaluationOrchestrator
-output_dir: output
-experiment_name: ${experiment_name}
-evaluators:
-  - _target_: s05_evaluating.src.runtime_evaluator.RuntimeEvaluator
-  - _target_: s05_evaluating.src.deletion_ratio_evaluator.DeletionRatioEvaluator
-  - _target_: s05_evaluating.src.marginals_error_evaluator.MarginalsErrorEvaluator
-  - _target_: s05_evaluating.src.tvd_evaluator.TwoWayTVDEvaluator
-  - _target_: s05_evaluating.src.ml_accuracy_evaluator.MLAccuracyEvaluator
-  - _target_: s05_evaluating.src.violation_evaluator.ViolationEvaluator
-  - _target_: s05_evaluating.src.loss_function_evaluator.LossFunctionEvaluator
-  - _target_: s05_evaluating.src.marginal_generation_evaluator.MarginalGenerationEvaluator
-  - _target_: s05_evaluating.src.marginal_selection_evaluator.MarginalSelectionEvaluator
+dataset_name: ???
+experiment_name: "default_experiment"
+
+orchestrator:
+  _target_: s05_evaluating.src.components.evaluation_orchestrator.EvaluationOrchestrator
+  output_dir: ??? # Set by main.py
+  experiment_name: ${experiment_name}
+  evaluators:
+    - _target_: s05_evaluating.src.components.runtime_evaluator.RuntimeEvaluator
+    - _target_: s05_evaluating.src.components.deletion_ratio_evaluator.DeletionRatioEvaluator
+    - _target_: s05_evaluating.src.components.marginals_error_evaluator.MarginalsErrorEvaluator
+    - _target_: s05_evaluating.src.components.tvd_evaluator.TwoWayTVDEvaluator
+    - _target_: s05_evaluating.src.components.ml_accuracy_evaluator.MLAccuracyEvaluator
+    - _target_: s05_evaluating.src.components.violation_evaluator.ViolationEvaluator
+    - _target_: s05_evaluating.src.components.loss_function_evaluator.LossFunctionEvaluator
+    - _target_: s05_evaluating.src.components.marginal_generation_evaluator.MarginalGenerationEvaluator
+    - _target_: s05_evaluating.src.components.marginal_selection_evaluator.MarginalSelectionEvaluator
