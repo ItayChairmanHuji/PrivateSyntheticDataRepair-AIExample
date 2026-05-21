@@ -53,6 +53,6 @@ def generate_blueprint(template_path, output_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--template", type=str, required=True)
-    parser.add_argument("--output_dir", type=str, default="icm_sandbox/s00_experiment_design/output")
+    parser.add_argument("--output_dir", type=str, default="mission_control/blueprints")
     args = parser.parse_args()
     generate_blueprint(args.template, args.output_dir)

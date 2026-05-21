@@ -1,0 +1,3 @@
+dataset: compas
+epsilon: 1.0
+synthesizer: mst

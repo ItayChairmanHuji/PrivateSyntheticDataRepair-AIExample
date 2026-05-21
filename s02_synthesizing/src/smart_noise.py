@@ -41,6 +41,10 @@ class SmartNoiseSynthesizer(Synthesizer):
             if extra_args and hasattr(extra_args, 'items'):
                 kwargs.update(dict(extra_args))
         
+        # Prevent 'mode' from being passed to SmartNoise engines
+        kwargs.pop('mode', None)
+        kwargs.pop('save_path', None)
+        
         self.kwargs = kwargs
 
     def _set_seed(self):

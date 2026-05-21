@@ -19,9 +19,9 @@ def main(cfg: DictConfig):
     loader = hydra.utils.instantiate(cfg)
     dataset = loader.load()
     
-    # Define output directory
-    output_dir = Path(__file__).resolve().parent.parent / "output"
-    output_dir.mkdir(exist_ok=True)
+    # Define output directory (relative to CWD)
+    output_dir = Path("s01_loading/output")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"Saving artifacts to {output_dir}...")
     

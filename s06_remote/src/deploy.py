@@ -1,50 +1,58 @@
 import subprocess
 import argparse
-import yaml
 import json
 import os
 from pathlib import Path
 
-def get_slurm_config(config_path):
-    with open(config_path, "r") as f:
-        return yaml.safe_load(f)
+# Configuration
+REMOTE_HOST = "snorlax-login"
+REMOTE_DIR = "~/final_research"
 
-def deploy_blueprint(blueprint_path, config_path):
-    cfg = get_slurm_config(config_path)
-    host = cfg['host']
-    remote_dir = cfg['remote_dir']
+def run_remote_command(cmd):
+    print(f"Executing on {REMOTE_HOST}: {cmd}")
+    subprocess.run(["ssh", REMOTE_HOST, f"cd {REMOTE_DIR} && {cmd}"], check=True)
+
+def deploy(blueprint_name, canary_only=False):
+    # 1. Sync Code
+    print("--- Step 1: Synchronizing Code ---")
+    sync_script = Path(__file__).parent / "sync_to_remote.py"
+    subprocess.run(["python", str(sync_script)], check=True)
     
-    blueprint_path = Path(blueprint_path)
-    group_name = blueprint_path.name
+    # 2. Prepare Remote Folders
+    print("--- Step 2: Preparing Remote Environment ---")
+    run_remote_command("mkdir -p s06_remote/output/logs")
     
-    print(f"Deploying blueprint '{group_name}' to {host}...")
+    # 3. Read Blueprint to get total jobs
+    blueprint_local_path = Path(__file__).parent.parent / "input" / blueprint_name / "blueprint.json"
+    if not blueprint_local_path.exists():
+        print(f"Error: Blueprint {blueprint_name} not found in s06_remote/input/")
+        return
     
-    # 1. Push Code and Blueprint
-    # For the sandbox example, we'll use a simplified rsync
-    exclude = [".git/", ".venv/", "__pycache__/", "results/", "outputs/", "logs/"]
-    exclude_args = [f"--exclude={e}" for e in exclude]
+    with open(blueprint_local_path, "r") as f:
+        blueprint = json.load(f)
     
-    # Push local sandbox to remote
-    subprocess.run(["rsync", "-avz"] + exclude_args + ["icm_sandbox/", f"{host}:{remote_dir}/icm_sandbox/"])
+    total_jobs = blueprint["total_jobs"]
+    print(f"Blueprint '{blueprint_name}' has {total_jobs} jobs.")
     
-    # 2. Submit Job Array
-    # In ICM, we submit the blueprint.json which contains all the info
-    print(f"Submitting job array for {group_name}...")
+    # 4. Submit Slurm Job
+    print("--- Step 3: Submitting Slurm Job ---")
+    if canary_only:
+        array_range = "1"
+        print("Running CANARY job only (index 1).")
+    else:
+        array_range = f"1-{total_jobs}"
+        print(f"Submitting full array: {array_range}")
     
-    # This would typically trigger a remote sbatch call
-    # For now, we simulate the command that would be run on remote
-    remote_cmd = f"cd {remote_dir} && sbatch icm_sandbox/06_remote_execution/src/slurm_array_template.sh {group_name}"
-    print(f"Remote command: {remote_cmd}")
-    # res = subprocess.run(["ssh", host, remote_cmd], capture_output=True, text=True)
+    sbatch_cmd = f"sbatch --array={array_range} s06_remote/src/slurm_array.sh {blueprint_name}"
+    run_remote_command(sbatch_cmd)
     
-    # Store dummy job mapping for the example
-    job_ids = {"group": group_name, "status": "submitted", "jobs": {}}
-    with open("icm_sandbox/06_remote_execution/output/job_ids.json", "w") as f:
-        json.dump(job_ids, f, indent=2)
+    print("--- Deployment Successful ---")
+    print(f"Monitor jobs with: ssh {REMOTE_HOST} 'squeue -u $USER'")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--blueprint", type=str, required=True)
-    parser.add_argument("--config", type=str, required=True)
+    parser.add_argument("--blueprint", type=str, required=True, help="Blueprint name in input/")
+    parser.add_argument("--canary", action="store_true", help="Submit only the first job as a canary check")
     args = parser.parse_args()
-    deploy_blueprint(args.blueprint, args.config)
+    
+    deploy(args.blueprint, args.canary)

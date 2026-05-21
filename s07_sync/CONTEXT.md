@@ -3,19 +3,31 @@
 ## Purpose
 Safely retrieve experiment artifacts from the remote server and consolidate them into a format ready for analysis.
 
+## Workflow
+1. **Monitor**: Check Slurm queue to ensure jobs are finished.
+   ```bash
+   ssh snorlax-login "squeue --me"
+   ```
+2. **Sync**: Pull results for a specific experiment group (e.g., `experiment_1_generation`).
+   ```bash
+   python s07_sync/src/sync.py --blueprint experiment_1_generation
+   ```
+
 ## Contract
 **Inputs (Layer 4 - `input/`):**
-- `job_ids.json` from `06_remote_execution`.
+- Remote `outputs/` directory on Snorlax.
 
 **Process:**
-- `src/` contains logic to `rsync` completed experiment folders from Snorlax.
-- Verifies integrity of downloaded files.
-- Aggregates individual `result.json` files into a single master CSV.
+- `src/sync.py`: 
+    - Uses `rsync` to pull files from `~/final_research/outputs/[blueprint_name]` to the local `outputs/[blueprint_name]`.
+    - Automatically walks through all `exp_XXX` subfolders.
+    - Aggregates all `result_*.json` files into a single CSV.
 
 **Outputs (Layer 4 - `output/`):**
-- `aggregated_results.csv`: The primary data source for analysis.
-- Local copies of experiment artifacts (optional, for debugging).
+- `output/[blueprint_name]_summary.csv`: The aggregated metrics for the entire sweep.
+- `outputs/[blueprint_name]/`: Local mirror of key artifacts (metadata, run configs, evaluation results).
 
 ## Stage Rules
-- Support incremental syncing: if a download is interrupted, it should resume without re-downloading everything.
-- Log any missing or corrupted experiment results.
+- **Isolation**: Always specify the `--blueprint` to avoid syncing unrelated data.
+- **Incremental**: `rsync` is used to only download new or changed files.
+- **Cleanup**: Do not delete remote files automatically; keep them as a backup until the project is archived.

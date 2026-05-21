@@ -25,6 +25,28 @@ class SmartNoiseModelTrainer(SmartNoiseSynthesizer):
         super().__init__(engine, epsilon, seed, **kwargs)
         self.save_path = Path(save_path)
 
+    def fit_and_save(self, dataset: Dataset):
+        """
+        Trains the model and saves it to disk, without generating synthetic data.
+        """
+        self._set_seed()
+        
+        filtered_kwargs = {k: v for k, v in self.kwargs.items() if v is not None}
+        if 'kwargs' in filtered_kwargs and not filtered_kwargs['kwargs']:
+            filtered_kwargs.pop('kwargs')
+
+        print(f"Training {self.engine} on {dataset.name} with epsilon={self.epsilon}...")
+        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
+        synth.fit(dataset.data, categorical_columns=dataset.data.columns.tolist())
+
+        self.save_path.mkdir(exist_ok=True, parents=True)
+        model_filename = f"{dataset.name}_{self.engine}_eps{self.epsilon}.pkl"
+        full_path = self.save_path / model_filename
+        
+        print(f"Saving model to {full_path}...")
+        with open(full_path, "wb") as f:
+            dill.dump(synth, f)
+
     def synthesize(self, dataset: Dataset) -> Dataset:
         """
         Trains the model, saves it, and generates synthetic data.

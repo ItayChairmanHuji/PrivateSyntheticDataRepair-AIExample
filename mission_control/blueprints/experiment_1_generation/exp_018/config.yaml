@@ -1,0 +1,3 @@
+dataset: adult
+epsilon: 0.6
+synthesizer: mst

@@ -10,6 +10,21 @@ class Marginal:
     values: Tuple[Any, ...]
     target: float
 
+    def to_dict(self):
+        return {
+            "attrs": list(self.attrs),
+            "values": list(self.values),
+            "target": self.target
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(
+            attrs=tuple(d["attrs"]),
+            values=tuple(d["values"]),
+            target=d["target"]
+        )
+
     def get_mask(self, data: pd.DataFrame):
         if not self.attrs:
             return pd.Series(True, index=data.index)
@@ -26,6 +41,8 @@ class Marginal:
 
     def calculate_error(self, data: pd.DataFrame) -> float:
         freq = self.calculate_frequency(data)
+        if self.target == 0:
+            return 0.0 if freq == 0 else float('inf')
         distance = abs(freq - self.target)
         return distance / self.target
 
@@ -37,6 +54,13 @@ class Marginal:
 @dataclass
 class MarginalSet:
     marginals: List[Marginal]
+
+    def to_dict(self):
+        return {"marginals": [m.to_dict() for m in self.marginals]}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(marginals=[Marginal.from_dict(m) for m in d["marginals"]])
 
     def __len__(self):
         return len(self.marginals)

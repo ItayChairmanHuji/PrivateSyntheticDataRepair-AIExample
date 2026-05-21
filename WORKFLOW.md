@@ -52,8 +52,26 @@ The ICM system is designed for **Pair Researching**.
 
 ---
 
-## 4. Communication Patterns
+## 5. Operational Safety (Lessons Learned)
 
-- **"Execute Stage X"**: Tells me to run the `main.py` for that stage using the current `input/`.
-- **"What's the status of X?"**: Tells me to look at the `output/` or `logs/` of a stage and summarize the state.
-- **"Activate Skill [Name]"**: Brings the specialized procedural knowledge for that stage into my active memory.
+To maintain the integrity of the "Glass Box" and prevent large-scale resource waste, both the Human and the Agent must follow these protocols:
+
+### Mandatory Canary Testing
+- **Rule**: NEVER submit a full Slurm array (e.g., 88 jobs) without first running a single "Canary" job (index 1).
+- **Procedure**: Run `python s06_remote/src/deploy.py --blueprint [NAME] --canary`. The Agent must then verify the output and error logs before proceeding to the full sweep.
+
+### Verification of Intent
+- **Rule**: Before starting a new experiment, the Agent must explicitly summarize the **Scope** (which stages are running) and the **Mode** (e.g., training-only vs. full pipeline).
+- **Human Verification**: If the Agent's summary doesn't match your intent (e.g., if you only wanted training and the agent plans evaluation), stop the execution immediately.
+
+### Environment-Agnostic Code
+- **Rule**: All `main.py` entry points and orchestrators must use **CWD-Relative Pathing**.
+- **Context**: This ensures that code works identically on a local machine and within isolated Slurm temporary workspaces.
+
+### Safe Maintenance
+- **Rule**: Avoid bulk destructive edits (e.g., regex shell one-liners). Use surgical, traceable file manipulation tools.
+
+---
+
+## 6. Communication Patterns
+... (rest of the file)

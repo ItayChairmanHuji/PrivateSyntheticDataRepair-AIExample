@@ -1,0 +1,3 @@
+dataset: census
+epsilon: 0.4
+synthesizer: mst

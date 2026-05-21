@@ -1,5 +1,5 @@
 _target_: s05_evaluating.src.evaluation_orchestrator.EvaluationOrchestrator
-output_dir: results
+output_dir: output
 experiment_name: ${experiment_name}
 evaluators:
   - _target_: s05_evaluating.src.runtime_evaluator.RuntimeEvaluator

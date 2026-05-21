@@ -1,0 +1,3 @@
+dataset: tax
+epsilon: 0.4
+synthesizer: aim
