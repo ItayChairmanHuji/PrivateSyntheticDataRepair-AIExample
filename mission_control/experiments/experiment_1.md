@@ -17,8 +17,8 @@ Generate a comprehensive set of models (AIM, MST) across a range of privacy budg
 ## Status
 - [x] **Planning**: Defined goals and parameters.
 - [x] **Blueprint Generated**: 88 jobs defined (4 datasets * 2 synthesizers * 11 eps values).
-- [ ] **Stage 01 (Loading)**: Pending
-- [ ] **Stage 02 (Synthesizing)**: Pending
+- [/] **Stage 01 (Loading)**: verified.
+- [/] **Stage 02 (Synthesizing)**: verified.
 - [ ] **Stage 03 (Marginals)**: Pending
-- [ ] **Stage 05 (Evaluating)**: Pending
-- [ ] **Remote Execution (Stage 06)**: Pending
+- [/] **Stage 05 (Evaluating)**: Pending
+- [/] **Remote Execution (Stage 06)**: Done.

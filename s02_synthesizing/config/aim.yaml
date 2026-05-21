@@ -1,4 +1,4 @@
-_target_: s02_synthesizing.src.smart_noise.SmartNoiseSynthesizer
+_target_: s02_synthesizing.src.components.smart_noise.SmartNoiseSynthesizer
 engine: aim
 epsilon: 1.0
 seed: 42

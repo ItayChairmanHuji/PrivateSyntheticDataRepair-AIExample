@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from dataclasses import dataclass
 from shared.entities.dataset import Dataset
-from s02_synthesizing.src.synthesizer import Synthesizer
+from s02_synthesizing.src.components.synthesizer import Synthesizer
 from shared.entities.denial_constraints import Predicate
 
 @dataclass
@@ -27,7 +27,8 @@ class CoNoise(Synthesizer):
                 name=f"{dataset.name}_co_noise",
                 data=synthetic_data,
                 dcs=dataset.dcs,
-                target=dataset.target
+                target=dataset.target,
+                mappings=dataset.mappings
             )
 
         for _ in range(self.num_of_iterations):
@@ -37,7 +38,8 @@ class CoNoise(Synthesizer):
             name=f"{dataset.name}_co_noise",
             data=synthetic_data,
             dcs=dataset.dcs,
-            target=dataset.target
+            target=dataset.target,
+            mappings=dataset.mappings
         )
 
     def _run_iteration(self, data: pd.DataFrame, dataset: Dataset):

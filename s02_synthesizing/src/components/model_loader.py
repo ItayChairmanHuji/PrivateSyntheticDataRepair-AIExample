@@ -7,7 +7,7 @@ from typing import Optional
 from pathlib import Path
 
 from shared.entities.dataset import Dataset
-from s02_synthesizing.src.synthesizer import Synthesizer
+from s02_synthesizing.src.components.synthesizer import Synthesizer
 
 class SmartNoiseModelLoader(Synthesizer):
     """

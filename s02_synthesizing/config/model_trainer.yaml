@@ -1,4 +1,4 @@
-_target_: s02_synthesizing.src.model_trainer.SmartNoiseModelTrainer
+_target_: s02_synthesizing.src.components.model_trainer.SmartNoiseModelTrainer
 engine: mst
 epsilon: 1.0
 seed: 42

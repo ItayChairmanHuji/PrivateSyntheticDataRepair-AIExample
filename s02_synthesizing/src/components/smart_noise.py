@@ -4,7 +4,7 @@ import torch
 import pandas as pd
 from snsynth import Synthesizer as SnSynthesizer
 from shared.entities.dataset import Dataset
-from s02_synthesizing.src.synthesizer import Synthesizer
+from s02_synthesizing.src.components.synthesizer import Synthesizer
 
 class SmartNoiseSynthesizer(Synthesizer):
     """
@@ -55,6 +55,37 @@ class SmartNoiseSynthesizer(Synthesizer):
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(self.seed)
 
+    def sample(self, model, dataset: Dataset) -> Dataset:
+        """
+        Generates synthetic data from a pre-trained model.
+        
+        Args:
+            model: The pre-trained SmartNoise model.
+            dataset (Dataset): Reference dataset for metadata and size.
+            
+        Returns:
+            Dataset: Synthetic dataset.
+        """
+        self._set_seed()
+        
+        # Pass seed directly to sample() for engines that support it
+        try:
+            synthetic_df = model.sample(len(dataset.data), seed=self.seed)
+        except TypeError:
+            synthetic_df = model.sample(len(dataset.data))
+        
+        # Ensure it's a DataFrame (some engines might return numpy)
+        if not isinstance(synthetic_df, pd.DataFrame):
+            synthetic_df = pd.DataFrame(synthetic_df, columns=dataset.data.columns)
+
+        return Dataset(
+            name=f"{dataset.name}_{self.engine}_sampled",
+            data=synthetic_df,
+            dcs=dataset.dcs,
+            target=dataset.target,
+            mappings=dataset.mappings
+        )
+
     def synthesize(self, dataset: Dataset) -> Dataset:
         """
         Generates a synthetic version of the provided dataset.
@@ -75,7 +106,13 @@ class SmartNoiseSynthesizer(Synthesizer):
             filtered_kwargs.pop('kwargs')
 
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
-        synth.fit(dataset.data)
+        
+        # Use mappings to identify categorical columns
+        cat_cols = list(dataset.mappings.keys()) if dataset.mappings else []
+        if cat_cols:
+            synth.fit(dataset.data, categorical_columns=cat_cols)
+        else:
+            synth.fit(dataset.data)
 
         # Pass seed directly to sample() for engines that support it
         try:
@@ -91,6 +128,7 @@ class SmartNoiseSynthesizer(Synthesizer):
             name=f"{dataset.name}_{self.engine}",
             data=synthetic_df,
             dcs=dataset.dcs,
-            target=dataset.target
+            target=dataset.target,
+            mappings=dataset.mappings
         )
 

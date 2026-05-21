@@ -1,4 +1,4 @@
-_target_: s01_loading.src.file_loader.FileLoader
+_target_: s01_loading.src.components.file_loader.FileLoader
 name: compas
 base_path: data
 size: null

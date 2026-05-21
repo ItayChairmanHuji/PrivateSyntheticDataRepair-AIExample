@@ -19,11 +19,12 @@ apply_patch()
 @hydra.main(version_base=None, config_path="../config", config_name="mst")
 def main(cfg: DictConfig):
     mode = cfg.get("mode", "full")
-    print(f"--- Stage 2: Synthesizing Dataset (Mode: {mode}) ---")
+    dataset_name = cfg.get("dataset_name", "adult100") # Default to adult100 if not provided
+    print(f"--- Stage 2: Synthesizing Dataset '{dataset_name}' (Mode: {mode}) ---")
     
     # Define directories (relative to CWD)
-    input_dir = Path("s02_synthesizing/input")
-    output_dir = Path("s02_synthesizing/output")
+    input_dir = Path("s02_synthesizing/input") / dataset_name
+    output_dir = Path("s02_synthesizing/output") / dataset_name
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # 1. Load artifacts from Stage 1
@@ -41,25 +42,48 @@ def main(cfg: DictConfig):
         name=metadata["name"],
         data=data,
         dcs=dcs,
-        target=metadata["target"]
+        target=metadata["target"],
+        mappings=metadata.get("mappings")
     )
     
     # 3. Instantiate and run synthesizer
     print(f"Instantiating synthesizer: {cfg._target_}")
+    
+    # Ensure dataset_name is passed to the synthesizer if it needs it for pathing
+    # SmartNoiseModelTrainer uses dataset.name internally, so this is just for hydra init if needed
     synthesizer = hydra.utils.instantiate(cfg)
     
     if mode == "train":
         print(f"Running training only (engine={cfg.engine}, epsilon={cfg.epsilon})...")
-        # If the synthesizer is a model trainer, it will save the model during synthesize()
-        # but we might want to ensure it doesn't sample if we really want "no sample"
-        # For now, we'll assume synthesize() handles training and saving.
-        # We'll modify the trainer to respect the mode if possible, or just call fit.
-        if hasattr(synthesizer, 'fit_and_save'): # We'll add this method
+        if hasattr(synthesizer, 'fit_and_save'):
              synthesizer.fit_and_save(dataset)
         else:
-             # Fallback: run full but we won't use the sample
+             # Fallback for synthesizers that don't separate fit/sample
              synthesizer.synthesize(dataset)
         print(f"Success: Model trained and saved.")
+    elif mode == "sample":
+        print(f"Running sampling only (engine={cfg.engine})...")
+        if hasattr(synthesizer, 'sample'):
+            synthetic_dataset = synthesizer.sample(dataset)
+        else:
+            synthetic_dataset = synthesizer.synthesize(dataset)
+        
+        # 4. Save artifacts
+        print(f"Saving synthetic data to {output_dir}...")
+        synthetic_dataset.data.to_csv(output_dir / "synthetic_data.csv", index=False)
+        
+        # Save run config for interpretability
+        run_config = {
+            "synthesizer": cfg.engine,
+            "epsilon": getattr(cfg, "epsilon", None),
+            "seed": cfg.seed,
+            "size": len(synthetic_dataset.data),
+            "mode": "sample"
+        }
+        with open(output_dir / "run_config.json", "w") as f:
+            json.dump(run_config, f, indent=4)
+            
+        print(f"Success: Generated {len(synthetic_dataset.data)} synthetic rows (sample only).")
     else:
         print(f"Running full synthesis (engine={cfg.engine}, epsilon={cfg.epsilon})...")
         synthetic_dataset = synthesizer.synthesize(dataset)

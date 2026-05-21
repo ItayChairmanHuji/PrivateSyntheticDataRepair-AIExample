@@ -1,3 +1,3 @@
-_target_: s02_synthesizing.src.co_noise.CoNoise
+_target_: s02_synthesizing.src.components.co_noise.CoNoise
 num_of_iterations: 100
 seed: 42

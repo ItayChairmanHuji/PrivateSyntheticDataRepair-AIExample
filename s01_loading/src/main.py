@@ -20,7 +20,7 @@ def main(cfg: DictConfig):
     dataset = loader.load()
     
     # Define output directory (relative to CWD)
-    output_dir = Path("s01_loading/output")
+    output_dir = Path("s01_loading/output") / cfg.name
     output_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"Saving artifacts to {output_dir}...")

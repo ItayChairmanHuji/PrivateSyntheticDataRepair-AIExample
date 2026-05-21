@@ -5,7 +5,7 @@ from typing import Optional
 from snsynth import Synthesizer as SnSynthesizer
 
 from shared.entities.dataset import Dataset
-from s02_synthesizing.src.smart_noise import SmartNoiseSynthesizer
+from s02_synthesizing.src.components.smart_noise import SmartNoiseSynthesizer
 
 class SmartNoiseModelTrainer(SmartNoiseSynthesizer):
     """
@@ -25,6 +25,10 @@ class SmartNoiseModelTrainer(SmartNoiseSynthesizer):
         super().__init__(engine, epsilon, seed, **kwargs)
         self.save_path = Path(save_path)
 
+    def _get_model_full_path(self, dataset_name: str) -> Path:
+        """Constructs the full path for the model following the project hierarchy."""
+        return self.save_path / dataset_name / self.engine / f"{dataset_name}_{self.engine}_eps{self.epsilon}.pkl"
+
     def fit_and_save(self, dataset: Dataset):
         """
         Trains the model and saves it to disk, without generating synthetic data.
@@ -37,15 +41,35 @@ class SmartNoiseModelTrainer(SmartNoiseSynthesizer):
 
         print(f"Training {self.engine} on {dataset.name} with epsilon={self.epsilon}...")
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
-        synth.fit(dataset.data, categorical_columns=dataset.data.columns.tolist())
+        
+        # Use mappings to identify categorical columns
+        cat_cols = list(dataset.mappings.keys()) if dataset.mappings else []
+        if cat_cols:
+            synth.fit(dataset.data, categorical_columns=cat_cols)
+        else:
+            synth.fit(dataset.data)
 
-        self.save_path.mkdir(exist_ok=True, parents=True)
-        model_filename = f"{dataset.name}_{self.engine}_eps{self.epsilon}.pkl"
-        full_path = self.save_path / model_filename
+        full_path = self._get_model_full_path(dataset.name)
+        full_path.parent.mkdir(exist_ok=True, parents=True)
         
         print(f"Saving model to {full_path}...")
         with open(full_path, "wb") as f:
             dill.dump(synth, f)
+
+    def sample(self, dataset: Dataset) -> Dataset:
+        """
+        Loads the trained model from disk and generates synthetic data.
+        """
+        full_path = self._get_model_full_path(dataset.name)
+        print(f"Loading model for sampling from {full_path}...")
+        
+        if not full_path.exists():
+            raise FileNotFoundError(f"Model file not found: {full_path}. Did you run with mode=train?")
+            
+        with open(full_path, "rb") as f:
+            model = dill.load(f)
+            
+        return super().sample(model, dataset)
 
     def synthesize(self, dataset: Dataset) -> Dataset:
         """
@@ -67,13 +91,16 @@ class SmartNoiseModelTrainer(SmartNoiseSynthesizer):
         print(f"Training {self.engine} on {dataset.name} with epsilon={self.epsilon}...")
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
         
-        # Training (following reference script by passing categorical columns)
-        synth.fit(dataset.data, categorical_columns=dataset.data.columns.tolist())
+        # Use mappings to identify categorical columns
+        cat_cols = list(dataset.mappings.keys()) if dataset.mappings else []
+        if cat_cols:
+            synth.fit(dataset.data, categorical_columns=cat_cols)
+        else:
+            synth.fit(dataset.data)
 
         # Save model
-        self.save_path.mkdir(exist_ok=True, parents=True)
-        model_filename = f"{dataset.name}_{self.engine}_eps{self.epsilon}.pkl"
-        full_path = self.save_path / model_filename
+        full_path = self._get_model_full_path(dataset.name)
+        full_path.parent.mkdir(exist_ok=True, parents=True)
         
         print(f"Saving model to {full_path}...")
         with open(full_path, "wb") as f:
