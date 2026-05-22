@@ -41,9 +41,9 @@ class SmartNoiseSynthesizer(Synthesizer):
             if extra_args and hasattr(extra_args, 'items'):
                 kwargs.update(dict(extra_args))
         
-        # Prevent 'mode' from being passed to SmartNoise engines
-        kwargs.pop('mode', None)
-        kwargs.pop('save_path', None)
+        # Prevent pipeline-level parameters from being passed to SmartNoise engines
+        for key in ['mode', 'save_path', 'dataset_name', 'sample_size', 'model_path', 'size', 'engine']:
+            kwargs.pop(key, None)
         
         self.kwargs = kwargs
 
@@ -107,12 +107,20 @@ class SmartNoiseSynthesizer(Synthesizer):
 
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
         
-        # Use mappings to identify categorical columns
+        # Use mappings to identify categorical columns, others are continuous
         cat_cols = list(dataset.mappings.keys()) if dataset.mappings else []
-        if cat_cols:
-            synth.fit(dataset.data, categorical_columns=cat_cols)
+        cont_cols = [col for col in dataset.data.columns if col not in cat_cols]
+        
+        # Fit the synthesizer
+        if self.engine.lower() == 'aim':
+            # AIM is very picky about column types
+            synth.fit(dataset.data, categorical_columns=cat_cols, continuous_columns=cont_cols, **self.kwargs)
         else:
-            synth.fit(dataset.data)
+            # Other engines like MST might prefer just categorical_columns
+            if cat_cols:
+                synth.fit(dataset.data, categorical_columns=cat_cols, **self.kwargs)
+            else:
+                synth.fit(dataset.data, **self.kwargs)
 
         # Pass seed directly to sample() for engines that support it
         try:

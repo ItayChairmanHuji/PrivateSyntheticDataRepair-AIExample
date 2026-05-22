@@ -62,6 +62,7 @@ WHERE t1.idx < t2.idx AND t1.loss < t2.loss
 
 ## Key Components
 - **FileLoader**: Orchestrates the loading and encoding of data and constraints.
+- **ArtifactSaver**: Handles saving dataset artifacts to disk in a standardized format.
 - **ViolationFinder**: The hybrid execution router.
 - **DataEncoder**: Uses `LabelEncoder` to ensure all categorical data is numeric before detection.
 - **DCsEncoder**: Rewrites constraints to match encoded numeric values.

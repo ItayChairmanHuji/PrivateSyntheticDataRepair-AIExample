@@ -73,5 +73,23 @@ To maintain the integrity of the "Glass Box" and prevent large-scale resource wa
 
 ---
 
-## 6. Communication Patterns
-... (rest of the file)
+## 7. Remote Deployment Checklist (MANDATORY)
+Before submitting any job array > 10 tasks to the cluster:
+
+1.  **State Verification**:
+    *   Confirm `data/<dataset>` exists on the remote.
+    *   Confirm `models/<path>/<model>.pkl` exists on the remote for `sample` mode.
+2.  **Canary Isolation**:
+    *   Generate a separate `remote_canary.yaml` blueprint.
+    *   Set `sample_size: 100` and `mode: full` (or use verified models).
+    *   Run exactly ONE job and verify it passes **Stage 05 (Evaluating)**.
+3.  **Scale Audit**:
+    *   Inspect `dcs.txt`. If order/inequality constraints exist and N > 10,000, **mandate 64GB+ RAM**.
+    *   Verify that `_build_conflict_graph` uses vectorized (NumPy) edge addition.
+4.  **Interface Review**:
+    *   Check `runner.py` logic against component `__init__` signatures.
+    *   Ensure all Hydra overrides use the `++` prefix.
+
+## 8. Handling Failures at Scale
+*   **Rule**: If a job fails with `OOM` or `TIMEOUT`, do NOT simply restart with more memory. 
+*   **Action**: Investigate the **quadratic complexity** of the constraints. If violations are in the millions, the algorithm or the data generation (epsilon) is the issue, not just the hardware.

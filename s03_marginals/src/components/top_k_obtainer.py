@@ -11,13 +11,13 @@ from s03_marginals.src.components.obtainer import Obtainer
 from s03_marginals.src.components.utility_functions.utility_function import UtilityFunction
 
 
-@dataclass
 class TopKObtainer(Obtainer):
-    selection_budget: float
-    generation_budget: float
-    k: int
-    utility_function: UtilityFunction
-    seed: int = 42
+    def __init__(self, selection_budget: float, generation_budget: float, k: int, utility_function: UtilityFunction, seed: int = 42, **kwargs):
+        self.selection_budget = selection_budget
+        self.generation_budget = generation_budget
+        self.k = k
+        self.utility_function = utility_function
+        self.seed = seed
 
     def obtain(self, private_dataset: Dataset, synthetic_dataset: Dataset) -> MarginalSet:
         rng = np.random.default_rng(self.seed)

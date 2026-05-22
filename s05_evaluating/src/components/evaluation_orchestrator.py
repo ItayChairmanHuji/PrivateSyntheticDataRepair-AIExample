@@ -15,6 +15,7 @@ class EvaluationOrchestrator:
         evaluators: List[Evaluator],
         output_dir: str = "results",
         experiment_name: str = None,
+        **kwargs,
     ):
         self.evaluators = evaluators
         self.output_dir = output_dir

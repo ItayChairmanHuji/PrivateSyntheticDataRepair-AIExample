@@ -29,6 +29,8 @@ class VertexCoverRepairer(Repairer):
             for v_idx in v_indices:
                 removed_indices.add(int(v_idx))
                 # Deleting incident edges makes the vertex "isolated" (degree 0).
+                # This keeps vertex indices STABLE, which is crucial for repairers
+                # that precompute data based on indices (like WeightedVCRepairer).
                 incident_edges = graph.incident(v_idx)
                 graph.delete_edges(incident_edges)
         
@@ -51,7 +53,8 @@ class VertexCoverRepairer(Repairer):
         violations = dataset.get_violations()
         
         if not violations.empty:
-            edges = list(zip(violations['idx1'].astype(int), violations['idx2'].astype(int)))
+            # Optimized edge addition using numpy array
+            edges = violations[['idx1', 'idx2']].values.astype(int)
             graph.add_edges(edges)
             graph.simplify()
             

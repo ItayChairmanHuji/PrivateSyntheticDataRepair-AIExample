@@ -11,6 +11,35 @@ Folder structure is agent architecture. Every stage of the research lifecycle is
 - **Interpretability**: Intermediate states are written to disk as plain text (CSV/JSON/MD) whenever possible.
 - **The "Glass Box"**: You should be able to stop any stage, inspect the `output/`, and manually correct it before the next stage begins.
 
+## Code Quality & Engineering Standards
+To ensure maintainability and readability, the following standards are mandatory:
+- **OOP Principles**: Adhere strictly to Object-Oriented Programming principles, especially the **Single Responsibility Principle (SRP)**. Each class and module should have one, and only one, reason to change.
+- **Declarative Style**: Prefer declarative code over imperative logic. Use the **Facade Orchestrator** pattern: `main.py` should look like a "Table of Contents" for the stage execution.
+- **Physical Constraints**:
+    - **Max File Length**: 100 lines.
+    - **Max Function Length**: 10 lines.
+- **Organization**: Prefer sub-packages over flat directories for components. Each sub-package should have an `__init__.py` to expose its public API.
+
+### The Membrane Pattern (Anti-Leakage)
+To prevent framework metadata from crashing underlying libraries and to ensure local-remote parity:
+
+1.  **Config Filtering**: 
+    - Every wrapper class (e.g., `SmartNoiseSynthesizer`, `GurobiRepairer`) MUST explicitly filter out ICM-specific keys (`dataset_name`, `mode`, `sample_size`, `orchestrator`) before passing `kwargs` to third-party methods like `.fit()` or `.solve()`.
+    - Prefer explicit parameter extraction over `**kwargs`.
+2.  **State Manifests**: 
+    - Never assume a file exists on the cluster because it exists locally. 
+    - Before a large deployment, the Agent must run a `remote/src/cli/check_state.py` (or equivalent shell command) to verify the presence of required datasets and models.
+3.  **Environment Isolation**: 
+    - Components must never use hardcoded absolute paths. 
+    - Use the `Path(__file__)` or Hydra `CWD` to ensure the code behaves identically in a local `/output` folder and a Slurm `/tmp` workspace.
+
+### Performance & Scale (The "Quadratic Trap")
+- **Range Constraints**: Denial constraints involving order/inequality (e.g., `t1.A < t2.A`) on large datasets (N > 10,000) generate **quadratic numbers of violations**. 
+- **Conflict Graphs**: 
+    - Never use `list(zip(idx1, idx2))` for large edge sets. Pass NumPy arrays directly to `graph.add_edges()`.
+    - 16GB is insufficient for N=50,000 with range constraints. Use **64GB+** and a **4h+** time limit for such experiments.
+- **Slurm Arrays**: Most clusters limit job arrays to **1000 tasks**. Split larger sweeps into multiple batch submissions.
+
 ## Stage Standardization (The "API" Protocol)
 To ensure consistency and reduce cognitive load, every stage MUST adhere to the following directory and execution standard:
 
@@ -19,12 +48,13 @@ To ensure consistency and reduce cognitive load, every stage MUST adhere to the 
 
 ### 1. Source Structure (`src/`)
 Every stage's `src/` directory MUST follow this layout:
-- `main.py`: The primary entry point. MUST use Hydra for configuration and support `dataset_name` as a parameter.
+- `main.py`: The primary entry point. MUST be purely declarative, delegating all logic to the `StageOrchestrator`.
 - `cli/`: User-facing utility scripts.
-    - `clean.py`: Standardized script to clear `output/` (must support `--dataset <name>`).
-    - `list_*.py`: (Optional) Discovery scripts (e.g., `list_datasets.py`).
-- `components/`: The core logic classes and functional units used by `main.py`.
-- `internal_readme.md`: Technical documentation for the stage's internal logic (replaces the old `src/CONTEXT.md`).
+- `components/`: The core logic classes. Use **Sub-Packages** to group responsibilities:
+    - `core/`: Contains the `StageOrchestrator` and primary domain logic.
+    - `io/`: Data loading, saving, and artifact management.
+    - `logic/`: (or specific names like `encoding/`, `repair/`) Discrete algorithm implementations.
+- `internal_readme.md`: Technical documentation for the stage's internal logic.
 
 ### 2. Communication Contract (`CONTEXT.md`)
 The `CONTEXT.md` in the stage root is the "Public API" documentation. It MUST include:

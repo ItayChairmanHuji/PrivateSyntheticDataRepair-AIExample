@@ -43,7 +43,7 @@ def generate_blueprint(template_path, output_dir):
         with open(job_dir / "config.yaml", 'w') as f:
             yaml.dump(full_config, f)
             
-        blueprint_summary["jobs"][job_id] = job_params
+        blueprint_summary["jobs"][job_id] = full_config
     
     with open(group_dir / "blueprint.json", 'w') as f:
         json.dump(blueprint_summary, f, indent=2)

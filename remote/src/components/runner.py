@@ -101,7 +101,7 @@ def main():
         dataset = params['dataset']
         
         # STAGE 01: Loading
-        run_command(f"python s01_loading/src/main.py --config-name={dataset} dataset_name={dataset}", workspace, env=env)
+        run_command(f"python s01_loading/src/main.py --config-name={dataset} ++dataset_name={dataset}", workspace, env=env)
         
         # Handoff S1 -> S2
         copy_artifacts(workspace / "s01_loading/output", workspace / "s02_synthesizing/input")
@@ -110,19 +110,26 @@ def main():
         engine = params['synthesizer']
         epsilon = params['epsilon']
         seed = params.get('seed', 42)
-        mode = params.get('mode', 'full') # Default to full (train + sample)
+        mode = params.get('mode', 'full') 
+        size = params.get('sample_size', 50000)
         
-        # Ensure we point to the correct models directory (linked in workspace)
-        save_path = str(workspace / "models")
-        run_command(f"python s02_synthesizing/src/main.py --config-name={engine} engine={engine} epsilon={epsilon} seed={seed} dataset_name={dataset} mode={mode} save_path={save_path}", workspace, env=env)
+        # Determine model path if in sample mode
+        model_path_override = ""
+        if mode == "sample":
+            # Hierarchy: models/{dataset}/{algorithm}/{dataset}_{algorithm}_eps{epsilon}.pkl
+            model_path = Path("models") / dataset / engine / f"{dataset}_{engine}_eps{epsilon}.pkl"
+            model_path_override = f"++model_path={model_path}"
+            # For model_loader config, we need to pass these
+            run_command(f"python s02_synthesizing/src/main.py --config-name=model_loader ++engine={engine} ++epsilon={epsilon} ++seed={seed} ++dataset_name={dataset} ++mode={mode} {model_path_override} ++size={size}", workspace, env=env)
+        else:
+            run_command(f"python s02_synthesizing/src/main.py --config-name={engine} ++engine={engine} ++epsilon={epsilon} ++seed={seed} ++dataset_name={dataset} ++mode={mode}", workspace, env=env)
 
         # Handoff S1, S2 -> S3
         copy_artifacts(workspace / "s01_loading/output", workspace / "s03_marginals/input")
         copy_artifacts(workspace / "s02_synthesizing/output", workspace / "s03_marginals/input")
 
         # STAGE 03: Marginals
-        # Assuming defaults in top_k.yaml are fine, but can override if needed
-        run_command(f"python s03_marginals/src/main.py dataset_name={dataset}", workspace, env=env)
+        run_command(f"python s03_marginals/src/main.py ++dataset_name={dataset}", workspace, env=env)
 
         # Handoff S1, S2, S3 -> S4
         copy_artifacts(workspace / "s01_loading/output", workspace / "s04_repairing/input")
@@ -130,8 +137,8 @@ def main():
         copy_artifacts(workspace / "s03_marginals/output", workspace / "s04_repairing/input")
 
         # STAGE 04: Repairing
-        repairer = params.get('repairer', 'vanilla_vc')
-        run_command(f"python s04_repairing/src/main.py --config-name={repairer} dataset_name={dataset}", workspace, env=env)
+        repairer = params.get('repairer', params.get('repair_algorithm', 'vanilla_vc'))
+        run_command(f"python s04_repairing/src/main.py --config-name={repairer} ++dataset_name={dataset}", workspace, env=env)
 
         # Handoff ALL -> S5
         copy_artifacts(workspace / "s01_loading/output", workspace / "s05_evaluating/input")
@@ -140,7 +147,7 @@ def main():
         copy_artifacts(workspace / "s03_marginals/output", workspace / "s05_evaluating/input")
 
         # STAGE 05: Evaluating
-        run_command(f"python s05_evaluating/src/main.py dataset_name={dataset}", workspace, env=env)
+        run_command(f"python s05_evaluating/src/main.py ++dataset_name={dataset} ++orchestrator.output_dir=s05_evaluating/output/{dataset}", workspace, env=env)
 
         # --- FINAL COLLECTION ---
         final_dir = root / "outputs" / group_name / exp_name

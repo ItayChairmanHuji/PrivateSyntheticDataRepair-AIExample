@@ -10,23 +10,24 @@ from s04_repairing.src.components.vertex_cover_repairer import VertexCoverRepair
 from s04_repairing.src.components.adaptive_alpha_calculator import AdaptiveAlphaCalculator
 
 
-@dataclass
 class WeightedVCRepairer(VertexCoverRepairer):
     """
     Highly optimized Weighted Vertex Cover repair.
     Uses iterative frequency updates to avoid scanning the dataset in each iteration.
     """
 
-    alpha: float
-    use_adaptive_alpha: bool = False
-    _alpha_calculator: Optional[AdaptiveAlphaCalculator] = field(default=None, init=False)
-    
-    # Cache for matching marginals per tuple (Relation function rho)
-    _tuple_matches: list = field(default_factory=list, init=False)
-    # Current counts per marginal (Count vector c)
-    _current_counts: np.ndarray = field(default=None, init=False)
-    # Current total size of the data (n)
-    _current_n: int = field(default=0, init=False)
+    def __init__(self, alpha: float, use_adaptive_alpha: bool = False, **kwargs):
+        self.alpha = alpha
+        self.use_adaptive_alpha = use_adaptive_alpha
+        self._alpha_calculator = None
+        
+        # Cache for matching marginals per tuple (Relation function rho)
+        self._tuple_matches = []
+        # Current counts per marginal (Count vector c)
+        self._current_counts = None
+        # Current total size of the data (n)
+        self._current_n = 0
+        self._target_freqs = None
 
     def _select_vertex(
         self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet

@@ -14,12 +14,13 @@ class SmartNoiseModelLoader(Synthesizer):
     Synthesizer that loads a pre-trained SmartNoise model from a file 
     and generates synthetic data.
     """
-    def __init__(self, model_path: str, size: Optional[int] = None, seed: int = 42):
+    def __init__(self, model_path: str, size: Optional[int] = None, seed: int = 42, **kwargs):
         """
         Args:
             model_path (str): Path to the saved .pkl model.
             size (int, optional): Number of rows to generate. If None, uses original dataset size.
             seed (int): Random seed for reproducibility.
+            **kwargs: Extra arguments (ignored).
         """
         self.model_path = Path(model_path)
         self.size = size

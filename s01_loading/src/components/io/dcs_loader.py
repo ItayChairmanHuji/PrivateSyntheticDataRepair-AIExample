@@ -1,12 +1,10 @@
-﻿import re
+import re
 from pathlib import Path
 from shared.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 
 class DCsLoader:
-    """
-    Parses Denial Constraints from text files.
-    Supports formats like 'not(t1.A=t2.A & t1.B!=t2.B)' or simple unary 't1.A=v'.
-    """
+    """Parses Denial Constraints from text files."""
+    
     _PREDICATE_OPERATORS = r"=|!=|<=|>=|<|>"
     _FIRST_TUPLE = r"t(\d+)\.([A-Za-z_]\w*)\s*"
     _SECOND_TUPLE = r"\s*t(\d+)\.([A-Za-z_]\w*)"
@@ -29,23 +27,26 @@ class DCsLoader:
         return [p.strip() for p in normalized.split("&") if p.strip()]
 
     def _parse_predicate(self, raw_predicate: str) -> Predicate:
-        # Two tuples: t1.A = t2.B
-        match = re.match(rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS}){self._SECOND_TUPLE}$", raw_predicate)
-        if match:
-            return Predicate(
-                left=Side(attr=match.group(2), index=int(match.group(1)), is_value=False),
-                opr=match.group(3),
-                right=Side(attr=match.group(5), index=int(match.group(4)), is_value=False)
-            )
+        binary_match = re.match(rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS}){self._SECOND_TUPLE}$", raw_predicate)
+        if binary_match:
+            return self._create_binary_predicate(binary_match)
         
-        # Right unary: t1.A = "value"
-        match = re.match(rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS})\s*{self._VALUE}$", raw_predicate)
-        if match:
-            return Predicate(
-                left=Side(attr=match.group(2), index=int(match.group(1)), is_value=False),
-                opr=match.group(3),
-                right=Side(attr=match.group(4).strip("'\""), index=int(match.group(1)), is_value=True)
-            )
+        unary_match = re.match(rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS})\s*{self._VALUE}$", raw_predicate)
+        if unary_match:
+            return self._create_unary_predicate(unary_match)
         
         raise ValueError(f"Invalid predicate format: {raw_predicate}")
 
+    def _create_binary_predicate(self, match):
+        return Predicate(
+            left=Side(attr=match.group(2), index=int(match.group(1)), is_value=False),
+            opr=match.group(3),
+            right=Side(attr=match.group(5), index=int(match.group(4)), is_value=False)
+        )
+
+    def _create_unary_predicate(self, match):
+        return Predicate(
+            left=Side(attr=match.group(2), index=int(match.group(1)), is_value=False),
+            opr=match.group(3),
+            right=Side(attr=match.group(4).strip("'\""), index=int(match.group(1)), is_value=True)
+        )

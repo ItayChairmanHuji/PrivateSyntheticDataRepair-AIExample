@@ -4,7 +4,7 @@
 #SBATCH --error=remote/output/logs/exp_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
+#SBATCH --mem=64G
 #SBATCH --time=01:00:00
 
 # Usage: sbatch --array=1-N remote/src/components/slurm_array.sh [blueprint_name]
