@@ -1,0 +1,42 @@
+from dataclasses import dataclass
+import numpy as np
+import igraph as ig
+
+@dataclass
+class AdaptiveAlphaCalculator:
+    """
+    Calculates an adaptive alpha parameter based on graph topology.
+    """
+    alpha_min: float = 0.1
+    alpha_max: float = 1.0
+    connectivity_steepness: float = 2.0
+
+    def calculate_alpha(self, graph: ig.Graph, active_indices: list) -> float:
+        if not active_indices:
+            return self.alpha_min
+        if len(active_indices) <= 2:
+            return self.alpha_max
+        
+        degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
+        hubbiness = self._calculate_hubbiness(degrees, len(active_indices))
+        connectivity = self._calculate_connectivity(degrees, len(active_indices))
+        
+        return self._combine_alpha(hubbiness, connectivity)
+
+    def _calculate_hubbiness(self, degrees: np.ndarray, n: int) -> float:
+        denominator = (n - 1) * (n - 2)
+        if denominator <= 0:
+            return 0.0
+        d_max = np.max(degrees)
+        hubbiness = np.sum(d_max - degrees) / denominator
+        return float(np.clip(hubbiness, 0, 1))
+
+    def _calculate_connectivity(self, degrees: np.ndarray, n: int) -> float:
+        avg_degree = np.sum(degrees) / n
+        exp_term = np.exp(-self.connectivity_steepness * (avg_degree - 1.0))
+        return float(1.0 / (1.0 + exp_term))
+
+    def _combine_alpha(self, hubbiness: float, connectivity: float) -> float:
+        raw_alpha = 0.5 + 0.5 * (hubbiness - connectivity)
+        alpha = self.alpha_min + (self.alpha_max - self.alpha_min) * raw_alpha
+        return float(np.clip(alpha, self.alpha_min, self.alpha_max))

@@ -1,22 +1,13 @@
 import numpy as np
 
 def get_serializable_params(obj):
-    """
-    Recursively extracts serializable parameters from an object.
-    Handles numpy arrays and nested objects.
-    """
-    params = {}
-    # If it's a dict, just process its values
     if isinstance(obj, dict):
-        for k, v in obj.items():
-            params[k] = _process_value(v)
-        return params
-        
-    # If it has __dict__, process it
+        return {k: _process_value(v) for k, v in obj.items()}
+    
+    params = {}
     for k, v in getattr(obj, '__dict__', {}).items():
-        if k.startswith('_'):  # Skip private members
-            continue
-        params[k] = _process_value(v)
+        if not k.startswith('_'):
+            params[k] = _process_value(v)
     return params
 
 def _process_value(v):

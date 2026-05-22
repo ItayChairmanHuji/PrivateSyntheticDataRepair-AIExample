@@ -1,4 +1,4 @@
-_target_: s04_repairing.src.components.ilp_repairer.ILPRepairer
+_target_: s04_repairing.src.repair.ilp_repairer.ILPRepairer
 dataset_name: ???
 alpha: 0.5
 use_marginals: True

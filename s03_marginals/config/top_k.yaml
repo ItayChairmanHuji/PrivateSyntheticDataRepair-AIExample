@@ -1,7 +1,8 @@
-_target_: s03_marginals.src.components.top_k_obtainer.TopKObtainer
+_target_: s03_marginals.src.marginals.TopKObtainer
+dataset_name: ???
 selection_budget: 0.5
 generation_budget: 0.5
 k: 20
 seed: 42
 utility_function:
-  _target_: s03_marginals.src.components.utility_functions.distance_utility.DistanceUtility
+  _target_: s03_marginals.src.marginals.DistanceUtility

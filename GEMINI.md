@@ -68,6 +68,19 @@ Every stage MUST have a comprehensive test suite in its `tests/` directory (e.g.
 2. **Orchestration Validation**: The tests MUST run the full orchestration flow via the `StageOrchestrator` using a mock or dummy dataset to ensure all components are correctly wired.
 3. **Automated Verification**: All tests MUST pass before a stage is considered "ready".
 
+### Agent Refactoring Checklist (The "Gold Standard")
+When refactoring a stage (02-06), follow this checklist to ensure compliance:
+1. **Flatten Structure**: Remove `components/` and `cli/`. Promote themes to top-level `src/`.
+2. **Standard Themes**: Create/Move code into `orchestration/`, `io/`, and `loaders/`.
+3. **Domain Domain**: Create a folder named after the stage's logic (e.g., `synthesis/`, `repair/`).
+4. **Clean Exports**: Every sub-package MUST have an `__init__.py` exposing its API.
+5. **Dataclass Components**: Convert state-holding components to `@dataclass`.
+6. **Silent Code**: Remove all trivial/boilerplate comments.
+7. **Declarative Main**: `main.py` should only instantiate and run the `StageOrchestrator`.
+8. **100/10 Rule**: No file > 100 lines, no function > 10 lines.
+9. **Full Coverage**: Create `tests/test_stage.py` verifying all API commands and the Orchestrator.
+10. **Reference**: Use **Stage 01 (`s01_loading`)** as the physical example of this standard.
+
 ### 2. Communication Contract (`CONTEXT.md`)
 The `CONTEXT.md` in the stage root is the "Public API" documentation. It MUST include:
 - **Usage**: Explicit shell commands to run the stage and its CLI tools.

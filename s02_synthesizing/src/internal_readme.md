@@ -1,34 +1,33 @@
-# Synthesizing Module
+# Synthesizing Module (Stage 02)
 
-This module provides various differential privacy (DP) data synthesis algorithms.
+This module provides various differential privacy (DP) data synthesis algorithms and custom violation injection.
 
 ## Key Components
 
-### SmartNoiseSynthesizer
-- **File**: `smart_noise.py`
-- **Description**: A wrapper around the `snsynth` library.
-- **Supported Engines**: `mst`, `aim`, `patectgan`.
-- **Environment Notes**: Requires `mbi` (from `private-pgm`) and `smartnoise-synth==1.0.5`.
+### 1. Orchestration (`orchestration/`)
+- **`stage_orchestrator.py`**: The central brain. It wires together the input loading, the synthesizer, and the `ArtifactSaver`.
 
-### CoNoiseSynthesizer
-- **File**: `co_noise.py`
-- **Description**: A custom synthesizer that incorporates denial constraints during noise generation.
+### 2. Infrastructure & I/O (`io/`)
+- **`artifact_saver.py`**: Standardized export of synthesis results and carried-over metadata.
+- **CLI Tools**: `clean.py` in `cli/`.
 
-## Testing
+### 3. Synthesizers (`components/`)
+- **`smart_noise.py`**: Wrapper around `snsynth` (MST, AIM, PATECTGAN).
+- **`co_noise.py`**: Custom synthesizer for violation injection.
+- **`model_loader.py`**: Loads pre-trained models for sampling.
+- **`model_trainer.py`**: Handles training and saving models to `models/`.
+- **`synthesizer.py`**: Base abstract class.
 
-- **SmartNoise**: `tests/synthesizing/test_smart_noise.py`
-- **Co-Noise**: `tests/synthesizing/test_co_noise.py`
+## Environment Notes
+- Requires `mbi` (from `private-pgm`) and `smartnoise-synth==1.0.5`.
+- A reproducibility patch is applied to `mbi` in `main.py`.
 
-## Usage
+## Usage (Python)
 
 ```python
-from src.synthesizing.smart_noise import SmartNoiseSynthesizer
+from s02_synthesizing.src.components.smart_noise import SmartNoiseSynthesizer
 
 # MST algorithm
 synth = SmartNoiseSynthesizer(engine="mst", epsilon=1.0)
-result = synth.synthesize(dataset)
-
-# PATECTGAN with custom epochs
-synth = SmartNoiseSynthesizer(engine="patectgan", epsilon=1.0, epochs=20)
-result = synth.synthesize(dataset)
+# Note: In the pipeline, use the StageOrchestrator for automated I/O.
 ```

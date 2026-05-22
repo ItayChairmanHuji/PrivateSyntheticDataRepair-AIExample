@@ -35,14 +35,17 @@ To ensure consistency across the pipeline, trained models should be stored in th
 To execute the synthesizing stage, run the following command from the project root:
 
 ```bash
-# Full synthesis (Train + Sample)
+# Full synthesis (Train + Sample) using default (MST)
 python s02_synthesizing/src/main.py dataset_name=<dataset_name>
+
+# Specific algorithm (e.g., AIM)
+python s02_synthesizing/src/main.py --config-name aim dataset_name=<dataset_name>
 
 # Training only (Saves model to models/)
 python s02_synthesizing/src/main.py dataset_name=<dataset_name> mode=train
 
 # Sampling only (Loads model from models/)
-python s02_synthesizing/src/main.py dataset_name=<dataset_name> mode=sample
+python s02_synthesizing/src/main.py --config-name model_loader dataset_name=<dataset_name> mode=sample
 ```
 
 ## Maintenance

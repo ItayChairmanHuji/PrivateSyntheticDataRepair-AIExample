@@ -1,3 +1,5 @@
 _target_: s02_synthesizing.src.components.co_noise.CoNoise
-num_of_iterations: 100
+dataset_name: adult100
+num_of_iterations: 10
 seed: 42
+

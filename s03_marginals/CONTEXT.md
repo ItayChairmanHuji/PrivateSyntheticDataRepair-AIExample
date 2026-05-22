@@ -11,7 +11,7 @@ python s03_marginals/src/main.py dataset_name=adult100
 
 To clean the outputs for a specific dataset:
 ```bash
-python s03_marginals/src/cli/clean.py --dataset adult100
+python s03_marginals/src/io/clean.py --dataset adult100
 ```
 
 ## Restricted Execution

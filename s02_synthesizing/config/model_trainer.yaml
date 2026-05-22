@@ -1,4 +1,5 @@
 _target_: s02_synthesizing.src.components.model_trainer.SmartNoiseModelTrainer
+dataset_name: adult100
 engine: mst
 epsilon: 1.0
 seed: 42

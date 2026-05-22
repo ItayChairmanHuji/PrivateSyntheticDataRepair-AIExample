@@ -1,4 +1,5 @@
 _target_: s02_synthesizing.src.components.model_loader.SmartNoiseModelLoader
+dataset_name: adult100
 engine: model_loader
 model_path: models/adult_mst.pkl
 size: null

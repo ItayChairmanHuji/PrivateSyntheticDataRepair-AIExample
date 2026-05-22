@@ -1,23 +1,20 @@
-﻿import itertools
+import itertools
 from dataclasses import dataclass
 from typing import Tuple, List
-
 import numpy as np
 import pandas as pd
-
 from shared.entities.dataset import Dataset
 from shared.entities.marginal import Marginal, MarginalSet
-from s03_marginals.src.components.obtainer import Obtainer
-from s03_marginals.src.components.utility_functions.utility_function import UtilityFunction
+from s03_marginals.src.marginals.obtainer import Obtainer
+from s03_marginals.src.marginals.utility_function import UtilityFunction
 
-
+@dataclass
 class TopKObtainer(Obtainer):
-    def __init__(self, selection_budget: float, generation_budget: float, k: int, utility_function: UtilityFunction, seed: int = 42, **kwargs):
-        self.selection_budget = selection_budget
-        self.generation_budget = generation_budget
-        self.k = k
-        self.utility_function = utility_function
-        self.seed = seed
+    selection_budget: float
+    generation_budget: float
+    k: int
+    utility_function: UtilityFunction
+    seed: int = 42
 
     def obtain(self, private_dataset: Dataset, synthetic_dataset: Dataset) -> MarginalSet:
         rng = np.random.default_rng(self.seed)
@@ -74,4 +71,3 @@ class TopKObtainer(Obtainer):
         if len(candidates) <= 5 * self.k: return candidates
         candidates.sort(key=lambda x: x[0], reverse=True)
         return candidates[:2 * self.k]
-

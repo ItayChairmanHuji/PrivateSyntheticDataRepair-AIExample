@@ -1,4 +1,5 @@
 _target_: s02_synthesizing.src.components.smart_noise.SmartNoiseSynthesizer
+dataset_name: adult100
 engine: patectgan
 epsilon: 1.0
 seed: 42
