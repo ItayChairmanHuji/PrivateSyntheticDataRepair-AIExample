@@ -1,15 +1,13 @@
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from shared.entities.dataset import Dataset
 
+@dataclass
 class ArtifactSaver:
-    """Handles saving dataset artifacts to disk in a standardized format."""
-    
-    def __init__(self, output_dir: Path):
-        self.output_dir = output_dir
+    output_dir: Path
 
     def save(self, dataset: Dataset):
-        """Orchestrates the saving of all dataset artifacts."""
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._export_data(dataset.data)
         self._export_metadata(dataset)

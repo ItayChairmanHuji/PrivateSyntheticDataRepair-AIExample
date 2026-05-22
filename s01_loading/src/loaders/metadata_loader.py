@@ -1,10 +1,8 @@
 import json
 from pathlib import Path
+from s01_loading.src.loaders.loader import Loader
 
-class MetadataLoader:
-    """
-    Loads dataset metadata from JSON files.
-    """
+class MetadataLoader(Loader):
     def load(self, path: str | Path) -> dict:
         path = Path(path)
         if not path.exists():

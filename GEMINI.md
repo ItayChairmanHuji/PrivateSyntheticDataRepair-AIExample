@@ -13,12 +13,15 @@ Folder structure is agent architecture. Every stage of the research lifecycle is
 
 ## Code Quality & Engineering Standards
 To ensure maintainability and readability, the following standards are mandatory:
-- **OOP Principles**: Adhere strictly to Object-Oriented Programming principles, especially the **Single Responsibility Principle (SRP)**. Each class and module should have one, and only one, reason to change.
-- **Declarative Style**: Prefer declarative code over imperative logic. Use the **Facade Orchestrator** pattern: `main.py` should look like a "Table of Contents" for the stage execution.
+- **OOP & Dataclasses**: Adhere strictly to SRP. Prefer `dataclasses` for components that primarily hold state or configuration to keep constructors clean and boilerplate-free.
+- **Declarative Style**: Use the **Facade Orchestrator** pattern. `main.py` should look like a "Table of Contents" for the stage execution.
 - **Physical Constraints**:
     - **Max File Length**: 100 lines.
     - **Max Function Length**: 10 lines.
-- **Organization**: Prefer sub-packages over flat directories for components. Each sub-package should have an `__init__.py` to expose its public API.
+- **Documentation & Comments**: 
+    - **No Trivial Comments**: Do not comment on what is obvious from the code (e.g., `# Initialize class`).
+    - **High-Signal Comments**: Only use comments to explain "Why" or complex "How" that isn't immediately clear from the variable/function names.
+- **Structural Consistency**: Adhere strictly to the **Hybrid (Theme/Domain)** split. Each sub-package MUST have an `__init__.py` to expose its public API.
 
 ### The Membrane Pattern (Anti-Leakage)
 To prevent framework metadata from crashing underlying libraries and to ensure local-remote parity:
@@ -47,14 +50,23 @@ To ensure consistency and reduce cognitive load, every stage MUST adhere to the 
 - **`remote/`**: A utility folder for cluster interaction. While not a sequential pipeline stage (it doesn't follow the 01->02 flow), it still adheres to the `src/`, `config/`, and `CONTEXT.md` standards. It handles `push`, `pull`, and `deploy` operations.
 
 ### 1. Source Structure (`src/`)
-Every stage's `src/` directory MUST follow this layout:
-- `main.py`: The primary entry point. MUST be purely declarative, delegating all logic to the `StageOrchestrator`.
-- `cli/`: User-facing utility scripts.
-- `components/`: The core logic classes. Use **Sub-Packages** to group responsibilities:
-    - `core/`: Contains the `StageOrchestrator` and primary domain logic.
-    - `io/`: Data loading, saving, and artifact management.
-    - `logic/`: (or specific names like `encoding/`, `repair/`) Discrete algorithm implementations.
+Every stage's `src/` directory MUST follow this layout to ensure maximum discoverability and separation of concerns:
+
+- **Plumbing (Theme-Based)**: Standardized across all stages.
+    - `orchestration/`: Contains the `StageOrchestrator` (the Facade/Brain).
+    - `io/`: Contains the stage-level orchestration of files (`FileLoader`, `ArtifactSaver`) and CLI tools (`clean.py`).
+    - `loaders/`: Contains low-level format loaders (e.g., `DataLoader`, `DCsLoader`).
+- **Domain (Specific Logic)**: Named after the stage's research responsibility.
+    - `[DomainName]/`: (e.g., `encoders/`, `synthesizers/`, `repairers/`) Contains the core algorithms, split into individual files per component.
+
+- `main.py`: The purely declarative entry point.
 - `internal_readme.md`: Technical documentation for the stage's internal logic.
+
+## Stage Validation Standards
+Every stage MUST have a comprehensive test suite in its `tests/` directory (e.g., `test_stage.py`) that satisfies the following conditions:
+1. **API Coverage**: The tests MUST execute and verify all public API commands documented in the stage's `CONTEXT.md` (e.g., `main.py`, `clean.py`, `list_datasets.py`).
+2. **Orchestration Validation**: The tests MUST run the full orchestration flow via the `StageOrchestrator` using a mock or dummy dataset to ensure all components are correctly wired.
+3. **Automated Verification**: All tests MUST pass before a stage is considered "ready".
 
 ### 2. Communication Contract (`CONTEXT.md`)
 The `CONTEXT.md` in the stage root is the "Public API" documentation. It MUST include:

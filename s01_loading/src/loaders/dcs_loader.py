@@ -1,10 +1,14 @@
 import re
 from pathlib import Path
-from shared.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
+from s01_loading.src.loaders.loader import Loader
+from shared.entities.denial_constraints import (
+    DenialConstraint,
+    DenialConstraints,
+    Predicate,
+    Side,
+)
 
-class DCsLoader:
-    """Parses Denial Constraints from text files."""
-    
+class DCsLoader(Loader):
     _PREDICATE_OPERATORS = r"=|!=|<=|>=|<|>"
     _FIRST_TUPLE = r"t(\d+)\.([A-Za-z_]\w*)\s*"
     _SECOND_TUPLE = r"\s*t(\d+)\.([A-Za-z_]\w*)"
@@ -27,26 +31,36 @@ class DCsLoader:
         return [p.strip() for p in normalized.split("&") if p.strip()]
 
     def _parse_predicate(self, raw_predicate: str) -> Predicate:
-        binary_match = re.match(rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS}){self._SECOND_TUPLE}$", raw_predicate)
+        binary_match = re.match(
+            rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS}){self._SECOND_TUPLE}$",
+            raw_predicate,
+        )
         if binary_match:
             return self._create_binary_predicate(binary_match)
-        
-        unary_match = re.match(rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS})\s*{self._VALUE}$", raw_predicate)
+
+        unary_match = re.match(
+            rf"^{self._FIRST_TUPLE}({self._PREDICATE_OPERATORS})\s*{self._VALUE}$",
+            raw_predicate,
+        )
         if unary_match:
             return self._create_unary_predicate(unary_match)
-        
+
         raise ValueError(f"Invalid predicate format: {raw_predicate}")
 
     def _create_binary_predicate(self, match):
         return Predicate(
             left=Side(attr=match.group(2), index=int(match.group(1)), is_value=False),
             opr=match.group(3),
-            right=Side(attr=match.group(5), index=int(match.group(4)), is_value=False)
+            right=Side(attr=match.group(5), index=int(match.group(4)), is_value=False),
         )
 
     def _create_unary_predicate(self, match):
         return Predicate(
             left=Side(attr=match.group(2), index=int(match.group(1)), is_value=False),
             opr=match.group(3),
-            right=Side(attr=match.group(4).strip("'\""), index=int(match.group(1)), is_value=True)
+            right=Side(
+                attr=match.group(4).strip("'\""),
+                index=int(match.group(1)),
+                is_value=True,
+            ),
         )

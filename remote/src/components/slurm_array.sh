@@ -5,14 +5,16 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
-#SBATCH --time=01:00:00
+#SBATCH --time=04:00:00
 
-# Usage: sbatch --array=1-N remote/src/components/slurm_array.sh [blueprint_name]
+# Usage: sbatch --array=1-N remote/src/components/slurm_array.sh [blueprint_name] [offset]
 
 BLUEPRINT_NAME=$1
-JOB_ID=$(printf "%03d" $SLURM_ARRAY_TASK_ID)
+OFFSET=${2:-0}
+ACTUAL_ID=$((SLURM_ARRAY_TASK_ID + OFFSET))
+JOB_ID=$(printf "%03d" $ACTUAL_ID)
 
-echo "Starting Slurm Task ID: $SLURM_ARRAY_TASK_ID (Job ID: $JOB_ID)"
+echo "Starting Slurm Task ID: $SLURM_ARRAY_TASK_ID (Offset: $OFFSET, Job ID: $JOB_ID)"
 echo "Blueprint: $BLUEPRINT_NAME"
 
 # Activate environment
