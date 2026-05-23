@@ -28,38 +28,68 @@ class SmartNoiseSynthesizer(Synthesizer):
         self.kwargs = kwargs
 
     def _set_seed(self):
+        """Sets the seed for all relevant libraries to ensure reproducibility."""
         random.seed(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(self.seed)
 
-    def synthesize(self, dataset: Dataset) -> Dataset:
+    def sample(self, model, dataset: Dataset) -> Dataset:
+        """
+        Generates synthetic data from a pre-trained model.
+        
+        Args:
+            model: The pre-trained SmartNoise model.
+            dataset (Dataset): Reference dataset for metadata and size.
+            
+        Returns:
+            Dataset: Synthetic dataset.
+        """
         self._set_seed()
         
-        # Filter out None and empty dicts to avoid TypeError in some SmartNoise engines
-        filtered_kwargs = {k: v for k, v in self.kwargs.items() if v is not None}
-        
-        # Instantiate and fit using the original simple logic
-        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
-        
-        print(f"Synthesizing using {self.engine} (epsilon={self.epsilon})...")
-        synth.fit(dataset.data)
-
         # Pass seed directly to sample() for engines that support it
         try:
-            synthetic_df = synth.sample(len(dataset.data), seed=self.seed)
+            synthetic_df = model.sample(len(dataset.data), seed=self.seed)
         except TypeError:
-            synthetic_df = synth.sample(len(dataset.data))
+            synthetic_df = model.sample(len(dataset.data))
         
-        # Ensure it's a DataFrame
+        # Ensure it's a DataFrame (some engines might return numpy)
         if not isinstance(synthetic_df, pd.DataFrame):
             synthetic_df = pd.DataFrame(synthetic_df, columns=dataset.data.columns)
 
         return Dataset(
-            name=f"{dataset.name}_{self.engine}",
+            name=f"{dataset.name}_{self.engine}_sampled",
             data=synthetic_df,
             dcs=dataset.dcs,
             target=dataset.target,
             mappings=dataset.mappings
         )
+
+    def synthesize(self, dataset: Dataset) -> Dataset:
+        """
+        Generates a synthetic version of the provided dataset.
+        
+        Args:
+            dataset (Dataset): The source dataset to synthesize.
+            
+        Returns:
+            Dataset: A new dataset object containing the synthetic data.
+        """
+        self._set_seed()
+        
+        # Filter out None and empty dicts to avoid TypeError in some SmartNoise engines
+        filtered_kwargs = {k: v for k, v in self.kwargs.items() if v is not None}
+        
+        # If 'kwargs' still somehow exists and is empty, remove it
+        if 'kwargs' in filtered_kwargs and not filtered_kwargs['kwargs']:
+            filtered_kwargs.pop('kwargs')
+
+        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
+        
+        print(f"Synthesizing using {self.engine} (epsilon={self.epsilon})...")
+        
+        # Simple fit logic that allows snsynth to infer types from data
+        synth.fit(dataset.data)
+
+        return self.sample(synth, dataset)

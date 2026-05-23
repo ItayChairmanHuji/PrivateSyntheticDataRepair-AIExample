@@ -1,82 +1,66 @@
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-import pandas as pd
-from shared.entities.dataset import Dataset
-from s01_loading.src.loaders.dcs_loader import DCsLoader
 from s02_synthesizing.src.io.artifact_saver import ArtifactSaver
+from s02_synthesizing.src.io.input_loader import InputLoader
+from shared.entities.dataset import Dataset
+
 
 @dataclass
 class StageOrchestrator:
     synthesizer: any
-    dataset_name: str
+    output_dir: Path
     mode: str = "full"
     input_root: Path = Path("s02_synthesizing/input")
-    output_root: Path = Path("s02_synthesizing/output")
 
     def run(self) -> Optional[Dataset]:
         """
         Executes the synthesis stage based on the specified mode.
         """
-        input_dir = self.input_root / self.dataset_name
-        output_dir = self.output_root / self.dataset_name
-        
+        dataset_name = self.output_dir.name
+        input_dir = self.input_root / dataset_name
+
         # 1. Load artifacts from Stage 1
-        dataset = self._load_input_dataset(input_dir)
-        
+        loader = InputLoader(input_dir)
+        dataset = loader.load()
+
         # 2. Run synthesis/training/sampling
         synthetic_dataset = self._execute_synthesis(dataset)
 
         # 3. Save artifacts if synthesis occurred
         if synthetic_dataset:
-            saver = ArtifactSaver(output_dir)
+            saver = ArtifactSaver(self.output_dir)
             saver.save(synthetic_dataset, self.synthesizer, self.mode)
             return synthetic_dataset
-        
+
         return None
 
-    def _load_input_dataset(self, input_dir: Path) -> Dataset:
-        print(f"Loading input artifacts from {input_dir}...")
-        data_path = input_dir / "private_data.csv"
-        meta_path = input_dir / "metadata.json"
-        dcs_path = input_dir / "constraints.txt"
+    def _execute_synthesis(self, dataset: Dataset) -> Optional[Dataset]:
+        match self.mode:
+            case "train":
+                return self._train(dataset)
+            case "sample":
+                return self._sample(dataset)
+            case _:
+                return self._full_synthesis(dataset)
 
-        if not data_path.exists():
-            raise FileNotFoundError(f"Private data not found at {data_path}")
+    def _train(self, dataset: Dataset):
+        print("Running training only mode...")
+        if hasattr(self.synthesizer, "fit_and_save"):
+            self.synthesizer.fit_and_save(dataset)
+        else:
+            self.synthesizer.synthesize(dataset)
+        return None
 
-        data = pd.read_csv(data_path)
-        
-        with open(meta_path, "r") as f:
-            metadata = json.load(f)
-            
-        dcs_loader = DCsLoader()
-        dcs = dcs_loader.load(dcs_path)
-        
-        return Dataset(
-            name=metadata["name"],
-            data=data,
-            dcs=dcs,
-            target=metadata["target"],
-            mappings=metadata.get("mappings")
+    def _sample(self, dataset: Dataset):
+        print("Running sampling only mode...")
+        return (
+            self.synthesizer.sample(dataset)
+            if hasattr(self.synthesizer, "sample")
+            else self.synthesizer.synthesize(dataset)
         )
 
-    def _execute_synthesis(self, dataset: Dataset) -> Optional[Dataset]:
-        if self.mode == "train":
-            print(f"Running training only mode...")
-            if hasattr(self.synthesizer, 'fit_and_save'):
-                self.synthesizer.fit_and_save(dataset)
-            else:
-                self.synthesizer.synthesize(dataset)
-            return None
-        
-        elif self.mode == "sample":
-            print(f"Running sampling only mode...")
-            if hasattr(self.synthesizer, 'sample'):
-                return self.synthesizer.sample(dataset)
-            else:
-                return self.synthesizer.synthesize(dataset)
-        else:
-            print(f"Running full synthesis mode...")
-            return self.synthesizer.synthesize(dataset)
+    def _full_synthesis(self, dataset: Dataset):
+        print("Running full synthesis mode...")
+        return self.synthesizer.synthesize(dataset)
