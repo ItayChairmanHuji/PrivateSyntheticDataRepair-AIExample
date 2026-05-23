@@ -1,3 +1,4 @@
+from typing import Any
 import numpy as np
 import igraph as ig
 from abc import abstractmethod
@@ -39,7 +40,7 @@ class VertexCoverRepairer(Repairer):
         return graph
 
     @abstractmethod
-    def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> int:
+    def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> Any:
         pass
 
     def _normalize(self, values: np.ndarray) -> np.ndarray:

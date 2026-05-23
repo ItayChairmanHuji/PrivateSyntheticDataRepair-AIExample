@@ -15,4 +15,4 @@ class VanillaVCRepairer(VertexCoverRepairer):
     def _select_vertex(self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet) -> int:
         degrees = graph.degree()
         # Max degree vertex
-        return np.argmax(degrees)
+        return int(np.argmax(degrees))

@@ -37,7 +37,7 @@ class TestStage3(unittest.TestCase):
         # 1. Run main.py
         cmd_main = [
             sys.executable, "s03_marginals/src/main.py", 
-            f"dataset_name={self.test_dataset}",
+            f"experiment_name={self.test_dataset}",
             "k=2"
         ]
         result = subprocess.run(cmd_main, capture_output=True, text=True)

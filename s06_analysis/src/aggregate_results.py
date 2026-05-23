@@ -66,9 +66,11 @@ def aggregate_experiment_2(blueprint_path, results_dir, output_path):
                 "violations_synthetic": res.get("violations", {}).get("synthetic"),
                 "violations_repaired": res.get("violations", {}).get("repaired"),
                 
-                # Loss Function
+                # Loss Function Components
                 "loss_synthetic": res.get("loss_function", {}).get("synthetic", {}).get("total"),
                 "loss_repaired": res.get("loss_function", {}).get("repaired", {}).get("total"),
+                "loss_marginal_synthetic": res.get("loss_function", {}).get("synthetic", {}).get("marginal_component"),
+                "loss_marginal_repaired": res.get("loss_function", {}).get("repaired", {}).get("marginal_component"),
                 
                 # ML Accuracy (Average of LR, RF, MLP)
                 "ml_acc_synthetic": None,

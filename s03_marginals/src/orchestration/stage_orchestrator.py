@@ -10,12 +10,12 @@ class StageOrchestrator:
     saver: ArtifactSaver
     obtainer: Obtainer
 
-    def run(self, dataset_name: str):
-        input_dir = Path("s03_marginals/input") / dataset_name
-        output_dir = Path("s03_marginals/output") / dataset_name
+    def run(self, experiment_name: str):
+        input_dir = Path("s03_marginals/input") / experiment_name
+        output_dir = Path("s03_marginals/output") / experiment_name
         
         p_ds, s_ds = self.loader.load(input_dir)
         marginals = self.obtainer.obtain(p_ds, s_ds)
         self.saver.save(marginals, output_dir)
         
-        print(f"Success: Obtained {len(marginals.marginals)} marginals.")
+        print(f"Success: Obtained {len(marginals.marginals)} marginals for {experiment_name}.")

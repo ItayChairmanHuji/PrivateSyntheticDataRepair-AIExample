@@ -1,5 +1,6 @@
 _target_: s03_marginals.src.marginals.TopKObtainer
-dataset_name: ???
+experiment_name: ???
+dataset_name: ${experiment_name}
 selection_budget: 0.5
 generation_budget: 0.5
 k: 20
