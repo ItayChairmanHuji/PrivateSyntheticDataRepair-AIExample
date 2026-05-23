@@ -4,13 +4,13 @@ from s04_repairing.src.repair.repairer import Repairer
 
 @dataclass
 class StageOrchestrator:
-    dataset_name: str
+    experiment_name: str
     repairer: Repairer
     loader: FileLoader
     saver: ArtifactSaver
 
     def run(self):
-        print(f"--- Stage 4: Repairing Synthetic Data [{self.dataset_name}] ---")
+        print(f"--- Stage 4: Repairing Synthetic Data [{self.experiment_name}] ---")
         
         # 1. Load artifacts
         dataset, marginals = self.loader.load()

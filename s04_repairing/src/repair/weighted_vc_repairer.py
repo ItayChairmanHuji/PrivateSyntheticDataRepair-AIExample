@@ -88,7 +88,11 @@ class WeightedVCRepairer(VertexCoverRepairer):
         return hypo_diffs - base_diffs, base_diffs.sum()
 
     def _compute_vertex_weights(
-        self, active_indices: List[int], base_sum: float, diff_gain: np.ndarray, m_len: int
+        self,
+        active_indices: List[int],
+        base_sum: float,
+        diff_gain: np.ndarray,
+        m_len: int,
     ) -> np.ndarray:
         weights: List[float] = []
         for v_idx in active_indices:
@@ -98,11 +102,15 @@ class WeightedVCRepairer(VertexCoverRepairer):
         return np.array(weights)
 
     def _pick_best_vertex(
-        self, active_indices: List[int], weights: np.ndarray, graph: ig.Graph, alpha: float
+        self,
+        active_indices: List[int],
+        weights: np.ndarray,
+        graph: ig.Graph,
+        alpha: float,
     ) -> int:
         degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
-        nw = self._normalize(weights)
-        nd = self._normalize(degrees)
+        nw = np.log(self._normalize(weights))
+        nd = np.log(self._normalize(degrees))
         ratios = (1 - alpha) * nw + alpha * (1 - nd)
         return int(active_indices[int(np.argmin(ratios))])
 
@@ -118,17 +126,23 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self._current_n = n
         current_counts = np.zeros(len(marginals))
         self._target_freqs = np.array([m.target for m in marginals])
-        
+
         # Use local list for construction to avoid type mismatch with field hint
         tuple_matches_list: List[List[int]] = [[] for _ in range(n)]
 
-        self._fill_initial_counts(dataset, marginals, current_counts, tuple_matches_list)
+        self._fill_initial_counts(
+            dataset, marginals, current_counts, tuple_matches_list
+        )
 
         self._current_counts = current_counts
         self._tuple_matches = [np.array(m, dtype=int) for m in tuple_matches_list]
 
     def _fill_initial_counts(
-        self, dataset: Dataset, marginals: MarginalSet, current_counts: np.ndarray, tuple_matches_list: List[List[int]]
+        self,
+        dataset: Dataset,
+        marginals: MarginalSet,
+        current_counts: np.ndarray,
+        tuple_matches_list: List[List[int]],
     ):
         for i, m in enumerate(marginals):
             mask = m.get_mask(dataset.data)

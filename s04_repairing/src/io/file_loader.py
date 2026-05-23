@@ -9,7 +9,7 @@ from s04_repairing.src.loaders import MarginalsLoader
 
 @dataclass
 class FileLoader:
-    dataset_name: str
+    experiment_name: str
     base_path: str = "s04_repairing/input"
     data_loader: DataLoader = DataLoader()
     dcs_loader: DCsLoader = DCsLoader()
@@ -37,4 +37,4 @@ class FileLoader:
 
     @property
     def input_dir(self) -> Path:
-        return Path(self.base_path) / self.dataset_name
+        return Path(self.base_path) / self.experiment_name

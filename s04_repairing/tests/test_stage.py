@@ -10,10 +10,10 @@ from shared.entities.marginal import MarginalSet
 
 class TestStage4(unittest.TestCase):
     def setUp(self):
-        self.dataset_name = "test_dataset"
+        self.experiment_name = "test_dataset"
         self.base_dir = Path("s04_tests_temp")
-        self.input_dir = self.base_dir / "input" / self.dataset_name
-        self.output_dir = self.base_dir / "output" / self.dataset_name
+        self.input_dir = self.base_dir / "input" / self.experiment_name
+        self.output_dir = self.base_dir / "output" / self.experiment_name
         
         self.input_dir.mkdir(parents=True, exist_ok=True)
         
@@ -41,12 +41,12 @@ class TestStage4(unittest.TestCase):
     def test_orchestration(self):
         # 1. Instantiate components
         repairer = VanillaVCRepairer(alpha=0.5)
-        loader = FileLoader(dataset_name=self.dataset_name, base_path=str(self.base_dir / "input"))
-        saver = ArtifactSaver(dataset_name=self.dataset_name, base_path=str(self.base_dir / "output"))
+        loader = FileLoader(experiment_name=self.experiment_name, base_path=str(self.base_dir / "input"))
+        saver = ArtifactSaver(experiment_name=self.experiment_name, base_path=str(self.base_dir / "output"))
 
         # 2. Orchestrate
         orchestrator = StageOrchestrator(
-            dataset_name=self.dataset_name,
+            experiment_name=self.experiment_name,
             repairer=repairer,
             loader=loader,
             saver=saver
@@ -64,7 +64,7 @@ class TestStage4(unittest.TestCase):
     def test_cli_clean(self):
         from s04_repairing.src.io.clean import clean
         # Just verify it runs without crashing
-        clean(self.dataset_name)
+        clean(self.experiment_name)
 
     def test_cli_list(self):
         from s04_repairing.src.io.list_repairers import list_repairers
