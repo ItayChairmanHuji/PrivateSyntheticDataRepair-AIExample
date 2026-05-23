@@ -6,7 +6,6 @@ from s03_marginals.src.io.artifact_saver import ArtifactSaver
 
 @hydra.main(version_base=None, config_path="../config", config_name="top_k")
 def main(cfg: DictConfig):
-    # Filter out stage-level config from component instantiation
     dataset_name = cfg.dataset_name
     
     # Create a copy and remove dataset_name to avoid passing it to the component constructor
