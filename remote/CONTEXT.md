@@ -7,26 +7,34 @@ This folder contains utilities for interacting with the remote Slurm cluster. It
 ### Push Code
 Synchronize the local codebase with the remote server.
 ```bash
-python remote/src/cli/push.py
+# Push everything (excluding ignores)
+python remote/src/main.py mode=push
+
+# Push specific files or folders (folders will be zipped)
+python remote/src/main.py mode=push "paths=[s01_loading/src, route.py]"
 ```
 
 ### Deploy Experiments
 Submit a Slurm Array job for a specific blueprint.
 ```bash
-python remote/src/cli/deploy.py --blueprint experiment_1_generation
+python remote/src/main.py mode=deploy blueprint=experiment_1_generation
 ```
-Use `--canary` to run only the first job as a test.
+Use `canary=true` to run only the first job as a test.
 
 ### Pull Results
 Retrieve and aggregate experiment results from the remote server.
 ```bash
-python remote/src/cli/pull.py --blueprint experiment_1_generation
+# Pull results for an experiment group
+python remote/src/main.py mode=pull blueprint=experiment_1_generation
+
+# Pull specific files or folders from remote
+python remote/src/main.py mode=pull "paths=[outputs/experiment_1_generation/exp_001/s05_evaluating/result_1.json]"
 ```
 
 ### Clean Outputs
 Clear the local `remote/output/` folder.
 ```bash
-python remote/src/cli/clean.py
+python remote/src/io/clean.py
 ```
 
 ## Contract

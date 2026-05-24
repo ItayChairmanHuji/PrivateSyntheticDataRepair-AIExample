@@ -5,13 +5,19 @@ from s04_repairing.src.io import FileLoader, ArtifactSaver
 
 @hydra.main(version_base=None, config_path="../config", config_name="vanilla_vc")
 def main(cfg: DictConfig):
-    experiment_name = cfg.get("experiment_name")
+    experiment_name = cfg.get("experiment_name", cfg.get("dataset_name"))
     if not experiment_name:
-        print("Error: experiment_name must be provided in config or as an argument (e.g., experiment_name=adult100)")
+        print("Error: experiment_name or dataset_name must be provided (e.g., ++dataset_name=adult100)")
         return
 
+    # Create a clean copy for component instantiation (Membrane Pattern)
+    from omegaconf import OmegaConf
+    component_cfg = OmegaConf.to_container(cfg, resolve=True)
+    component_cfg.pop("dataset_name", None)
+    component_cfg.pop("experiment_name", None)
+
     # 1. Instantiate Domain Component (Repairer)
-    repairer = hydra.utils.instantiate(cfg)
+    repairer = hydra.utils.instantiate(component_cfg)
 
     # 2. Instantiate IO Components
     loader = FileLoader(experiment_name=experiment_name)

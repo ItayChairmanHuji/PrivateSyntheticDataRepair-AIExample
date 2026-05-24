@@ -7,7 +7,7 @@
 #SBATCH --mem=64G
 #SBATCH --time=04:00:00
 
-# Usage: sbatch --array=1-N remote/src/components/slurm_array.sh [blueprint_name] [offset]
+# Usage: sbatch --array=1-N remote/src/remote/slurm_array.sh [blueprint_name] [offset]
 
 BLUEPRINT_NAME=$1
 OFFSET=${2:-0}
@@ -24,5 +24,5 @@ source .venv/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 
 # Run the experiment orchestrator
-# Note: we point to the blueprint in remote/input (it was synced by pusher)
-python remote/src/components/runner.py --job_id $JOB_ID --blueprint_path remote/input/$BLUEPRINT_NAME/blueprint.json
+# Updated path to runner.py
+python remote/src/remote/runner.py --job_id $JOB_ID --blueprint_path remote/input/$BLUEPRINT_NAME/blueprint.json

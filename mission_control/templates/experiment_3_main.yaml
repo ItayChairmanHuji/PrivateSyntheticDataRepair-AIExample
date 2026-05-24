@@ -1,0 +1,16 @@
+experiment_group: experiment_3_repair_comparison
+base_config:
+  dataset: adult
+  synthesizer: aim
+  epsilon: 0.3
+  seed: 42
+  repair_algorithm: vanilla_vc
+  sample_size: 5000
+  mode: sample
+
+sweep_parameters:
+  dataset: [adult, compas, tax]
+  synthesizer: [aim, mst]
+  epsilon: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  seed: [42, 100, 200, 300, 400]
+  repair_algorithm: [vanilla_vc, classic_vc, weighted_vc]

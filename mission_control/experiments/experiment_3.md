@@ -1,10 +1,10 @@
-# Experiment 2
+# Experiment 3
 
 ## Goal
 Compare the VC repair algorithms as function of eps. 
 
 ## Datasets 
-Use adult, census, compas and tax for experiments. 
+Use adult, compas and tax for experiments. 
 Use adult100 for canary run. 
 
 ## Synthetic data generation 
@@ -37,3 +37,6 @@ The canary run should check the entire process on the remote.
 Run it on adult100 with synthetic data of size 100. 
 This should be a quick test to verify everything works and nothing fails. 
 After it successfully passes, feel free to remove the results of this run. 
+
+## Execution History
+- **2026-05-23**: Re-run started after updating parameters (size 5K, no census). Canary run passed. Main sweep (720 jobs) deployed on remote cluster (Job ID 46798).

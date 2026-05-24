@@ -8,8 +8,13 @@ def main(cfg: DictConfig):
     dataset_name = cfg.get("dataset_name", cfg.name)
     output_dir = Path("s01_loading/output") / dataset_name
     
+    # Create a clean copy for component instantiation (Membrane Pattern)
+    from omegaconf import OmegaConf
+    component_cfg = OmegaConf.to_container(cfg, resolve=True)
+    component_cfg.pop("dataset_name", None)
+
     orchestrator = StageOrchestrator(
-        loader=hydra.utils.instantiate(cfg),
+        loader=hydra.utils.instantiate(component_cfg),
         output_dir=output_dir
     )
     

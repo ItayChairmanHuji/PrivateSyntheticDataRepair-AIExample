@@ -52,8 +52,8 @@ class Deployer:
             array_range = f"1-{total_jobs}"
             logger.info(f"Submitting full array: {array_range}")
         
-        # Note the path update for slurm_array.sh
-        sbatch_cmd = f"sbatch --array={array_range} remote/src/components/slurm_array.sh {blueprint_name}"
+        # Updated path to slurm_array.sh
+        sbatch_cmd = f"sbatch --array={array_range} remote/src/remote/slurm_array.sh {blueprint_name}"
         self.run_remote_command(sbatch_cmd)
         
         logger.info("--- Deployment Successful ---")

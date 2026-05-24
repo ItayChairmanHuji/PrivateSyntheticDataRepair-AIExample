@@ -47,6 +47,48 @@ class Pusher:
                         zipf.write(file_path, arcname)
         logger.info("Zip archive created.")
 
+    def push_paths(self, paths):
+        """Push specific files or folders. Folders are zipped."""
+        root_dir = Path.cwd()
+        
+        for p in paths:
+            path = Path(p)
+            if not path.is_absolute():
+                path = root_dir / path
+            
+            if not path.exists():
+                logger.warning(f"Path does not exist: {path}")
+                continue
+
+            if path.is_dir():
+                zip_name = f"{path.name}.zip"
+                zip_path = root_dir / zip_name
+                logger.info(f"Zipping folder {path.name} to {zip_name}")
+                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    for root, dirs, files in os.walk(path):
+                        for file in files:
+                            file_path = Path(root) / file
+                            arcname = file_path.relative_to(path.parent)
+                            zipf.write(file_path, arcname)
+                
+                try:
+                    logger.info(f"Pushing zipped folder: {zip_name}")
+                    subprocess.run(["scp", str(zip_path), f"{self.remote_host}:{self.remote_dir}/{zip_name}"], check=True)
+                    extract_cmd = f"cd {self.remote_dir} && unzip -o {zip_name} && rm {zip_name}"
+                    subprocess.run(["ssh", self.remote_host, extract_cmd], check=True)
+                finally:
+                    if zip_path.exists():
+                        os.remove(zip_path)
+            else:
+                logger.info(f"Pushing file: {path.name}")
+                rel_path = path.relative_to(root_dir)
+                remote_file_path = f"{self.remote_dir}/{rel_path.as_posix()}"
+                remote_parent = f"{self.remote_dir}/{rel_path.parent.as_posix()}"
+                
+                # Ensure remote directory exists
+                subprocess.run(["ssh", self.remote_host, f"mkdir -p {remote_parent}"], check=True)
+                subprocess.run(["scp", str(path), f"{self.remote_host}:{remote_file_path}"], check=True)
+
     def push(self):
         # Assumes project root is parent of 'remote'
         root_dir = Path(__file__).resolve().parent.parent.parent.parent

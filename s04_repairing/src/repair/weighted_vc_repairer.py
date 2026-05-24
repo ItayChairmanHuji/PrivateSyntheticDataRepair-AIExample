@@ -109,9 +109,9 @@ class WeightedVCRepairer(VertexCoverRepairer):
         alpha: float,
     ) -> int:
         degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
-        nw = np.log(self._normalize(weights))
-        nd = np.log(self._normalize(degrees))
-        ratios = (1 - alpha) * nw + alpha * (1 - nd)
+        nw = self._normalize(weights)
+        nd = -self._normalize(degrees)
+        ratios = (1 - alpha) * nw + alpha * nd
         return int(active_indices[int(np.argmin(ratios))])
 
     def _update_state(self, chosen_v: int):

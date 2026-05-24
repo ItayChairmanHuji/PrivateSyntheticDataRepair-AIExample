@@ -57,4 +57,6 @@ class VertexCoverRepairer(Repairer):
         pass
 
     def _normalize(self, values: np.ndarray) -> np.ndarray:
-        return (values - values.mean()) / (values.std() + 1e-8)
+        min_val = np.min(values)
+        max_val = np.max(values)
+        return (values - min_val + 1e-8) / (max_val - min_val + 1e-8)
