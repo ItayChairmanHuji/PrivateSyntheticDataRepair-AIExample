@@ -27,6 +27,9 @@ Retrieve and aggregate experiment results from the remote server.
 # Pull results for an experiment group
 python remote/src/main.py mode=pull blueprint=experiment_1_generation
 
+# Pull specific experiments by ID
+python remote/src/main.py mode=pull blueprint=experiment_3_repair_comparison "exp_ids=[1, 5, 10]"
+
 # Pull specific files or folders from remote
 python remote/src/main.py mode=pull "paths=[outputs/experiment_1_generation/exp_001/s05_evaluating/result_1.json]"
 ```

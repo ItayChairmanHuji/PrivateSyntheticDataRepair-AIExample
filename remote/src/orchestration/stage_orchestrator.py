@@ -13,6 +13,7 @@ class StageOrchestrator:
     remote_dir: str
     mode: str
     blueprint: str = None
+    exp_ids: list = None
     canary: bool = False
     paths: list = None
 
@@ -33,7 +34,7 @@ class StageOrchestrator:
             if self.paths:
                 self.puller.pull_paths(self.paths)
             elif self.blueprint:
-                self.puller.pull(self.blueprint)
+                self.puller.pull(self.blueprint, exp_ids=self.exp_ids)
             else:
                 logger.error("Error: 'blueprint' or 'paths' parameter is required for mode='pull'")
         elif self.mode == "deploy":

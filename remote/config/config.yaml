@@ -1,6 +1,7 @@
 remote_host: "snorlax-login"
 remote_dir: "~/final_research"
 blueprint: null
+exp_ids: null
 paths: null
 mode: null # push, pull, deploy
 canary: false

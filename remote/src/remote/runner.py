@@ -138,7 +138,10 @@ def main():
 
         # STAGE 04: Repairing
         repairer = params.get('repairer', params.get('repair_algorithm', 'vanilla_vc'))
-        run_command(f"python s04_repairing/src/main.py --config-name={repairer} ++dataset_name={dataset}", workspace, env=env)
+        repair_args = f"--config-name={repairer} ++dataset_name={dataset}"
+        if repairer == "weighted_vc":
+            repair_args += " ++use_adaptive_alpha=True"
+        run_command(f"python s04_repairing/src/main.py {repair_args}", workspace, env=env)
 
         # Handoff ALL -> S5
         copy_artifacts(workspace / "s01_loading/output", workspace / "s05_evaluating/input")

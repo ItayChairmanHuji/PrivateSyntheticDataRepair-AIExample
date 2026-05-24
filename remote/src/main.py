@@ -12,6 +12,7 @@ def main(cfg: DictConfig):
         remote_dir=cfg.remote_dir,
         mode=cfg.mode,
         blueprint=cfg.get("blueprint"),
+        exp_ids=cfg.get("exp_ids"),
         canary=cfg.get("canary", False),
         paths=cfg.get("paths")
     )

@@ -53,7 +53,7 @@ class Puller:
                 local_path.parent.mkdir(parents=True, exist_ok=True)
                 self.run_command(["scp", f"{self.remote_host}:{self.remote_dir}/{p}", str(local_path)])
 
-    def pull(self, experiment_group, use_zip=True):
+    def pull(self, experiment_group, use_zip=True, exp_ids=None):
         root = Path(__file__).resolve().parent.parent.parent.parent
         local_output_base = root / "outputs" / experiment_group
         local_output_base.mkdir(parents=True, exist_ok=True)
@@ -64,9 +64,17 @@ class Puller:
             zip_name = f"{experiment_group}_results.zip"
             remote_zip = f"{self.remote_dir}/{zip_name}"
             
+            # Construct target path(s) for zipping
+            if exp_ids:
+                targets = [f"outputs/{experiment_group}/exp_{str(eid).zfill(3)}" for eid in exp_ids]
+                target_str = " ".join(targets)
+                logger.info(f"Zipping specific results on remote: {exp_ids}")
+            else:
+                target_str = f"outputs/{experiment_group}"
+                logger.info(f"Zipping all results on remote for group: {experiment_group}")
+
             # 1. Zip on remote
-            logger.info(f"Zipping results on remote: {remote_zip}")
-            remote_cmd = f"cd {self.remote_dir} && zip -r {zip_name} outputs/{experiment_group}"
+            remote_cmd = f"cd {self.remote_dir} && zip -r {zip_name} {target_str}"
             self.run_command(["ssh", self.remote_host, remote_cmd])
             
             # 2. Pull zip

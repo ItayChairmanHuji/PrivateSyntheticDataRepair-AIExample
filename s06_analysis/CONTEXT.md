@@ -11,6 +11,8 @@ The final destination of the research lifecycle. Synthesize results from all exp
 **Process:**
 - Use Jupyter Notebooks in `tests/` or `notebooks/` for interactive exploration.
 - Use `src/` for reusable plotting functions and statistical tests.
+- The notebook should contain plots of at least: deletion ratio, marginals error, marginals loss, tvd and runtime
+
 
 **Outputs (Layer 4 - `output/`):**
 - Publication-quality plots (PNG/PDF).
