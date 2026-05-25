@@ -1,0 +1,8 @@
+experiment_name: experiment_4
+loader:
+  _target_: s06_analysis.src.io.result_loader.ResultLoader
+generator:
+  _target_: s06_analysis.src.io.notebook_generator.NotebookGenerator
+flattener:
+  _target_: s06_analysis.src.io.result_flattener.ResultFlattener
+output_dir: notebooks

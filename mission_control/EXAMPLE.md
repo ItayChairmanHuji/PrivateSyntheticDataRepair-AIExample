@@ -54,6 +54,16 @@ python mission_control/src/generate_blueprint.py --template mission_control/temp
 ## 4. Execution & Tracking
 As the pipeline runs, you update the `Status` section in `experiments/alpha_sweep_journal.md`. This ensures you (and I) always know the exact state of the research.
 
+## 5. Bugfix & Rerun (The Recovery)
+If you find a bug in the code or config mid-experiment, you don't need to manually clean the remote server.
+
+**Command:**
+```powershell
+python -m remote.src.main mode=rerun blueprint=alpha_sweep_may2026
+```
+
+This automated command will sync your bugfix, stop running jobs, wipe stale results, and start fresh.
+
 ## Why this is a "Control Center":
 - **Single Source of Truth**: The experiment file in `experiments/` is the master record.
 - **Traceability**: You can trace any result back to a specific Blueprint and Template.

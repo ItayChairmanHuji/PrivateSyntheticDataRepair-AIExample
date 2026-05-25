@@ -16,6 +16,7 @@ class StageOrchestrator:
     exp_ids: list = None
     canary: bool = False
     paths: list = None
+    stats_only: bool = False
 
     def __post_init__(self):
         self.pusher = Pusher(remote_host=self.remote_host, remote_dir=self.remote_dir)
@@ -34,7 +35,7 @@ class StageOrchestrator:
             if self.paths:
                 self.puller.pull_paths(self.paths)
             elif self.blueprint:
-                self.puller.pull(self.blueprint, exp_ids=self.exp_ids)
+                self.puller.pull(self.blueprint, exp_ids=self.exp_ids, stats_only=self.stats_only)
             else:
                 logger.error("Error: 'blueprint' or 'paths' parameter is required for mode='pull'")
         elif self.mode == "deploy":
@@ -42,5 +43,10 @@ class StageOrchestrator:
                 logger.error("Error: 'blueprint' parameter is required for mode='deploy'")
                 return
             self.deployer.deploy(self.blueprint, canary_only=self.canary)
+        elif self.mode == "rerun":
+            if not self.blueprint:
+                logger.error("Error: 'blueprint' parameter is required for mode='rerun'")
+                return
+            self.deployer.rerun(self.blueprint)
         else:
-            logger.error(f"Unknown mode: {self.mode}. Supported modes: push, pull, deploy")
+            logger.error(f"Unknown mode: {self.mode}. Supported modes: push, pull, deploy, rerun")

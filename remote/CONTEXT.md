@@ -6,32 +6,47 @@ This folder contains utilities for interacting with the remote Slurm cluster. It
 
 ### Push Code
 Synchronize the local codebase with the remote server.
+**Note:** Large folders like `data/`, `outputs/`, `models/`, and `remote/output/` are EXCLUDED by default to keep synchronization fast.
 ```bash
-# Push everything (excluding ignores)
-python remote/src/main.py mode=push
+# Push everything (excluding large ignores)
+python -m remote.src.main mode=push
 
-# Push specific files or folders (folders will be zipped)
-python remote/src/main.py mode=push "paths=[s01_loading/src, route.py]"
+# Push specific files or folders (bypasses default exclusions if explicitly named)
+python -m remote.src.main mode=push "paths=[s01_loading/src, route.py]"
 ```
 
 ### Deploy Experiments
 Submit a Slurm Array job for a specific blueprint.
 ```bash
-python remote/src/main.py mode=deploy blueprint=experiment_1_generation
+python -m remote.src.main mode=deploy blueprint=experiment_5_repair_comparison
 ```
 Use `canary=true` to run only the first job as a test.
 
+### Rerun Experiment
+Clean remote state and resubmit an experiment. This will:
+1. Push latest code/config.
+2. Cancel any running jobs for this blueprint.
+3. Delete previous remote outputs for this blueprint (handled via background process for large directories).
+4. Resubmit the full array.
+```bash
+python -m remote.src.main mode=rerun blueprint=experiment_5_repair_comparison
+```
+
 ### Pull Results
 Retrieve and aggregate experiment results from the remote server.
+**Note:** Raw data folders in `outputs/` are EXCLUDED from the zip by default to prevent timeouts. Only `s05_evaluating` JSON results are pulled unless specified.
 ```bash
-# Pull results for an experiment group
-python remote/src/main.py mode=pull blueprint=experiment_1_generation
+# Pull results for an experiment group (Aggregates evaluation JSONs)
+python -m remote.src.main mode=pull blueprint=experiment_1_generation
+
+# Pull ONLY stats (JSONs) for large sweeps (Prevents timeouts)
+python -m remote.src.main mode=pull blueprint=experiment_4_repair_comparison stats_only=true
 
 # Pull specific experiments by ID
-python remote/src/main.py mode=pull blueprint=experiment_3_repair_comparison "exp_ids=[1, 5, 10]"
+python -m remote.src.main mode=pull blueprint=experiment_3_repair_comparison "exp_ids=[1, 5, 10]"
 
 # Pull specific files or folders from remote
-python remote/src/main.py mode=pull "paths=[outputs/experiment_1_generation/exp_001/s05_evaluating/result_1.json]"
+python -m remote.src.main mode=pull "paths=[outputs/experiment_1_generation/exp_001/s05_evaluating/result_1.json]"
 ```
 
 ### Clean Outputs

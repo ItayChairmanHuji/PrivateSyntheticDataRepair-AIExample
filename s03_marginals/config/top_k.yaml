@@ -5,5 +5,7 @@ selection_budget: 0.5
 generation_budget: 0.5
 k: 20
 seed: 42
+exclude_dc_attrs: False
+force_target_attr: True
 utility_function:
   _target_: s03_marginals.src.marginals.DistanceUtility

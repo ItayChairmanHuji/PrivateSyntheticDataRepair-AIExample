@@ -116,8 +116,15 @@ def main():
         # Determine model path if in sample mode
         model_path_override = ""
         if mode == "sample":
-            # Hierarchy: models/{dataset}/{algorithm}/{dataset}_{algorithm}_eps{epsilon}.pkl
-            model_path = Path("models") / dataset / engine / f"{dataset}_{engine}_eps{epsilon}.pkl"
+            # Strip suffixes like 100, 1000, 5000 to find base models
+            base_dataset = dataset
+            for suffix in ["100", "1000", "5000"]:
+                if dataset.endswith(suffix) and dataset != suffix:
+                    base_dataset = dataset[:-len(suffix)]
+                    break
+            
+            # Hierarchy: models/{base_dataset}/{algorithm}/{base_dataset}_{algorithm}_eps{epsilon}.pkl
+            model_path = Path("models") / base_dataset / engine / f"{base_dataset}_{engine}_eps{epsilon}.pkl"
             model_path_override = f"++model_path={model_path}"
             # For model_loader config, we need to pass these
             run_command(f"python s02_synthesizing/src/main.py --config-name=model_loader ++engine={engine} ++epsilon={epsilon} ++seed={seed} ++dataset_name={dataset} ++mode={mode} {model_path_override} ++size={size}", workspace, env=env)

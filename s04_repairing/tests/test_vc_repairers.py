@@ -9,8 +9,8 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if root_path not in sys.path:
     sys.path.append(root_path)
 
-from s04_repairing.src.components.vanilla_vc_repairer import VanillaVCRepairer
-from s04_repairing.src.components.weighted_vc_repairer import WeightedVCRepairer
+from s04_repairing.src.repair.vanilla_vc_repairer import VanillaVCRepairer
+from s04_repairing.src.repair.weighted_vc_repairer import WeightedVCRepairer
 from shared.entities.dataset import Dataset
 from shared.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 from shared.entities.marginal import Marginal, MarginalSet
@@ -40,7 +40,7 @@ class TestVCRepairers(unittest.TestCase):
         # Current counts: C1 = 1. N = 3.
         # alpha = 0.5.
         
-        repairer = WeightedVCRepairer(alpha=0.5)
+        repairer = WeightedVCRepairer(alpha=0.5, use_adaptive_alpha=False)
         repairer._precompute_initial_state(self.ds, self.marginals)
         
         # 1. Verify Weight calculation
@@ -84,7 +84,7 @@ class TestVCRepairers(unittest.TestCase):
         # Weighted VC selects vertex to REMOVE.
         # Removal should favor keeping Row 0 because it helps satisfy the marginal.
         
-        repairer = WeightedVCRepairer(alpha=0.5)
+        repairer = WeightedVCRepairer(alpha=0.5, use_adaptive_alpha=False)
         repaired_ds = repairer.repair(self.ds, self.marginals)
         
         # It should remove Row 1 and keep Row 0.

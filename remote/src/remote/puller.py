@@ -53,7 +53,7 @@ class Puller:
                 local_path.parent.mkdir(parents=True, exist_ok=True)
                 self.run_command(["scp", f"{self.remote_host}:{self.remote_dir}/{p}", str(local_path)])
 
-    def pull(self, experiment_group, use_zip=True, exp_ids=None):
+    def pull(self, experiment_group, use_zip=True, exp_ids=None, stats_only=False):
         root = Path(__file__).resolve().parent.parent.parent.parent
         local_output_base = root / "outputs" / experiment_group
         local_output_base.mkdir(parents=True, exist_ok=True)
@@ -74,7 +74,13 @@ class Puller:
                 logger.info(f"Zipping all results on remote for group: {experiment_group}")
 
             # 1. Zip on remote
-            remote_cmd = f"cd {self.remote_dir} && zip -r {zip_name} {target_str}"
+            if stats_only:
+                logger.info("Using 'stats_only' mode (pulling only JSON evaluation files and repair metadata)")
+                # Include result_*.json from s05 and metadata.json from s04
+                remote_cmd = f"cd {self.remote_dir} && (find {target_str} -name 'result_*.json' -o -path '*/s04_repairing/*/metadata.json') | zip {zip_name} -@"
+            else:
+                remote_cmd = f"cd {self.remote_dir} && zip -r {zip_name} {target_str}"
+            
             self.run_command(["ssh", self.remote_host, remote_cmd])
             
             # 2. Pull zip
@@ -106,6 +112,19 @@ class Puller:
         # Walk through the local synced directory to find all .json results
         for exp_dir in local_output_base.iterdir():
             if exp_dir.is_dir() and exp_dir.name.startswith("exp_"):
+                job_id = exp_dir.name.split("_")[1]
+                
+                # Try to get repair stats from s04
+                repair_metadata = {}
+                repair_dir = exp_dir / "s04_repairing"
+                if repair_dir.exists():
+                    for meta_file in repair_dir.rglob("metadata.json"):
+                        try:
+                            with open(meta_file, 'r') as f:
+                                repair_metadata = json.load(f)
+                        except Exception as e:
+                            logger.error(f"Error reading repair metadata {meta_file}: {e}")
+
                 # Check s05_evaluating subfolder
                 eval_dir = exp_dir / "s05_evaluating"
                 if eval_dir.exists():
@@ -113,12 +132,47 @@ class Puller:
                         try:
                             with open(result_file, 'r') as f:
                                 data = json.load(f)
+                                data["job_id"] = job_id
+                                
+                                # Merge repair metadata into result metadata
+                                if "metadata" not in data:
+                                    data["metadata"] = {}
+                                
+                                if repair_metadata:
+                                    data["metadata"].update(repair_metadata)
+                                    
+                                    # Also provide top-level means for convenience if needed, 
+                                    # though flattener re-calculates them
+                                    if "iteration_stats" in repair_metadata:
+                                        stats = pd.DataFrame(repair_metadata["iteration_stats"])
+                                        data["mean_alpha"] = stats["alpha"].mean()
+                                        data["mean_connectivity"] = stats["connectivity"].mean()
+                                        data["mean_hubbiness"] = stats["hubbiness"].mean()
+
                                 all_results.append(data)
                         except Exception as e:
                             logger.error(f"Error reading {result_file}: {e}")
 
         if all_results:
             df = pd.DataFrame(all_results)
+            
+            # Load blueprint to join labels
+            blueprint_path = root / "mission_control" / "blueprints" / experiment_group / "blueprint.json"
+            if blueprint_path.exists():
+                try:
+                    with open(blueprint_path, 'r') as f:
+                        blueprint = json.load(f)
+                    
+                    blueprint_df = pd.DataFrame.from_dict(blueprint["jobs"], orient='index')
+                    blueprint_df.index.name = 'job_id'
+                    blueprint_df = blueprint_df.reset_index()
+                    
+                    # Merge
+                    df = df.merge(blueprint_df, on='job_id', suffixes=('', '_bp'))
+                    logger.info("Successfully merged with blueprint labels.")
+                except Exception as e:
+                    logger.error(f"Error merging with blueprint: {e}")
+            
             # Standardized summary path in remote/output
             summary_path = root / "remote" / "output" / f"{experiment_group}_summary.csv"
             summary_path.parent.mkdir(parents=True, exist_ok=True)

@@ -5,3 +5,4 @@ exp_ids: null
 paths: null
 mode: null # push, pull, deploy
 canary: false
+stats_only: false

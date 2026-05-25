@@ -15,20 +15,23 @@ class AdaptiveAlphaCalculator:
     connectivity_steepness: float = 2.0
     gamma: float = 2.0
 
-    def calculate_alpha(self, graph: ig.Graph, active_indices: list) -> float:
+    def calculate_alpha(self, graph: ig.Graph, active_indices: list) -> tuple[float, float, float]:
         if not active_indices:
-            return self.alpha_min
+            return self.alpha_min, 0.0, 0.0
         if len(active_indices) <= 2:
-            return self.alpha_max
+            return self.alpha_max, 0.0, 1.0
 
-        danger = self._calculate_danger(graph, active_indices)
-        return self._combine_alpha(danger)
+        h, c, danger = self._calculate_metrics(graph, active_indices)
+        alpha = self._combine_alpha(danger)
+        return alpha, h, c
 
-    def _calculate_danger(self, graph: ig.Graph, active_indices: list) -> float:
+    def _calculate_metrics(self, graph: ig.Graph, active_indices: list) -> tuple[float, float, float]:
         degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
         hubbiness = self._calculate_hubbiness(degrees, len(active_indices))
         connectivity = self._calculate_connectivity(degrees, len(active_indices))
-        return 1 - (1 - hubbiness) ** self.gamma * connectivity
+        # New formula: Danger only comes from hubs, scaled by connectivity (density)
+        danger = (1 - (1 - hubbiness) ** self.gamma) * connectivity
+        return hubbiness, connectivity, danger
 
     def _calculate_hubbiness(self, degrees: np.ndarray, n: int) -> float:
         denominator = (n - 1) * (n - 2)

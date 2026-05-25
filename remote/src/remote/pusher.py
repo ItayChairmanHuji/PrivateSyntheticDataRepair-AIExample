@@ -11,29 +11,37 @@ class Pusher:
         self.remote_host = remote_host
         self.remote_dir = remote_dir
         self.zip_name = "code_sync.zip"
-        self.excludes = excludes or {
+        self.excludes = {
             ".git", ".venv", "__pycache__", "data", "outputs", "old", "models", 
             ".vscode", "remote/output"
         }
         self.excludes.add(self.zip_name)
 
+    def is_excluded(self, path, root_dir):
+        rel_path = Path(path).relative_to(root_dir)
+        path_str = rel_path.as_posix()
+        
+        # Check if the path or any of its parents are in excludes
+        if path_str in self.excludes:
+            return True
+        for exclude in self.excludes:
+            if path_str.startswith(exclude + "/"):
+                return True
+        return False
+
     def create_zip(self, zip_path, root_dir):
         logger.info(f"Creating zip archive: {zip_path}")
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             for root, dirs, files in os.walk(root_dir):
-                # Filter directories
-                dirs[:] = [d for d in dirs if d not in self.excludes and not d.startswith('.')]
+                # Filter directories in-place to prevent os.walk from entering them
+                dirs[:] = [d for d in dirs if not self.is_excluded(Path(root) / d, root_dir) and not d.startswith('.')]
                 
                 for file in files:
-                    if file in self.excludes or file.startswith('.'):
-                        continue
-                    
                     file_path = Path(root) / file
-                    arcname = file_path.relative_to(root_dir)
-                    
-                    # Check if any parent directory is in EXCLUDES
-                    if any(part in self.excludes for part in arcname.parts):
+                    if self.is_excluded(file_path, root_dir) or file.startswith('.'):
                         continue
+                    
+                    arcname = file_path.relative_to(root_dir)
                     
                     # Read content and ensure Unix line endings for scripts
                     if file.endswith('.sh') or file.endswith('.py'):

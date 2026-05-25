@@ -1,4 +1,4 @@
 _target_: s04_repairing.src.repair.weighted_vc_repairer.WeightedVCRepairer
 experiment_name: ???
 alpha: 0.5
-use_adaptive_alpha: False
+use_adaptive_alpha: True

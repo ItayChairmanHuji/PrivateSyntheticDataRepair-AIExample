@@ -41,4 +41,5 @@ After it successfully passes, feel free to remove the results of this run.
 ## Execution History
 - **2026-05-24**: Canary run (6 jobs) on adult100 passed (Job ID 49449). Ready for main sweep.
 - **2026-05-24**: Results for canary run and main sweep (960 experiments) pulled and aggregated into `remote/output/experiment_4_repair_comparison_summary.csv`.
+- **2026-05-24**: Analysis completed. Aggregated summary and plots generated in `s06_analysis/output/`. Conclusion documented in `experiment_4_conclusion.md`.
 

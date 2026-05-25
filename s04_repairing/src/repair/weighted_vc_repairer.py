@@ -17,7 +17,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
     """
 
     alpha: float
-    use_adaptive_alpha: bool = False
+    use_adaptive_alpha: bool = True
 
     _alpha_calculator: Optional[AdaptiveAlphaCalculator] = field(
         init=False, default=None
@@ -25,7 +25,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
     _tuple_matches: List[np.ndarray] = field(init=False, default_factory=list)
     _current_counts: Optional[np.ndarray] = field(init=False, default=None)
     _current_n: int = field(init=False, default=0)
-    _target_freqs: Optional[np.ndarray] = field(init=False, default=None)
+    iteration_stats: List[dict] = field(init=False, default_factory=list)
 
     def _select_vertex(
         self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet
@@ -38,7 +38,17 @@ class WeightedVCRepairer(VertexCoverRepairer):
             return -1
 
         weights = self._calculate_weights(active_indices, len(marginals))
-        alpha = self._get_alpha(graph, active_indices)
+        alpha, h, c = self._get_alpha_metrics(graph, active_indices)
+        
+        # Log iteration stats
+        self.iteration_stats.append({
+            "iteration": len(self.iteration_stats),
+            "alpha": alpha,
+            "hubbiness": h,
+            "connectivity": c,
+            "n_active": len(active_indices),
+            "n_edges": graph.ecount()
+        })
 
         chosen_v = self._pick_best_vertex(active_indices, weights, graph, alpha)
         self._update_state(chosen_v)
@@ -49,10 +59,10 @@ class WeightedVCRepairer(VertexCoverRepairer):
         if self.use_adaptive_alpha:
             self._alpha_calculator = AdaptiveAlphaCalculator()
 
-    def _get_alpha(self, graph: ig.Graph, active_indices: list) -> float:
+    def _get_alpha_metrics(self, graph: ig.Graph, active_indices: list) -> tuple[float, float, float]:
         if self.use_adaptive_alpha and self._alpha_calculator:
             return self._alpha_calculator.calculate_alpha(graph, active_indices)
-        return self.alpha
+        return self.alpha, 0.0, 0.0
 
     def _calculate_weights(self, active_indices: list, m_len: int) -> np.ndarray:
         if m_len == 0:
@@ -155,4 +165,5 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self._tuple_matches = []
         self._current_counts = None
         self._current_n = 0
+        self.iteration_stats = []
         return super().repair(dataset, marginals)

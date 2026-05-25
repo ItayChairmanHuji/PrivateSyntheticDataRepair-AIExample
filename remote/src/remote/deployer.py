@@ -52,9 +52,35 @@ class Deployer:
             array_range = f"1-{total_jobs}"
             logger.info(f"Submitting full array: {array_range}")
         
-        # Updated path to slurm_array.sh
-        sbatch_cmd = f"sbatch --array={array_range} remote/src/remote/slurm_array.sh {blueprint_name}"
+        # Updated path to slurm_array.sh and added job-name for easier scancel
+        sbatch_cmd = f"sbatch --job-name={blueprint_name} --array={array_range} remote/src/remote/slurm_array.sh {blueprint_name}"
         self.run_remote_command(sbatch_cmd)
         
         logger.info("--- Deployment Successful ---")
         logger.info(f"Monitor jobs with: ssh {self.remote_host} 'squeue -u $USER'")
+
+    def rerun(self, blueprint_name):
+        logger.info(f"--- RERUN: Starting rerun for {blueprint_name} ---")
+        
+        # 1. Push latest code
+        logger.info("--- Step 1: Pushing latest code/config ---")
+        self.pusher.push()
+
+        # 2. Cancel existing jobs for this blueprint
+        logger.info(f"--- Step 2: Cancelling existing jobs for {blueprint_name} ---")
+        try:
+            self.run_remote_command(f"scancel --name={blueprint_name}")
+        except Exception as e:
+            logger.warning(f"Could not cancel jobs (they might not exist): {e}")
+
+        # 3. Remove remote outputs for this blueprint
+        logger.info(f"--- Step 3: Cleaning remote outputs for {blueprint_name} ---")
+        # Ensure we only delete outputs/blueprint_name to avoid accidents
+        clean_cmd = f"rm -rf outputs/{blueprint_name}"
+        self.run_remote_command(clean_cmd)
+
+        # 4. Deploy again
+        logger.info("--- Step 4: Resubmitting experiment ---")
+        self.deploy(blueprint_name)
+        
+        logger.info(f"--- RERUN: {blueprint_name} successfully resubmitted ---")

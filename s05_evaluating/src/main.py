@@ -14,7 +14,7 @@ if str(root_path) not in sys.path:
 from shared.entities.dataset import Dataset
 from shared.entities.marginal import MarginalSet
 from shared.entities.pipeline_result import PipelineResult
-from s01_loading.src.components.dcs_loader import DCsLoader
+from s01_loading.src.loaders.dcs_loader import DCsLoader
 
 @hydra.main(version_base=None, config_path="../config", config_name="default")
 def main(cfg: DictConfig):
@@ -54,12 +54,16 @@ def main(cfg: DictConfig):
     s_dataset = Dataset(name=metadata["name"] + "_syn", data=s_data, dcs=dcs, target=metadata["target"])
     r_dataset = Dataset(name=metadata["name"] + "_rep", data=r_data, dcs=dcs, target=metadata["target"])
 
+    runtimes = {}
+    if "repair_runtime" in metadata:
+        runtimes["repair"] = metadata["repair_runtime"]
+
     result = PipelineResult(
         private_dataset=p_dataset,
         synthetic_dataset=s_dataset,
         repaired_dataset=r_dataset,
         obtained_marginals=marginals,
-        runtimes={}, # Could be populated if we tracked it
+        runtimes=runtimes,
         metadata=metadata
     )
 

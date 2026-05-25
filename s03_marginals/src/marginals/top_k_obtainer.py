@@ -15,11 +15,17 @@ class TopKObtainer(Obtainer):
     k: int
     utility_function: UtilityFunction
     seed: int = 42
+    exclude_dc_attrs: bool = False
+    force_target_attr: bool = True
 
     def obtain(self, private_dataset: Dataset, synthetic_dataset: Dataset) -> MarginalSet:
         rng = np.random.default_rng(self.seed)
         selected = self._select_top_k_marginals(
-            private_dataset.data, synthetic_dataset.data, rng, private_dataset.dcs.attrs
+            private_dataset.data, 
+            synthetic_dataset.data, 
+            rng, 
+            private_dataset.dcs.attrs,
+            private_dataset.target
         )
         if not selected:
             return MarginalSet(marginals=[])
@@ -38,12 +44,19 @@ class TopKObtainer(Obtainer):
         sensitivity = 1.0 / n_p if n_p > 0 else 1.0
         return (sensitivity * np.sqrt(num_selected)) / np.sqrt(2 * self.generation_budget)
 
-    def _select_top_k_marginals(self, p_data, s_data, rng, dc_attrs) -> List:
+    def _select_top_k_marginals(self, p_data, s_data, rng, dc_attrs, target_attr) -> List:
         scale = self._calc_selection_noise_scale(p_data)
-        columns = [c for c in p_data.columns if c not in dc_attrs] if dc_attrs else p_data.columns
+        
+        columns = list(p_data.columns)
+        if self.exclude_dc_attrs:
+            columns = [c for c in columns if c not in dc_attrs]
+        
         candidates = []
         for attr1, attr2 in itertools.combinations(columns, 2):
+            if self.force_target_attr and attr1 != target_attr and attr2 != target_attr:
+                continue
             candidates = self._process_pair(p_data, s_data, attr1, attr2, scale, rng, candidates)
+        
         candidates.sort(key=lambda x: x[0], reverse=True)
         return [(c[1], c[2]) for c in candidates[:self.k]]
 

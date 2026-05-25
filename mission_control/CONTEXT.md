@@ -22,4 +22,5 @@ The central hub for experiment planning, tracking, and management. It serves as 
 2.  **Plan**: Define a template in `templates/`.
 3.  **Generate**: Run `src/generate_blueprint.py` to create a blueprint in `blueprints/`.
 4.  **Track**: Update the status in the experiment file as it moves through stages.
-5.  **Journal**: Record significant milestones and daily progress in the `journal/`.
+5.  **Rerun**: If a bug is found, fix it locally and use `remote` utilities to rerun the experiment (which handles cleaning remote state).
+6.  **Journal**: Record significant milestones and daily progress in the `journal/`.

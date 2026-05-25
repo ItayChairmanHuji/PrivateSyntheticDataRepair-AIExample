@@ -35,6 +35,30 @@ To prevent framework metadata from crashing underlying libraries and to ensure l
 3.  **Environment Isolation**: 
     - Components must never use hardcoded absolute paths. 
     - Use the `Path(__file__)` or Hydra `CWD` to ensure the code behaves identically in a local `/output` folder and a Slurm `/tmp` workspace.
+6.  **Optimized Syncing**:
+    - The `remote/src/remote/pusher.py` MUST exclude large artifacts (`data/`, `outputs/`, `models/`, `remote/output/`) by default to ensure fast code synchronization.
+    - Large data transfers should be handled via targeted `paths` parameter or manual cluster commands.
+7.  **Dataset Subset Resolution**:
+    - Orchestration scripts (like `runner.py`) MUST be robust to dataset subsets (e.g., `adult100`, `census1000`).
+    - If a specific model folder for a subset is missing, the script SHOULD attempt to resolve to the base dataset (e.g., stripping numeric suffixes) to allow reusing pre-trained models.
+
+## The Performance Pact (Zero-Waste Research)
+To ensure that getting results from the server and analyzing them remains near-instant:
+
+1.  **Lightweight Pulling (The 90/10 Rule)**:
+    - ALWAYS use `stats_only=true` when pulling results from large sweeps (> 100 jobs). 
+    - This retrieves only the 1KB `.json` evaluation files rather than the 50MB `.csv` datasets, reducing transfer time by 98%.
+2.  **Automated Flattening**:
+    - Stage 06 MUST use the `ResultFlattener` component to transform nested remote artifacts into flat analysis-ready CSVs during the orchestration phase.
+    - Manual preprocessing scripts are forbidden; all logic must reside in `src/io/result_flattener.py`.
+3.  **Result Registry**:
+    - The `remote` stage SHOULD maintain a `remote/output/registry.json` manifest that maps `job_id` to its completion status to avoid redundant zipping/pulling of existing results.
+4.  **Standardized Plotting (The Research Split)**:
+    - All analysis plots MUST be split by `dataset` (separate figures or subplots).
+    - `hue` MUST represent `repair_algorithm`.
+    - `style` (markers/dashes) MUST represent the `synthesizer` (generation algorithm).
+    - Synthetic baselines MUST be plotted as reference lines or distinct points, clearly separated by synthesizer.
+    - Graph evolution (Alpha, Hubbiness, Connectivity) MUST be plotted both against `epsilon` and across `iterations`.
 
 ### Performance & Scale (The "Quadratic Trap")
 - **Range Constraints**: Denial constraints involving order/inequality (e.g., `t1.A < t2.A`) on large datasets (N > 10,000) generate **quadratic numbers of violations**. 
@@ -42,12 +66,13 @@ To prevent framework metadata from crashing underlying libraries and to ensure l
     - Never use `list(zip(idx1, idx2))` for large edge sets. Pass NumPy arrays directly to `graph.add_edges()`.
     - 16GB is insufficient for N=50,000 with range constraints. Use **64GB+** and a **4h+** time limit for such experiments.
 - **Slurm Arrays**: Most clusters limit job arrays to **1000 tasks**. Split larger sweeps into multiple batch submissions.
+- **Remote Pulling (Scale)**: When pulling results for sweeps with **> 100 jobs**, ALWAYS use the `stats_only=true` flag. Pulling raw data (CSV/Pickle) at this scale causes SSH timeouts and zipping overhead that can crash login nodes.
 
 ## Stage Standardization (The "API" Protocol)
 To ensure consistency and reduce cognitive load, every stage MUST adhere to the following directory and execution standard:
 
 ### 0. Special Folders
-- **`remote/`**: A utility folder for cluster interaction. While not a sequential pipeline stage (it doesn't follow the 01->02 flow), it still adheres to the `src/`, `config/`, and `CONTEXT.md` standards. It handles `push`, `pull`, and `deploy` operations.
+- **`remote/`**: A utility folder for cluster interaction. While not a sequential pipeline stage (it doesn't follow the 01->02 flow), it still adheres to the `src/`, `config/`, and `CONTEXT.md` standards. It handles `push`, `pull`, `deploy`, and `rerun` operations.
 
 ### 1. Source Structure (`src/`)
 Every stage's `src/` directory MUST follow this layout to ensure maximum discoverability and separation of concerns:
