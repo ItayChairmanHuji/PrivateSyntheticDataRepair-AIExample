@@ -13,7 +13,12 @@ class Pusher:
         self.zip_name = "code_sync.zip"
         self.excludes = {
             ".git", ".venv", "__pycache__", "data", "outputs", "old", "models", 
-            ".vscode", "remote/output"
+            ".vscode", "remote/output", "s01_loading/input", "s01_loading/output",
+            "s02_synthesizing/input", "s02_synthesizing/output",
+            "s03_marginals/input", "s03_marginals/output",
+            "s04_repairing/input", "s04_repairing/output",
+            "s05_evaluating/input", "s05_evaluating/output",
+            "s06_analysis/input", "s06_analysis/output", "s06_analysis/notebooks"
         }
         self.excludes.add(self.zip_name)
 
@@ -41,14 +46,14 @@ class Pusher:
                     if self.is_excluded(file_path, root_dir) or file.startswith('.'):
                         continue
                     
-                    arcname = file_path.relative_to(root_dir)
+                    arcname = file_path.relative_to(root_dir).as_posix()
                     
                     # Read content and ensure Unix line endings for scripts
                     if file.endswith('.sh') or file.endswith('.py'):
                         try:
                             with open(file_path, 'rb') as f:
                                 content = f.read().replace(b'\r\n', b'\n')
-                            zipf.writestr(str(arcname), content)
+                            zipf.writestr(arcname, content)
                         except Exception as e:
                             logger.error(f"Error processing {file_path}: {e}")
                     else:
@@ -105,10 +110,13 @@ class Pusher:
         # 1. Create Zip
         self.create_zip(zip_path, root_dir)
         
+        if not zip_path.exists():
+            raise FileNotFoundError(f"Failed to create zip file at {zip_path}")
+        
         try:
             # 2. Upload to remote
             logger.info(f"Uploading {self.zip_name} to {self.remote_host}:{self.remote_dir}")
-            subprocess.run(["scp", str(zip_path), f"{self.remote_host}:{self.remote_dir}/{self.zip_name}"], check=True)
+            subprocess.run(["scp", zip_path.as_posix(), f"{self.remote_host}:{self.remote_dir}/{self.zip_name}"], check=True)
             
             # 3. Extract on remote
             logger.info("Extracting on remote...")

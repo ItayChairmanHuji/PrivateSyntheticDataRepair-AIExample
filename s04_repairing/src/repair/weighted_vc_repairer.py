@@ -18,7 +18,9 @@ class WeightedVCRepairer(VertexCoverRepairer):
 
     alpha: float
     use_adaptive_alpha: bool = True
+    use_auto_alpha: bool = False
 
+    _auto_alpha: Optional[float] = field(init=False, default=None)
     _alpha_calculator: Optional[AdaptiveAlphaCalculator] = field(
         init=False, default=None
     )
@@ -31,15 +33,20 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet
     ) -> int:
         if not self._tuple_matches:
-            self._init_state(dataset, marginals)
+            self._init_state(dataset, marginals, graph)
 
         active_indices = [v.index for v in graph.vs.select(_degree_gt=0)]
         if not active_indices:
             return -1
 
         weights = self._calculate_weights(active_indices, len(marginals))
-        alpha, h, c = self._get_alpha_metrics(graph, active_indices)
+        degrees = np.array(graph.degree(active_indices))
         
+        norm_weights = self._normalize(weights)
+        norm_degrees = self._normalize(degrees)
+
+        alpha, h, c = self._get_alpha_metrics(graph, active_indices, norm_degrees, norm_weights)
+
         # Log iteration stats
         self.iteration_stats.append({
             "iteration": len(self.iteration_stats),
@@ -50,20 +57,31 @@ class WeightedVCRepairer(VertexCoverRepairer):
             "n_edges": graph.ecount()
         })
 
-        chosen_v = self._pick_best_vertex(active_indices, weights, graph, alpha)
+        chosen_v = self._pick_best_vertex(active_indices, norm_weights, norm_degrees, alpha)
         self._update_state(chosen_v)
         return chosen_v
 
-    def _init_state(self, dataset: Dataset, marginals: MarginalSet):
+    def _init_state(self, dataset: Dataset, marginals: MarginalSet, graph: ig.Graph):
         self._precompute_initial_state(dataset, marginals)
-        if self.use_adaptive_alpha:
+        if self.use_auto_alpha:
+            self._auto_alpha = self._calculate_auto_alpha(graph)
+        elif self.use_adaptive_alpha:
             self._alpha_calculator = AdaptiveAlphaCalculator()
 
-    def _get_alpha_metrics(self, graph: ig.Graph, active_indices: list) -> tuple[float, float, float]:
-        if self.use_adaptive_alpha and self._alpha_calculator:
-            return self._alpha_calculator.calculate_alpha(graph, active_indices)
-        return self.alpha, 0.0, 0.0
+    def _calculate_auto_alpha(self, graph: ig.Graph) -> float:
+        degrees = np.array(graph.degree())
+        mean_deg = np.mean(degrees)
+        if mean_deg == 0:
+            return 0.0
+        cv = np.std(degrees) / mean_deg
+        return float(cv / (cv + 1))
 
+    def _get_alpha_metrics(self, graph: ig.Graph, active_indices: list, norm_degrees: np.ndarray, norm_weights: np.ndarray) -> tuple[float, float, float]:
+        if self.use_auto_alpha and self._auto_alpha is not None:
+            return self._auto_alpha, 0.0, 0.0
+        if self.use_adaptive_alpha and self._alpha_calculator:
+            return self._alpha_calculator.calculate_alpha(graph, active_indices, norm_degrees, norm_weights)
+        return self.alpha, 0.0, 0.0
     def _calculate_weights(self, active_indices: list, m_len: int) -> np.ndarray:
         if m_len == 0:
             return np.zeros(len(active_indices))
@@ -114,13 +132,12 @@ class WeightedVCRepairer(VertexCoverRepairer):
     def _pick_best_vertex(
         self,
         active_indices: List[int],
-        weights: np.ndarray,
-        graph: ig.Graph,
+        norm_weights: np.ndarray,
+        norm_degrees: np.ndarray,
         alpha: float,
     ) -> int:
-        degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
-        nw = self._normalize(weights)
-        nd = -self._normalize(degrees)
+        nw = norm_weights
+        nd = -norm_degrees
         ratios = (1 - alpha) * nw + alpha * nd
         return int(active_indices[int(np.argmin(ratios))])
 
@@ -166,4 +183,5 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self._current_counts = None
         self._current_n = 0
         self.iteration_stats = []
+        self._auto_alpha = None
         return super().repair(dataset, marginals)

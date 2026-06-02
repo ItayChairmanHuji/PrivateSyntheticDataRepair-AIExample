@@ -1,58 +1,48 @@
 import json
+import argparse
 from dataclasses import dataclass
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class NotebookGenerator:
-    """Generates an analysis notebook from a template structure."""
+    """Converts a standard Python script (with # %% markers) into a Jupyter Notebook."""
 
-    def generate(self, experiment_name: str, input_path: Path, topology_path: Path, output_dir: Path) -> Path:
-        """Creates a .ipynb file with pre-filled analysis cells."""
-        notebook_path = output_dir / f"{experiment_name}_analysis.ipynb"
+    def generate(self, template_path: Path, output_path: Path) -> Path:
+        """Reads a .py file and converts it to a .ipynb file."""
+        if not template_path.exists():
+            raise FileNotFoundError(f"Template not found: {template_path}")
+
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        cells = []
+        # Split by # %% to create cells
+        raw_cells = content.split("# %%")
         
-        cells = [
-            self._markdown_cell(f"# {experiment_name.replace('_', ' ').capitalize()} Analysis"),
-            self._code_cell([
-                "%load_ext autoreload",
-                "%autoreload 2",
-                "import pandas as pd",
-                "import matplotlib.pyplot as plt",
-                "import seaborn as sns",
-                "from pathlib import Path",
-                "import sys",
-                "import os",
-                "",
-                "# Add PROJECT ROOT to path for unambiguous modular imports",
-                f"sys.path.append(r'{input_path.parent.parent.parent.absolute()}')",
-                "from s06_analysis.src.analysis.plotter import AnalysisPlotter",
-                "",
-                f"SUMMARY_CSV = r'{input_path.absolute()}'",
-                f"TOPOLOGY_CSV = r'{topology_path.absolute()}'",
-                "OUTPUT_DIR = Path('plots')",
-                "df = pd.read_csv(SUMMARY_CSV)",
-                "df_topo = pd.read_csv(TOPOLOGY_CSV)",
-                "plotter = AnalysisPlotter(output_dir=OUTPUT_DIR)",
-                "print(f'Loaded {len(df)} results and {len(df_topo)} topology rows.')"
-            ]),
-            self._markdown_cell("## Data Preview"),
-            self._code_cell(["df.head()"]),
-            self._markdown_cell("## Repair Performance Trends (By Dataset)"),
-            self._code_cell(["plotter.plot_repair_trends(df)"]),
-            self._markdown_cell("## ML Utility vs Marginals Error (By Dataset)"),
-            self._code_cell(["plotter.plot_utility_error_tradeoff(df)"]),
-            self._markdown_cell("## Detailed ML Utility (By Algorithm)"),
-            self._code_cell(["plotter.plot_detailed_ml_accuracy(df)"]),
-            self._markdown_cell("## Data Quality Trends (Marginals Error & TVD)"),
-            self._code_cell(["plotter.plot_quality_trends(df)"]),
-            self._markdown_cell("## Adaptive Alpha Metrics (Epsilon Evolution)"),
-            self._code_cell(["plotter.plot_adaptive_metrics(df)"]),
-            self._markdown_cell("## Graph Evolution (Iteration Evolution)"),
-            self._code_cell(["plotter.plot_iteration_topology(df_topo)"]),
-            self._markdown_cell("## Computational Efficiency"),
-            self._code_cell(["plotter.plot_runtime(df)"]),
-            self._markdown_cell("## Summary Statistics"),
-            self._code_cell(["plotter.generate_summary_table(df)"])
-        ]
+        for raw_cell in raw_cells:
+            # Clean up leading/trailing newlines
+            lines = raw_cell.strip("\n").split("\n")
+            if not lines or (len(lines) == 1 and lines[0].strip() == ""):
+                continue
+                
+            # If the block starts with a markdown-style comment block, make it a markdown cell
+            if lines[0].startswith("# [MARKDOWN]"):
+                cell_type = "markdown"
+                # Remove the marker and the leading '# ' from markdown lines
+                source = [line[2:] + "\n" if line.startswith("# ") else line + "\n" for line in lines[1:]]
+            else:
+                cell_type = "code"
+                source = [line + "\n" for line in lines]
+
+            cells.append({
+                "cell_type": cell_type,
+                "metadata": {},
+                "source": source,
+                **({"execution_count": None, "outputs": []} if cell_type == "code" else {})
+            })
         
         notebook = {
             "cells": cells,
@@ -70,23 +60,19 @@ class NotebookGenerator:
             "nbformat_minor": 4
         }
         
-        with open(notebook_path, "w") as f:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(notebook, f, indent=2)
             
-        return notebook_path
+        logger.info(f"Generated notebook at {output_path}")
+        return output_path
 
-    def _markdown_cell(self, source: str):
-        return {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [source + "\n"]
-        }
-
-    def _code_cell(self, source_lines: list):
-        return {
-            "cell_type": "code",
-            "execution_count": None,
-            "metadata": {},
-            "outputs": [],
-            "source": [line + "\n" for line in source_lines]
-        }
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--template", type=str, required=True, help="Path to .py template file")
+    parser.add_argument("--output", type=str, required=True, help="Path to output .ipynb file")
+    args = parser.parse_args()
+    
+    generator = NotebookGenerator()
+    generator.generate(Path(args.template), Path(args.output))

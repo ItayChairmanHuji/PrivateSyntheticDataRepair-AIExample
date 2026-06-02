@@ -50,9 +50,9 @@ def main(cfg: DictConfig):
         print(f"Error: Required input file not found: {e}")
         return
 
-    p_dataset = Dataset(name=metadata["name"], data=p_data, dcs=dcs, target=metadata["target"])
-    s_dataset = Dataset(name=metadata["name"] + "_syn", data=s_data, dcs=dcs, target=metadata["target"])
-    r_dataset = Dataset(name=metadata["name"] + "_rep", data=r_data, dcs=dcs, target=metadata["target"])
+    p_dataset = Dataset(name=metadata["name"], data=p_data, dcs=dcs, target=metadata["target"], mappings=metadata.get("mappings"))
+    s_dataset = Dataset(name=metadata["name"] + "_syn", data=s_data, dcs=dcs, target=metadata["target"], mappings=metadata.get("mappings"))
+    r_dataset = Dataset(name=metadata["name"] + "_rep", data=r_data, dcs=dcs, target=metadata["target"], mappings=metadata.get("mappings"))
 
     runtimes = {}
     if "repair_runtime" in metadata:

@@ -1,37 +1,44 @@
 # Stage 06: Analysis
 
 ## Purpose
-Automate the synthesis of research results into interpretable Jupyter Notebooks. This stage transforms aggregated experiment data (pulled from remote or generated locally) into a "Glass Box" analysis environment.
+Automate the synthesis of research results into interpretable Jupyter Notebooks. This stage transforms aggregated experiment data (from Stage 05 evaluating or remote outputs) into an AI-friendly analysis environment.
 
-## Usage
-To generate an analysis notebook for an experiment:
+## AI-Friendly Workflow
+To simplify modifications, the AI should **never edit `.ipynb` JSON files directly**. Instead, use the helper scripts provided in this stage:
+
+### 1. Aggregate Raw Results
+First, use the aggregator to combine all evaluation `.json` files from `s05_evaluating/output` (or `remote/output`) into a single flattened CSV file.
+
 ```bash
-python s06_analysis/src/main.py experiment_name=experiment_4
+python s06_analysis/src/io/aggregator.py --source s05_evaluating/output --output s06_analysis/input/aggregated_results.csv
 ```
 
-To clean generated notebooks:
+### 2. Clean & Flatten (Optional)
+If you need additional flattening logic, you can load the data through the `ResultFlattener` component (located in `src/io/result_flattener.py`). Alternatively, you can point the notebook directly at the aggregated CSV.
+
+### 3. Generate Notebook from Python Template
+Edit or create a standard Python script with `# %%` markers to define your notebook cells. Use `# [MARKDOWN]` below the marker for text cells.
+*A comprehensive default template is provided at `s06_analysis/src/analysis/analysis_template.py`.*
+
+Generate the final `.ipynb` file using:
 ```bash
-python s06_analysis/src/io/clean.py
+python s06_analysis/src/io/notebook_generator.py --template s06_analysis/src/analysis/analysis_template.py --output s06_analysis/notebooks/experiment_analysis.ipynb
 ```
 
 ## Contract
 **Inputs (Layer 4 - `input/`):**
-- Aggregated CSV results (e.g., `experiment_4_summary.csv`). These are typically pulled from the `remote/output/` or consolidated from multiple `s05_evaluating` runs.
+- Raw JSON files aggregated from `s05_evaluating` or `remote`.
+- A `.py` template script acting as the notebook source.
 
-**Outputs (Layer 4 - `output/`):**
-- `notebooks/<experiment_name>_analysis.ipynb`: A generated notebook with pre-filled analysis cells.
-- `plots/`: (Generated when the notebook is run) Publication-quality visualizations.
-- `tables/`: (Generated when the notebook is run) Summary tables in Markdown/LaTeX.
+**Outputs (Layer 4 - `output/` & `notebooks/`):**
+- `.ipynb`: The generated Jupyter Notebook, ready for the user to open.
 
-## Process
-1. **Orchestration**: The `StageOrchestrator` identifies the experiment type and target summary file.
-2. **Notebook Generation**: A boilerplate notebook is created using `nbformat`, importing modular analysis functions from `s06_analysis/src/analysis/`.
-3. **Glass Box Interaction**: The researcher opens the generated notebook to inspect trends, adjust plot parameters, and document conclusions.
+## Standard Metrics & Plotting
+The default `analysis_template.py` already implements the mandatory research plotting standards:
+- **Metrics Evaluated**: Deletion Ratio, Marginals Error, Marginals Loss, TVD, ML Accuracy, and Runtime.
+- **Plot Structure**: Datasets are separated into distinct plot columns/subplots.
+- **Color (Hue)**: `repair_algorithm`
+- **Style (Marker)**: `synthesizer`
 
 ## Restricted Execution
-Only commands documented in the [Usage](#usage) section are allowed. Do NOT apply any manual changes unless explicitly asked.
-
-## Stage Rules
-- **No Logic in Notebooks**: All complex data processing and plotting MUST reside in `src/analysis/`.
-- **Reproducibility**: The generated notebook MUST be self-contained (i.e., it knows where its input data is located).
-- **Consistency**: Use standardized themes (Seaborn whitegrid) and color palettes for all plots.
+Only commands documented in the workflow sections above are allowed. Do NOT apply any manual changes unless explicitly requested.

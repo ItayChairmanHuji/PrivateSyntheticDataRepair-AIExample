@@ -29,9 +29,20 @@ class Marginal:
         if not self.attrs:
             return pd.Series(True, index=data.index)
 
-        mask = data[self.attrs[0]] == self.values[0]
-        for i in range(1, len(self.attrs)):
-            mask &= data[self.attrs[i]] == self.values[i]
+        mask = pd.Series(True, index=data.index)
+        for attr, val in zip(self.attrs, self.values):
+            col = data[attr]
+            if pd.api.types.is_numeric_dtype(col):
+                try:
+                    # Robust numeric comparison (handles 0 == 0.0, etc.)
+                    target_val = float(val)
+                    mask &= (col == target_val)
+                except (ValueError, TypeError):
+                    # If val cannot be numeric but col is, no matches possible
+                    mask &= pd.Series(False, index=data.index)
+            else:
+                # String/Categorical comparison
+                mask &= (col.astype(str) == str(val))
         return mask
 
     def calculate_frequency(self, data: pd.DataFrame) -> float:
@@ -41,10 +52,9 @@ class Marginal:
 
     def calculate_error(self, data: pd.DataFrame) -> float:
         freq = self.calculate_frequency(data)
-        if self.target == 0:
-            return 0.0 if freq == 0 else float('inf')
         distance = abs(freq - self.target)
-        return distance / self.target
+        # Use a small epsilon to avoid division by zero (Relative Error)
+        return distance / (self.target + 1e-10)
 
     def calculate_distance(self, data: pd.DataFrame) -> float:
         freq = self.calculate_frequency(data)

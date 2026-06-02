@@ -1,0 +1,224 @@
+{
+    "marginals": [
+        {
+            "attrs": [
+                "native_country",
+                "income"
+            ],
+            "values": [
+                39,
+                0
+            ],
+            "target": 0.009927371614367303
+        },
+        {
+            "attrs": [
+                "race",
+                "native_country"
+            ],
+            "values": [
+                3,
+                9
+            ],
+            "target": 0.7818818557895622
+        },
+        {
+            "attrs": [
+                "race",
+                "native_country"
+            ],
+            "values": [
+                4,
+                39
+            ],
+            "target": 0.028654276911533674
+        },
+        {
+            "attrs": [
+                "race",
+                "sex"
+            ],
+            "values": [
+                4,
+                1
+            ],
+            "target": 0.07277960043434498
+        },
+        {
+            "attrs": [
+                "workclass",
+                "native_country"
+            ],
+            "values": [
+                3,
+                9
+            ],
+            "target": 0.6073595517712717
+        },
+        {
+            "attrs": [
+                "race",
+                "income"
+            ],
+            "values": [
+                4,
+                0
+            ],
+            "target": 0.10689400924762489
+        },
+        {
+            "attrs": [
+                "sex",
+                "native_country"
+            ],
+            "values": [
+                1,
+                39
+            ],
+            "target": 0.0
+        },
+        {
+            "attrs": [
+                "workclass",
+                "income"
+            ],
+            "values": [
+                4,
+                0
+            ],
+            "target": 0.0
+        },
+        {
+            "attrs": [
+                "workclass",
+                "native_country"
+            ],
+            "values": [
+                4,
+                39
+            ],
+            "target": 0.0
+        },
+        {
+            "attrs": [
+                "race",
+                "income"
+            ],
+            "values": [
+                3,
+                0
+            ],
+            "target": 0.6142465924566594
+        },
+        {
+            "attrs": [
+                "workclass",
+                "race"
+            ],
+            "values": [
+                4,
+                4
+            ],
+            "target": 0.03664680952741629
+        },
+        {
+            "attrs": [
+                "sex",
+                "native_country"
+            ],
+            "values": [
+                1,
+                9
+            ],
+            "target": 0.5550576665493909
+        },
+        {
+            "attrs": [
+                "workclass",
+                "race"
+            ],
+            "values": [
+                3,
+                3
+            ],
+            "target": 0.595857993112985
+        },
+        {
+            "attrs": [
+                "marital_status",
+                "native_country"
+            ],
+            "values": [
+                1,
+                9
+            ],
+            "target": 0.4507545294703746
+        },
+        {
+            "attrs": [
+                "race",
+                "sex"
+            ],
+            "values": [
+                3,
+                1
+            ],
+            "target": 0.6279278935685119
+        },
+        {
+            "attrs": [
+                "workclass",
+                "income"
+            ],
+            "values": [
+                3,
+                0
+            ],
+            "target": 0.3507788113637499
+        },
+        {
+            "attrs": [
+                "native_country",
+                "income"
+            ],
+            "values": [
+                9,
+                0
+            ],
+            "target": 0.5181327351858525
+        },
+        {
+            "attrs": [
+                "marital_status",
+                "relationship"
+            ],
+            "values": [
+                2,
+                0
+            ],
+            "target": 0.0
+        },
+        {
+            "attrs": [
+                "workclass",
+                "sex"
+            ],
+            "values": [
+                4,
+                1
+            ],
+            "target": 0.0
+        },
+        {
+            "attrs": [
+                "race",
+                "hours_per_week"
+            ],
+            "values": [
+                4,
+                19
+            ],
+            "target": 0.047419274165594716
+        }
+    ]
+}

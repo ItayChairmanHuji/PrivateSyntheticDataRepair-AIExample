@@ -46,15 +46,28 @@ class Deployer:
         # 4. Submit Slurm Job
         logger.info("--- Step 3: Submitting Slurm Job ---")
         if canary_only:
-            array_range = "1"
+            array_ranges = ["1"]
             logger.info("Running CANARY job only (index 1).")
         else:
-            array_range = f"1-{total_jobs}"
-            logger.info(f"Submitting full array: {array_range}")
+            # Split into chunks of 1000 to respect MaxArraySize
+            chunk_size = 1000
+            array_ranges = []
+            for i in range(1, total_jobs + 1, chunk_size):
+                end = min(i + chunk_size - 1, total_jobs)
+                array_ranges.append(f"{i}-{end}")
+            logger.info(f"Submitting {len(array_ranges)} batches for total {total_jobs} jobs.")
         
-        # Updated path to slurm_array.sh and added job-name for easier scancel
-        sbatch_cmd = f"sbatch --job-name={blueprint_name} --array={array_range} remote/src/remote/slurm_array.sh {blueprint_name}"
-        self.run_remote_command(sbatch_cmd)
+        for array_range in array_ranges:
+            start_idx = int(array_range.split("-")[0])
+            offset = start_idx - 1
+            # Adjust array range to be 1-based relative to 1
+            relative_end = int(array_range.split("-")[1]) - offset
+            relative_range = f"1-{relative_end}"
+            
+            logger.info(f"Submitting array: {relative_range} with offset: {offset}")
+            # Updated path to slurm_array.sh and added job-name for easier scancel
+            sbatch_cmd = f"sbatch --job-name={blueprint_name} --array={relative_range} remote/src/remote/slurm_array.sh {blueprint_name} {offset}"
+            self.run_remote_command(sbatch_cmd)
         
         logger.info("--- Deployment Successful ---")
         logger.info(f"Monitor jobs with: ssh {self.remote_host} 'squeue -u $USER'")

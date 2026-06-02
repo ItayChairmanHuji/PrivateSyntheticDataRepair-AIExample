@@ -156,6 +156,13 @@ class Puller:
         if all_results:
             df = pd.DataFrame(all_results)
             
+            # Deduplicate by job_id, keeping the latest timestamp
+            if "timestamp" in df.columns:
+                df['timestamp_dt'] = pd.to_datetime(df['timestamp'])
+                df = df.sort_values('timestamp_dt', ascending=False).drop_duplicates('job_id')
+                df = df.drop(columns=['timestamp_dt'])
+                logger.info(f"Deduplicated results: kept {len(df)} latest results from {len(all_results)} total found.")
+
             # Load blueprint to join labels
             blueprint_path = root / "mission_control" / "blueprints" / experiment_group / "blueprint.json"
             if blueprint_path.exists():

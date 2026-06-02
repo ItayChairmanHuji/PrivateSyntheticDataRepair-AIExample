@@ -59,7 +59,10 @@ class TestVCRepairers(unittest.TestCase):
         # Degree(0) = 1, Degree(1) = 1.
         # argmin pick Row 1 to remove because 0.20 < 0.45.
         graph = repairer._build_conflict_graph(self.ds)
-        best_v = repairer._pick_best_vertex(active_indices, weights, graph, repairer.alpha)
+        degrees = np.array(graph.degree(active_indices))
+        norm_weights = repairer._normalize(weights)
+        norm_degrees = repairer._normalize(degrees)
+        best_v = repairer._pick_best_vertex(active_indices, norm_weights, norm_degrees, repairer.alpha)
         self.assertEqual(best_v, 1)
 
 
@@ -100,6 +103,34 @@ class TestVCRepairers(unittest.TestCase):
         self.assertTrue(has_row_0, "Row 0 (beneficial) should have been kept")
         self.assertFalse(has_row_1, "Row 1 (conflicting and not beneficial) should have been removed")
         self.assertEqual(len(repaired_ds.get_violations()), 0)
+
+    def test_weighted_vc_auto_alpha(self):
+        # 4 vertices, degrees: 3, 1, 1, 1
+        data = pd.DataFrame({"A": [1, 2, 3, 4], "B": [10, 20, 30, 40]})
+        
+        class MockDataset(Dataset):
+            def get_violations(self):
+                return pd.DataFrame({"idx1": [0, 0, 0], "idx2": [1, 2, 3]})
+        
+        mock_ds = MockDataset(name="test", data=data, dcs=self.dcs, target="A")
+        
+        repairer = WeightedVCRepairer(alpha=0.5, use_adaptive_alpha=False, use_auto_alpha=True)
+        
+        # Build graph and init state
+        graph = repairer._build_conflict_graph(mock_ds)
+        repairer._init_state(mock_ds, self.marginals, graph)
+        
+        # Expected calculation
+        degrees = np.array([3, 1, 1, 1])
+        expected_cv = np.std(degrees) / np.mean(degrees)
+        expected_alpha = expected_cv / (expected_cv + 1)
+        
+        self.assertAlmostEqual(repairer._auto_alpha, expected_alpha)
+        
+        # Verify it stays constant in iteration_stats
+        repairer.repair(mock_ds, self.marginals)
+        for stat in repairer.iteration_stats:
+            self.assertAlmostEqual(stat["alpha"], expected_alpha)
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,7 +8,7 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if root_path not in sys.path:
     sys.path.append(root_path)
 
-from s04_repairing.src.components.classic_vc_repairer import ClassicVCRepairer
+from s04_repairing.src.repair.classic_vc_repairer import ClassicVCRepairer
 from shared.entities.dataset import Dataset
 from shared.entities.denial_constraints import DenialConstraints, DenialConstraint, Predicate, Side
 from shared.entities.marginal import MarginalSet

@@ -1,0 +1,14 @@
+experiment_group: experiment_9_patectgan_sweep
+base_config:
+  dataset: adult
+  synthesizer: patectgan_trainer
+  engine: patectgan
+  epsilon: 1.0
+  seed: 42
+  repair_algorithm: vanilla_vc
+  sample_size: 50000
+  mode: full
+
+sweep_parameters:
+  dataset: [adult, census, compas, tax]
+  epsilon: [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]

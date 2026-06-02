@@ -1,0 +1,224 @@
+{
+  "marginals": [
+    {
+      "attrs": [
+        "MaritalStatus",
+        "MarriedExemp"
+      ],
+      "values": [
+        "M",
+        0
+      ],
+      "target": 0.12099131207310515
+    },
+    {
+      "attrs": [
+        "MarriedExemp",
+        "State"
+      ],
+      "values": [
+        0,
+        "ME"
+      ],
+      "target": 0.015745549077246717
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "SingleExemp"
+      ],
+      "values": [
+        0,
+        0
+      ],
+      "target": 0.4479615601748208
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "Salary"
+      ],
+      "values": [
+        0,
+        18
+      ],
+      "target": 0.008034047155539566
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "Gender"
+      ],
+      "values": [
+        40,
+        "M"
+      ],
+      "target": 0.0
+    },
+    {
+      "attrs": [
+        "Rate",
+        "State"
+      ],
+      "values": [
+        0.0,
+        "WY"
+      ],
+      "target": 0.03686783037901809
+    },
+    {
+      "attrs": [
+        "Rate",
+        "State"
+      ],
+      "values": [
+        21.0,
+        "AZ"
+      ],
+      "target": 0.0051790636888182605
+    },
+    {
+      "attrs": [
+        "MarriedExemp",
+        "Salary"
+      ],
+      "values": [
+        6200,
+        41
+      ],
+      "target": 0.0006445564933277577
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "MaritalStatus"
+      ],
+      "values": [
+        0,
+        "S"
+      ],
+      "target": 0.3133967436733394
+    },
+    {
+      "attrs": [
+        "Gender",
+        "Rate"
+      ],
+      "values": [
+        "M",
+        45.0
+      ],
+      "target": 0.021391641546237638
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "MaritalStatus"
+      ],
+      "values": [
+        3300,
+        "S"
+      ],
+      "target": 0.05931413411910719
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "State"
+      ],
+      "values": [
+        0,
+        "MT"
+      ],
+      "target": 0.0
+    },
+    {
+      "attrs": [
+        "HasChild",
+        "Salary"
+      ],
+      "values": [
+        "N",
+        14
+      ],
+      "target": 0.013559574014059871
+    },
+    {
+      "attrs": [
+        "MaritalStatus",
+        "SingleExemp"
+      ],
+      "values": [
+        "M",
+        0
+      ],
+      "target": 0.4871511978332899
+    },
+    {
+      "attrs": [
+        "Gender",
+        "MaritalStatus"
+      ],
+      "values": [
+        "F",
+        "M"
+      ],
+      "target": 0.2594458087036145
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "Rate"
+      ],
+      "values": [
+        0,
+        0.0
+      ],
+      "target": 0.20722172866381253
+    },
+    {
+      "attrs": [
+        "Rate",
+        "Salary"
+      ],
+      "values": [
+        0.0,
+        32
+      ],
+      "target": 0.012551076715096698
+    },
+    {
+      "attrs": [
+        "Gender",
+        "HasChild"
+      ],
+      "values": [
+        "F",
+        "Y"
+      ],
+      "target": 0.254092593834452
+    },
+    {
+      "attrs": [
+        "HasChild",
+        "State"
+      ],
+      "values": [
+        "N",
+        "NH"
+      ],
+      "target": 0.013672964193877053
+    },
+    {
+      "attrs": [
+        "ChildExemp",
+        "State"
+      ],
+      "values": [
+        0,
+        "DE"
+      ],
+      "target": 0.0
+    }
+  ]
+}

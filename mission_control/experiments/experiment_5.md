@@ -47,10 +47,12 @@ Run it on adult100 with synthetic data of size 100.
 This should be a quick test to verify everything works and nothing fails. 
 After it successfully passes, feel free to remove the results of this run. 
 
-## Status (2026-05-25)
+## Status (2026-05-26)
 - **Fixes Applied**:
     - **Pusher Efficiency**: Exclusion logic in `pusher.py` fixed to skip large folders (`data`, `outputs`, etc.).
     - **Subset Model Resolution**: `runner.py` now strips numeric suffixes from dataset names (e.g., `adult100` -> `adult`) to find base models.
 - **Current State**:
     - Canary run on `adult100` PASSED.
     - Full sweep (960 jobs) for `experiment_5_repair_comparison` DEPLOYED (Job ID: 52314).
+    - Results pulled locally (903/960 jobs aggregated).
+    - Stage 06 Analysis completed: `s06_analysis/notebooks/experiment_5_analysis.ipynb` generated.

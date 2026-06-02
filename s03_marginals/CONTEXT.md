@@ -4,9 +4,14 @@
 Extract statistical summaries (marginals) from both private and synthetic data to guide the repair process.
 
 ## Usage
-To run the stage for a specific dataset:
+To run the stage for a specific dataset using Top-K (default):
 ```bash
 python s03_marginals/src/main.py dataset_name=adult100
+```
+
+To load marginals from a pre-existing file:
+```bash
+python s03_marginals/src/main.py --config-name from_file experiment_name=adult100 path=/path/to/marginals.json
 ```
 
 To clean the outputs for a specific dataset:

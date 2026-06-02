@@ -31,7 +31,8 @@ class FileLoader:
             name=metadata["name"] + "_syn",
             data=data,
             dcs=dcs,
-            target=metadata["target"]
+            target=metadata["target"],
+            mappings=metadata.get("mappings")
         )
         return dataset, marginals
 

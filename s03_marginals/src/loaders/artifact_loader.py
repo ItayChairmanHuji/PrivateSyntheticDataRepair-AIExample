@@ -13,6 +13,18 @@ class ArtifactLoader:
         with open(input_dir / "metadata.json", "r") as f:
             metadata = json.load(f)
         dcs = DCsLoader().load(input_dir / "constraints.txt")
-        p_ds = Dataset(name=metadata["name"], data=p_data, dcs=dcs, target=metadata["target"])
-        s_ds = Dataset(name=metadata.get("name", "syn") + "_syn", data=s_data, dcs=dcs, target=metadata["target"])
+        p_ds = Dataset(
+            name=metadata["name"], 
+            data=p_data, 
+            dcs=dcs, 
+            target=metadata["target"],
+            mappings=metadata.get("mappings")
+        )
+        s_ds = Dataset(
+            name=metadata.get("name", "syn") + "_syn", 
+            data=s_data, 
+            dcs=dcs, 
+            target=metadata["target"],
+            mappings=metadata.get("mappings")
+        )
         return p_ds, s_ds

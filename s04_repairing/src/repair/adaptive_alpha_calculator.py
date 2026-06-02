@@ -15,37 +15,39 @@ class AdaptiveAlphaCalculator:
     connectivity_steepness: float = 2.0
     gamma: float = 2.0
 
-    def calculate_alpha(self, graph: ig.Graph, active_indices: list) -> tuple[float, float, float]:
+    def calculate_alpha(
+        self,
+        graph: ig.Graph,
+        active_indices: list,
+        norm_degrees: np.ndarray,
+        norm_weights: np.ndarray = None,
+    ) -> tuple[float, float, float]:
         if not active_indices:
             return self.alpha_min, 0.0, 0.0
-        if len(active_indices) <= 2:
-            return self.alpha_max, 0.0, 1.0
 
-        h, c, danger = self._calculate_metrics(graph, active_indices)
-        alpha = self._combine_alpha(danger)
-        return alpha, h, c
+        n_active = len(active_indices)
+        if n_active <= 1:
+            return self.alpha_max, 0.0, 0.0
 
-    def _calculate_metrics(self, graph: ig.Graph, active_indices: list) -> tuple[float, float, float]:
-        degrees = np.array([graph.degree(v_idx) for v_idx in active_indices])
-        hubbiness = self._calculate_hubbiness(degrees, len(active_indices))
-        connectivity = self._calculate_connectivity(degrees, len(active_indices))
-        # New formula: Danger only comes from hubs, scaled by connectivity (density)
-        danger = (1 - (1 - hubbiness) ** self.gamma) * connectivity
-        return hubbiness, connectivity, danger
+        std_degree = np.std(norm_degrees)
 
-    def _calculate_hubbiness(self, degrees: np.ndarray, n: int) -> float:
-        denominator = (n - 1) * (n - 2)
-        if denominator <= 0:
-            return 0.0
-        d_max = np.max(degrees)
-        hubbiness = np.sum(d_max - degrees) / denominator
-        return float(np.clip(hubbiness, 0, 1))
+        if norm_weights is not None and len(norm_weights) > 0:
+            std_weights = np.std(norm_weights)
+        else:
+            std_weights = 0.0
 
-    def _calculate_connectivity(self, degrees: np.ndarray, n: int) -> float:
-        avg_degree = np.sum(degrees) / n
-        exp_term = np.exp(-self.connectivity_steepness * (avg_degree - 1.0))
-        return float(1.0 / (1.0 + exp_term))
+        if std_degree + std_weights == 0:
+            alpha = 0.5
+        else:
+            alpha = 0.5 + 0.5 * np.tanh(std_degree - std_weights)
 
-    def _combine_alpha(self, danger: float) -> float:
-        alpha = self.alpha_min + (self.alpha_max - self.alpha_min) * danger
-        return float(np.clip(alpha, self.alpha_min, self.alpha_max))
+        # Legacy calculations for logging purposes (h and c)
+        degrees = np.array(graph.degree(active_indices))
+        mean_deg = np.mean(degrees)
+        h = np.std(degrees) / (mean_deg + 1e-6)
+
+        edges = graph.ecount()
+        max_edges = (n_active * (n_active - 1)) / 2
+        c = edges / (max_edges + 1e-6)
+
+        return float(alpha), float(h), float(c)

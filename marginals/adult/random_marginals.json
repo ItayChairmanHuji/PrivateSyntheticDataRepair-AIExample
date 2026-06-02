@@ -1,0 +1,224 @@
+{
+  "marginals": [
+    {
+      "attrs": [
+        "capital_gain",
+        "workclass"
+      ],
+      "values": [
+        0,
+        " Private"
+      ],
+      "target": 0.6383536690871213
+    },
+    {
+      "attrs": [
+        "age",
+        "hours_per_week"
+      ],
+      "values": [
+        9,
+        19
+      ],
+      "target": 0.0048490308545590805
+    },
+    {
+      "attrs": [
+        "education",
+        "education_num"
+      ],
+      "values": [
+        " Some-college",
+        10
+      ],
+      "target": 0.22046358636241917
+    },
+    {
+      "attrs": [
+        "education",
+        "fnlwgt"
+      ],
+      "values": [
+        " Masters",
+        11
+      ],
+      "target": 0.015498710946819885
+    },
+    {
+      "attrs": [
+        "capital_loss",
+        "workclass"
+      ],
+      "values": [
+        0,
+        " Private"
+      ],
+      "target": 0.6536302341028535
+    },
+    {
+      "attrs": [
+        "capital_gain",
+        "hours_per_week"
+      ],
+      "values": [
+        0,
+        12
+      ],
+      "target": 0.011941522664275348
+    },
+    {
+      "attrs": [
+        "income",
+        "race"
+      ],
+      "values": [
+        " <=50K",
+        " White"
+      ],
+      "target": 0.6405594961324154
+    },
+    {
+      "attrs": [
+        "age",
+        "occupation"
+      ],
+      "values": [
+        30,
+        " Transport-moving"
+      ],
+      "target": 0.0
+    },
+    {
+      "attrs": [
+        "age",
+        "fnlwgt"
+      ],
+      "values": [
+        9,
+        7
+      ],
+      "target": 0.005113832488003966
+    },
+    {
+      "attrs": [
+        "education",
+        "education_num"
+      ],
+      "values": [
+        " HS-grad",
+        9
+      ],
+      "target": 0.32550543848999774
+    },
+    {
+      "attrs": [
+        "capital_gain",
+        "race"
+      ],
+      "values": [
+        0,
+        " White"
+      ],
+      "target": 0.7895352274321976
+    },
+    {
+      "attrs": [
+        "age",
+        "sex"
+      ],
+      "values": [
+        12,
+        " Male"
+      ],
+      "target": 0.024846679223176737
+    },
+    {
+      "attrs": [
+        "education",
+        "hours_per_week"
+      ],
+      "values": [
+        " Some-college",
+        19
+      ],
+      "target": 0.11313011192940442
+    },
+    {
+      "attrs": [
+        "capital_gain",
+        "hours_per_week"
+      ],
+      "values": [
+        0,
+        19
+      ],
+      "target": 0.43316298539478343
+    },
+    {
+      "attrs": [
+        "occupation",
+        "race"
+      ],
+      "values": [
+        " Other-service",
+        " Black"
+      ],
+      "target": 0.01791130838153252
+    },
+    {
+      "attrs": [
+        "education",
+        "race"
+      ],
+      "values": [
+        " Masters",
+        " White"
+      ],
+      "target": 0.06137721186111817
+    },
+    {
+      "attrs": [
+        "education_num",
+        "sex"
+      ],
+      "values": [
+        7,
+        " Female"
+      ],
+      "target": 0.027979002744641792
+    },
+    {
+      "attrs": [
+        "hours_per_week",
+        "income"
+      ],
+      "values": [
+        22,
+        " <=50K"
+      ],
+      "target": 0.038376424962593435
+    },
+    {
+      "attrs": [
+        "age",
+        "native_country"
+      ],
+      "values": [
+        33,
+        " United-States"
+      ],
+      "target": 0.0
+    },
+    {
+      "attrs": [
+        "fnlwgt",
+        "hours_per_week"
+      ],
+      "values": [
+        4,
+        19
+      ],
+      "target": 0.032816078487493544
+    }
+  ]
+}

@@ -121,6 +121,7 @@ The `CONTEXT.md` in the stage root is the "Public API" documentation. It MUST in
 1.  **Registry First**: Before starting any work, check the `mission_control/experiments/` folder for the relevant experiment documentation.
 2.  **Blueprint Integrity**: Blueprints in `mission_control/blueprints/` are immutable for a specific run. Never modify them mid-experiment.
 3.  **Status Updates**: Always update the status of an experiment in its dedicated markdown file within `mission_control/experiments/`.
+4.  **Least Invasive Changes**: Avoid modifying code or default configurations in individual stages (01-06) during an experiment. Prefer overriding parameters via the experiment template or blueprint to maintain stage isolation.
 
 ## Workspace Hierarchy
 - **Layer 0 (Global Identity)**: `AGENT.md` (this file).

@@ -28,12 +28,21 @@ class StageOrchestrator:
         df_flat.to_csv(flat_path, index=False)
         df_topology.to_csv(topo_path, index=False)
         
-        # 4. Generate the notebook using the flattened paths
+        # 4. Generate the notebook
+        # Resolve template: look for experiment_7_analysis.py if experiment_name is experiment_7_repair_comparison
+        # or just experiment_name_analysis.py
+        template_name = experiment_name.replace("_repair_comparison", "") + "_analysis.py"
+        template_path = Path("s06_analysis/src/analysis") / template_name
+        
+        if not template_path.exists():
+            # Fallback to generic template
+            template_path = Path("s06_analysis/src/analysis/analysis_template.py")
+
+        output_path = self.output_dir / f"{experiment_name}.ipynb"
+        
         notebook_path = self.generator.generate(
-            experiment_name=experiment_name,
-            input_path=flat_path,
-            topology_path=topo_path,
-            output_dir=self.output_dir
+            template_path=template_path,
+            output_path=output_path
         )
         
         return notebook_path
