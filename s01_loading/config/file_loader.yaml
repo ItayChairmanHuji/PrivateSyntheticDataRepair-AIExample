@@ -1,15 +1,15 @@
-_target_: s01_loading.src.components.file_loader.FileLoader
+_target_: s01_loading.src.io.FileLoader
 name: adult
 base_path: data
 size: null
 seed: 42
 data_loader:
-  _target_: s01_loading.src.components.data_loader.DataLoader
+  _target_: s01_loading.src.loaders.DataLoader
 dcs_loader:
-  _target_: s01_loading.src.components.dcs_loader.DCsLoader
+  _target_: s01_loading.src.loaders.DCsLoader
 metadata_loader:
-  _target_: s01_loading.src.components.metadata_loader.MetadataLoader
+  _target_: s01_loading.src.loaders.MetadataLoader
 data_encoder:
-  _target_: s01_loading.src.components.data_encoder.DataEncoder
+  _target_: s01_loading.src.encoders.DataEncoder
 dcs_encoder:
-  _target_: s01_loading.src.components.dcs_encoder.DCsEncoder
+  _target_: s01_loading.src.encoders.DCsEncoder
