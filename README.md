@@ -18,12 +18,12 @@ python -m p_processes.p01_loading.main dataset_name=adult100
 
 ### 2. Train a Model
 ```bash
-python -m p_processes.p02a_training.main dataset_name=adult100 epsilon=0.1
+python -m p_processes.p02_synthesizing.p02a_training.main dataset_name=adult100 epsilon=0.1
 ```
 
 ### 3. Run a Sweep
 ```bash
-python -m p_processes.p02a_training.main --multirun dataset_name=adult100 epsilon=0.1,1.0,10.0
+python -m p_processes.p02_synthesizing.p02a_training.main --multirun dataset_name=adult100 epsilon=0.1,1.0,10.0
 ```
 
 ## Documentation

@@ -18,13 +18,14 @@ class PathResolver:
         self.r_models = self.root / "r_resources" / "r_models"
         self.r_marginals = self.root / "r_resources" / "r_marginals"
         self.r_results = self.root / "r_resources" / "r_results"
+        self.r_analysis = self.root / "r_resources" / "r_analysis"
 
     def resolve(self, category: str, **kwargs) -> Path:
         """
         Unified entry point for path resolution.
 
         Args:
-            category: One of ["data", "model", "marginal", "result"].
+            category: One of ["data", "model", "marginal", "result", "analysis"].
             **kwargs: Parameters required for the specific category.
         """
         match category:
@@ -36,6 +37,8 @@ class PathResolver:
                 return self._resolve_marginal_path(**kwargs)
             case "result":
                 return self._resolve_result_path(**kwargs)
+            case "analysis":
+                return self._resolve_analysis_path(**kwargs)
             case _:
                 raise ValueError(f"Unknown path category: {category}")
 
@@ -94,6 +97,9 @@ class PathResolver:
 
     def _resolve_result_path(self, **kwargs) -> Path:
         return self.r_results / kwargs["experiment_id"] / kwargs["timestamp"]
+
+    def _resolve_analysis_path(self, **kwargs) -> Path:
+        return self.r_analysis / kwargs["experiment_id"]
 
     def get_private_data_dir(self, dataset_name: str) -> Path:
         return self.resolve("data", name=dataset_name, mode=DataMode.PRIVATE)

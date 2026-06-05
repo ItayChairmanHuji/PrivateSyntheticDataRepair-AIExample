@@ -2,17 +2,25 @@
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass
-from u_utilities.u_shared.dataset import Dataset
+from u_utilities.u_shared import Dataset, Predicate
 from u_utilities.u_synthesis.src.synthesizer import Synthesizer
-from u_utilities.u_shared.denial_constraints import Predicate
 
-@dataclass
 class CoNoise(Synthesizer):
     """
     Implements the Co-Noise algorithm to add violations to a dataset.
     """
-    num_of_iterations: int
-    seed: int = 42
+    def __init__(self, num_of_iterations: int, seed: int = 42, **kwargs):
+        self.num_of_iterations = num_of_iterations
+        self.seed = seed
+
+    def train(self, dataset: Dataset) -> any:
+        # Co-Noise is a direct synthesizer, but for the triad we treat it as 
+        # "training" (returning itself) then "sampling".
+        return self
+
+    def sample(self, model: any, dataset: Dataset, size: int) -> Dataset:
+        # Ignore the model object (it's just self)
+        return self.synthesize(dataset)
 
     def synthesize(self, dataset: Dataset) -> Dataset:
         # Set seeds for reproducibility

@@ -9,18 +9,18 @@ This process handles evaluating the quality of synthetic and repaired data, gene
 - **Logic**: Wraps `ResourceManager` to resolve these paths based on configured parameters.
 
 ### Worker (`EvaluatingWorker`)
-- **Role**: Metric calculation logic.
-- **Logic**: Delegates the evaluation to a Hydra-instantiated `evaluator` (or an orchestrator of multiple evaluators, like `EvaluationOrchestrator`) which computes metrics over a `PipelineResult` object.
+- **Role**: Metric calculation core.
+- **Logic**: Delegates the evaluation to a Hydra-instantiated `evaluator` (or an worker of multiple evaluators, like `EvaluationWorker`) which computes metrics over a `PipelineResult` object.
 
-### Facade (`EvaluatingOrchestrator`)
+### Facade (`EvaluatingWorker`)
 - **Role**: Coordinates the pipeline.
 - **Logic**: Uses the engine to locate all necessary artifacts, builds a combined `PipelineResult` entity, calls the worker to generate a metrics dictionary, and saves the final JSON report to the parameter-driven path.
 
 ## 2. Dependency Injection Flow
 1. `ResourceManager` is injected into `EvaluatingEngine`.
 2. A configured `evaluator` is injected into `EvaluatingWorker`.
-3. `EvaluatingEngine` and `EvaluatingWorker` are injected into `EvaluatingOrchestrator` along with all necessary configuration parameters to resolve artifact paths.
-4. `main.py` invokes `orchestrator.run()`.
+3. `EvaluatingEngine` and `EvaluatingWorker` are injected into `EvaluatingWorker` along with all necessary configuration parameters to resolve artifact paths.
+4. `main.py` invokes `worker.run()`.
 
 ## 3. Contracts
 - **Input**: The full stack of previously generated resources (`r_data/private`, `r_data/synthetic`, `r_data/repaired`).

@@ -12,10 +12,10 @@ Processes are the functional units that transform resources. They represent the 
 ## Standard Execution
 To run a process:
 ```bash
-python -m p_processes.p02a_training.main dataset_name=adult100 epsilon=0.1
+python -m p_processes.p02_synthesizing.p02a_training.main dataset_name=adult100 epsilon=0.1
 ```
 
 To run a sweep:
 ```bash
-python -m p_processes.p02a_training.main --multirun epsilon=0.1,0.5,1.0
+python -m p_processes.p02_synthesizing.p02a_training.main --multirun epsilon=0.1,0.5,1.0
 ```

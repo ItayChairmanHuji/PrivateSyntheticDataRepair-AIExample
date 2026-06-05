@@ -3,9 +3,9 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock
 from u_utilities.u_io import ResourceManager, PathResolver
-from p_processes.p06_analysis.src.workers.analysis_worker import AnalysisWorker
-from p_processes.p06_analysis.src.engine.analysis_engine import AnalysisEngine
-from p_processes.p06_analysis.src.orchestration.analysis_orchestrator import AnalysisOrchestrator
+from p_processes.p06_analysis.src.core.analysis_core import AnalysisCore
+from p_processes.p06_analysis.src.engine import AnalysisEngine
+from p_processes.p06_analysis.src.worker import AnalysisWorker
 
 class DummyAnalyzer:
     def analyze(self, results, output_dir):
@@ -21,7 +21,7 @@ def mock_rpm_env(tmp_path):
     manager = ResourceManager(resolver=resolver)
     
     # Create mock result data
-    result_dir = resolver.get_result_dir("E001", "latest")
+    result_dir = manager.resolver.resolve("result", experiment_id="E001", timestamp="latest")
     result_dir.mkdir(parents=True, exist_ok=True)
     with open(result_dir / "res1.json", "w") as f:
         json.dump({"val": 1}, f)
@@ -34,15 +34,15 @@ def test_analysis_orchestrator(mock_rpm_env):
     rpm_root, manager = mock_rpm_env
     
     engine = AnalysisEngine(manager=manager)
-    worker = AnalysisWorker(analyzer=DummyAnalyzer())
+    core = AnalysisCore(analyzer=DummyAnalyzer())
     
-    orchestrator = AnalysisOrchestrator(
+    worker = AnalysisWorker(
         engine=engine,
-        worker=worker,
+        core=core,
         experiment_id="E001"
     )
     
-    orchestrator.run()
+    worker.run()
     
     output_dir = engine.resolve_analysis_dir("E001")
     assert output_dir.exists()

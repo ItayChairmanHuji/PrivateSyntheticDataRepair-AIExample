@@ -10,7 +10,7 @@ This directory contains the functional entry points for the RPM architecture. Th
 ## Usage
 Processes are executed as Python modules. For example:
 ```bash
-python -m p_processes.p02a_training.main dataset_name=adult100 epsilon=0.1
+python -m p_processes.p02_synthesizing.p02a_training.main dataset_name=adult100 epsilon=0.1
 ```
 
 For more details on rules and AI interaction, see [CONTEXT.md](CONTEXT.md).

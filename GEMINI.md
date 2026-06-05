@@ -12,7 +12,12 @@ The framework is organized into three functional layers:
     - **Git Policy**: Only metadata and base configurations are committed. Large datasets and models are excluded.
 - **Processes (`p_processes/`)**: The functional "Verbs" (CLI entry points).
     - **Granularity**: Processes are atomic (e.g., `p02a_training`, `p02b_sampling`).
-    - **Thin Wrappers**: Processes handle orchestration and CLI (Hydra), but delegate logic to utilities.
+    - **The Process Triad**: Every process follows a three-part internal structure:
+        1. **Engine** (`src/engine.py`): The resource gateway. It interacts with `r_resources` via the `ResourceManager`. It handles the "Where" (loading/saving).
+        2. **Core** (`src/core/`): The math and transformations. Bespoke algorithms live here; if they become reusable, they move to `u_utilities`.
+        3. **Worker** (`src/worker.py`): The central hub that uses Dependency Injection (DI) to connect the Engine and Core components.
+    - **Configuration**: Process-specific configuration files live in the local `config/` directory within the process folder (e.g., `p_processes/p01_loading/config`).
+    - **Thin Wrappers**: Processes must delegate all non-orchestration work to the Engine or Core.
     - **Zero State**: Processes do not have their own `input/` or `output/` folders.
 - **Utilities (`u_utilities/`)**: The shared "Tools" (Library logic).
     - **SRP (Single Responsibility)**: Logic is extracted into atomic, importable packages.

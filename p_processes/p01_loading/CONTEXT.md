@@ -6,7 +6,7 @@ Initializes the framework by loading raw datasets into the `r_resources/r_data/p
 ## Architectural Triad
 - **Engine (`LoadingEngine`)**: Resolves physical storage paths using the `ResourceManager`.
 - **Worker (`FileLoader`)**: Orchestrates the atomic loading, sampling, and categorical encoding of raw artifacts.
-- **Facade (`LoadingOrchestrator`)**: Coordinates the engine and worker to execute the end-to-end ingestion flow.
+- **Facade (`LoadingWorker`)**: Coordinates the engine and worker to execute the end-to-end ingestion flow.
 
 ## Contract
 - **Input**: Raw CSV/Metadata from external source (e.g., `data/{dataset_name}/`).
