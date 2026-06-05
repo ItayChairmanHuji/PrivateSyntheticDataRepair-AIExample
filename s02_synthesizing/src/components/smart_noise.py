@@ -85,11 +85,17 @@ class SmartNoiseSynthesizer(Synthesizer):
         if 'kwargs' in filtered_kwargs and not filtered_kwargs['kwargs']:
             filtered_kwargs.pop('kwargs')
 
-        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **filtered_kwargs)
+        # Separate kwargs for create and fit. 
+        # Some engines like MST are strict about __init__ arguments.
+        fit_params = ["categorical_columns", "ordinal_columns", "continuous_columns"]
+        create_kwargs = {k: v for k, v in filtered_kwargs.items() if k not in fit_params}
+        fit_kwargs = {k: v for k, v in filtered_kwargs.items() if k in fit_params}
+
+        synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **create_kwargs)
         
         print(f"Synthesizing using {self.engine} (epsilon={self.epsilon})...")
         
         # Simple fit logic that allows snsynth to infer types from data
-        synth.fit(dataset.data)
+        synth.fit(dataset.data, **fit_kwargs)
 
         return self.sample(synth, dataset)

@@ -108,9 +108,13 @@ class TestVCRepairers(unittest.TestCase):
         # 4 vertices, degrees: 3, 1, 1, 1
         data = pd.DataFrame({"A": [1, 2, 3, 4], "B": [10, 20, 30, 40]})
         
+        from shared.entities.violations import BicliqueCollection
+        import numpy as np
         class MockDataset(Dataset):
             def get_violations(self):
-                return pd.DataFrame({"idx1": [0, 0, 0], "idx2": [1, 2, 3]})
+                bc = BicliqueCollection()
+                bc.add(np.array([0]), np.array([1, 2, 3]))
+                return bc
         
         mock_ds = MockDataset(name="test", data=data, dcs=self.dcs, target="A")
         

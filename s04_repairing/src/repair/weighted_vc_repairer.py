@@ -24,7 +24,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
     _alpha_calculator: Optional[AdaptiveAlphaCalculator] = field(
         init=False, default=None
     )
-    _tuple_matches: List[np.ndarray] = field(init=False, default_factory=list)
+    _matching_matrix: Optional[np.ndarray] = field(init=False, default=None)
     _current_counts: Optional[np.ndarray] = field(init=False, default=None)
     _current_n: int = field(init=False, default=0)
     iteration_stats: List[dict] = field(init=False, default_factory=list)
@@ -32,30 +32,38 @@ class WeightedVCRepairer(VertexCoverRepairer):
     def _select_vertex(
         self, graph: ig.Graph, dataset: Dataset, marginals: MarginalSet
     ) -> int:
-        if not self._tuple_matches:
+        import time
+        if self._matching_matrix is None:
             self._init_state(dataset, marginals, graph)
 
-        active_indices = [v.index for v in graph.vs.select(_degree_gt=0)]
-        if not active_indices:
+        # High-perf select
+        active_indices = graph.vs.select(_degree_gt=0)
+        if len(active_indices) == 0:
             return -1
 
+        t0 = time.perf_counter_ns()
         weights = self._calculate_weights(active_indices, len(marginals))
-        degrees = np.array(graph.degree(active_indices))
+        self.profiler["weight_calc_ns"] = self.profiler.get("weight_calc_ns", 0) + (time.perf_counter_ns() - t0)
+        
+        degrees = graph.degree(active_indices)
         
         norm_weights = self._normalize(weights)
         norm_degrees = self._normalize(degrees)
 
+        t1 = time.perf_counter_ns()
         alpha, h, c = self._get_alpha_metrics(graph, active_indices, norm_degrees, norm_weights)
+        self.profiler["alpha_metrics_ns"] = self.profiler.get("alpha_metrics_ns", 0) + (time.perf_counter_ns() - t1)
 
-        # Log iteration stats
-        self.iteration_stats.append({
-            "iteration": len(self.iteration_stats),
-            "alpha": alpha,
-            "hubbiness": h,
-            "connectivity": c,
-            "n_active": len(active_indices),
-            "n_edges": graph.ecount()
-        })
+        # Log iteration stats (less frequent to save time)
+        if len(self.iteration_stats) % 100 == 0:
+            self.iteration_stats.append({
+                "iteration": len(self.iteration_stats),
+                "alpha": alpha,
+                "hubbiness": h,
+                "connectivity": c,
+                "n_active": len(active_indices),
+                "n_edges": graph.ecount()
+            })
 
         chosen_v = self._pick_best_vertex(active_indices, norm_weights, norm_degrees, alpha)
         self._update_state(chosen_v)
@@ -76,21 +84,21 @@ class WeightedVCRepairer(VertexCoverRepairer):
         cv = np.std(degrees) / mean_deg
         return float(cv / (cv + 1))
 
-    def _get_alpha_metrics(self, graph: ig.Graph, active_indices: list, norm_degrees: np.ndarray, norm_weights: np.ndarray) -> tuple[float, float, float]:
+    def _get_alpha_metrics(self, graph: ig.Graph, active_indices: np.ndarray, norm_degrees: np.ndarray, norm_weights: np.ndarray) -> tuple[float, float, float]:
         if self.use_auto_alpha and self._auto_alpha is not None:
             return self._auto_alpha, 0.0, 0.0
         if self.use_adaptive_alpha and self._alpha_calculator:
             return self._alpha_calculator.calculate_alpha(graph, active_indices, norm_degrees, norm_weights)
         return self.alpha, 0.0, 0.0
-    def _calculate_weights(self, active_indices: list, m_len: int) -> np.ndarray:
+
+    def _calculate_weights(self, active_indices: np.ndarray, m_len: int) -> np.ndarray:
         if m_len == 0:
             return np.zeros(len(active_indices))
 
-        # Capture optional fields into local variables for type narrowing
         current_counts = self._current_counts
         target_freqs = self._target_freqs
 
-        if current_counts is None or target_freqs is None:
+        if current_counts is None or target_freqs is None or self._matching_matrix is None:
             return np.zeros(len(active_indices))
 
         if self._current_n <= 1:
@@ -99,10 +107,16 @@ class WeightedVCRepairer(VertexCoverRepairer):
         diff_gain, base_sum = self._compute_base_metrics(
             m_len, current_counts, target_freqs
         )
-        return self._compute_vertex_weights(active_indices, base_sum, diff_gain, m_len)
+        
+        # Vectorized weight calculation: 
+        # Gain for each vertex is sum of diff_gain for matching marginals
+        # Matrix multiplication handles this: (N x M) @ (M x 1)
+        active_matrix = self._matching_matrix[active_indices]
+        gain = active_matrix @ diff_gain
+        return (base_sum + gain) / m_len
 
     def _handle_small_n(
-        self, active_indices: list, m_len: int, target_freqs: np.ndarray
+        self, active_indices: np.ndarray, m_len: int, target_freqs: np.ndarray
     ) -> np.ndarray:
         val = 1 / m_len * np.abs(target_freqs).sum()
         return np.full(len(active_indices), val)
@@ -115,23 +129,9 @@ class WeightedVCRepairer(VertexCoverRepairer):
         hypo_diffs = np.abs((current_counts - 1) / N_prime - target_freqs)
         return hypo_diffs - base_diffs, base_diffs.sum()
 
-    def _compute_vertex_weights(
-        self,
-        active_indices: List[int],
-        base_sum: float,
-        diff_gain: np.ndarray,
-        m_len: int,
-    ) -> np.ndarray:
-        weights: List[float] = []
-        for v_idx in active_indices:
-            matches: np.ndarray = self._tuple_matches[v_idx]
-            gain = float(diff_gain[matches].sum()) if matches.size > 0 else 0.0
-            weights.append((base_sum + gain) / m_len)
-        return np.array(weights)
-
     def _pick_best_vertex(
         self,
-        active_indices: List[int],
+        active_indices: np.ndarray,
         norm_weights: np.ndarray,
         norm_degrees: np.ndarray,
         alpha: float,
@@ -142,44 +142,28 @@ class WeightedVCRepairer(VertexCoverRepairer):
         return int(active_indices[int(np.argmin(ratios))])
 
     def _update_state(self, chosen_v: int):
-        matches = self._tuple_matches[chosen_v]
-        current_counts = self._current_counts
-        if matches.size > 0 and current_counts is not None:
-            current_counts[matches] -= 1
+        if self._matching_matrix is not None:
+            matches = np.where(self._matching_matrix[chosen_v])[0]
+            if matches.size > 0 and self._current_counts is not None:
+                self._current_counts[matches] -= 1
         self._current_n -= 1
 
     def _precompute_initial_state(self, dataset: Dataset, marginals: MarginalSet):
         n = len(dataset.data)
         self._current_n = n
-        current_counts = np.zeros(len(marginals))
+        m_len = len(marginals)
+        self._current_counts = np.zeros(m_len)
         self._target_freqs = np.array([m.target for m in marginals])
-
-        # Use local list for construction to avoid type mismatch with field hint
-        tuple_matches_list: List[List[int]] = [[] for _ in range(n)]
-
-        self._fill_initial_counts(
-            dataset, marginals, current_counts, tuple_matches_list
-        )
-
-        self._current_counts = current_counts
-        self._tuple_matches = [np.array(m, dtype=int) for m in tuple_matches_list]
-
-    def _fill_initial_counts(
-        self,
-        dataset: Dataset,
-        marginals: MarginalSet,
-        current_counts: np.ndarray,
-        tuple_matches_list: List[List[int]],
-    ):
+        
+        # Precompute the entire matching matrix
+        self._matching_matrix = np.zeros((n, m_len), dtype=bool)
         for i, m in enumerate(marginals):
             mask = m.get_mask(dataset.data)
-            matching_indices = np.where(mask)[0]
-            current_counts[i] = len(matching_indices)
-            for idx in matching_indices:
-                tuple_matches_list[idx].append(i)
+            self._matching_matrix[:, i] = mask
+            self._current_counts[i] = np.sum(mask)
 
     def repair(self, dataset: Dataset, marginals: MarginalSet) -> Dataset:
-        self._tuple_matches = []
+        self._matching_matrix = None
         self._current_counts = None
         self._current_n = 0
         self.iteration_stats = []

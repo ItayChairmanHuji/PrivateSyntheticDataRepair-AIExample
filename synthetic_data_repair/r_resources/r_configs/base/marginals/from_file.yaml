@@ -1,0 +1,4 @@
+_target_: p_processes.p03_marginals.src.file_obtainer.FileObtainer
+experiment_name: ???
+dataset_name: ${experiment_name}
+path: ???

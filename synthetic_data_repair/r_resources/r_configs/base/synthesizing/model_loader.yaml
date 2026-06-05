@@ -1,0 +1,6 @@
+_target_: u_utilities.u_synthesis.src.smart_noise.SmartNoiseSynthesizer
+dataset_name: adult100
+engine: model_loader
+model_path: models/adult_mst.pkl
+size: null
+seed: 42

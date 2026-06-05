@@ -1,0 +1,8 @@
+_target_: u_utilities.u_synthesis.src.smart_noise.SmartNoiseSynthesizer
+dataset_name: adult100
+engine: mst
+epsilon: 1.0
+seed: 42
+save_path: models
+kwargs:
+  delta: 1e-5

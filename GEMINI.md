@@ -1,3 +1,9 @@
+> **⚠️ MIGRATION NOTICE: NEW ARCHITECTURE (RPM) ⚠️**
+> 
+> The framework is currently migrating from the ICM (Stages s01-s06) architecture to the **RPM (Resources, Processes, Utilities)** architecture located in the `synthetic_data_repair/` directory.
+> 
+> For work involving the new architecture, **you MUST follow the rules in `synthetic_data_repair/GEMINI.md`** and the corresponding `CONTEXT.md`/`README.md` files within that directory. The rules below apply ONLY to legacy ICM maintenance.
+
 # Research Framework Orchestrator (ICM Sandbox)
 
 ## Role

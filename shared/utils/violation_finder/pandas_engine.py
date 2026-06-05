@@ -1,24 +1,27 @@
 import numpy as np
 import pandas as pd
 from shared.entities.denial_constraints import Predicate
+from shared.entities.violations import BicliqueCollection
 
 class PandasEngine:
-    def find_constant_implication(self, data, u1, u2, p: Predicate) -> pd.DataFrame:
+    def find_constant_implication(self, data, u1, u2, p: Predicate) -> BicliqueCollection:
         m1, m2 = self.get_mask(data, u1), self.get_mask(data, u2)
+        bc = BicliqueCollection()
         if not m1.any() or not m2.any():
-            return pd.DataFrame(columns=['idx1', 'idx2'])
+            return bc
         
         idx1, idx2 = np.where(m1)[0], np.where(m2)[0]
         if not p:
-            ii, jj = np.meshgrid(idx1, idx2)
-            return pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()})
+            bc.add(idx1, idx2)
+            return bc
 
         return self._find_with_predicate(data, idx1, idx2, p)
 
-    def find_fd_partitioned(self, data, eq_keys, u1, u2, attr) -> pd.DataFrame:
+    def find_fd_partitioned(self, data, eq_keys, u1, u2, attr) -> BicliqueCollection:
         m1, m2 = self.get_mask(data, u1), self.get_mask(data, u2)
+        bc = BicliqueCollection()
         if not m1.any() or not m2.any():
-            return pd.DataFrame(columns=['idx1', 'idx2'])
+            return bc
         
         relevant = m1 | m2
         sub = data[relevant].copy()
@@ -27,7 +30,7 @@ class PandasEngine:
         if eq_keys:
             sub = sub[sub.groupby(eq_keys)[attr].transform('nunique') > 1]
         elif sub[attr].nunique() <= 1:
-            return pd.DataFrame(columns=['idx1', 'idx2'])
+            return bc
 
         return self._process_groups(sub, eq_keys, attr)
 
@@ -65,13 +68,12 @@ class PandasEngine:
     def _find_with_predicate(self, data, idx1, idx2, p):
         attr, opr = p.left.attr, p.opr
         g1, g2 = data.iloc[idx1].groupby(attr).groups, data.iloc[idx2].groupby(attr).groups
-        res = []
+        bc = BicliqueCollection()
         for v1, ids1 in g1.items():
             for v2, ids2 in g2.items():
                 if self._evaluate_scalar(v1, v2, opr):
-                    ii, jj = np.meshgrid(ids1.values, ids2.values)
-                    res.append(pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()}))
-        return pd.concat(res) if res else pd.DataFrame(columns=['idx1', 'idx2'])
+                    bc.add(ids1.values, ids2.values)
+        return bc
 
     def _evaluate_scalar(self, v1, v2, opr):
         if opr in ["=", "=="]: return v1 == v2
@@ -83,29 +85,35 @@ class PandasEngine:
         return False
 
     def _process_groups(self, sub, eq_keys, attr):
-        res = []
+        bc = BicliqueCollection()
         all_groups = sub.groupby(eq_keys) if eq_keys else [(None, sub)]
         for _, group in all_groups:
-            res.extend(self._process_fd_group(group, attr))
-        return pd.concat(res) if res else pd.DataFrame(columns=['idx1', 'idx2'])
+            self._process_fd_group(group, attr, bc)
+        return bc
 
-    def _process_fd_group(self, group, attr):
-        res = []
+    def _process_fd_group(self, group, attr, bc):
         val_parts = group.groupby(attr)
         v_list = list(val_parts.groups.keys())
+        
+        # Pre-extract IDs for each value
+        ids_by_val_m1 = []
+        ids_by_val_m2 = []
+        for v in v_list:
+            g = val_parts.get_group(v)
+            ids_by_val_m1.append(g.loc[g['__m1'], '__idx'].values)
+            ids_by_val_m2.append(g.loc[g['__m2'], '__idx'].values)
+        
+        # Total counts to allow slicing/concatenation without repeated work
         for i in range(len(v_list)):
-            g1 = val_parts.get_group(v_list[i])
-            for j in range(i + 1, len(v_list)):
-                g2 = val_parts.get_group(v_list[j])
-                res.extend(self._generate_cross_pairs(g1, g2))
-        return res
-
-    def _generate_cross_pairs(self, g1, g2):
-        res = []
-        for (ga, gb) in [(g1, g2), (g2, g1)]:
-            ids_a = ga.loc[ga['__m1'], '__idx'].values
-            ids_b = gb.loc[gb['__m2'], '__idx'].values
-            if len(ids_a) > 0 and len(ids_b) > 0:
-                ii, jj = np.meshgrid(ids_a, ids_b)
-                res.append(pd.DataFrame({'idx1': ii.ravel(), 'idx2': jj.ravel()}))
-        return res
+            m1_ids = ids_by_val_m1[i]
+            m2_ids = ids_by_val_m2[i]
+            
+            # (m1 at i) conflicts with (m2 at >i)
+            others_m2 = np.concatenate(ids_by_val_m2[i+1:]) if i+1 < len(v_list) else np.array([])
+            if len(m1_ids) > 0 and len(others_m2) > 0:
+                bc.add(m1_ids, others_m2)
+                
+            # (m2 at i) conflicts with (m1 at >i)
+            others_m1 = np.concatenate(ids_by_val_m1[i+1:]) if i+1 < len(v_list) else np.array([])
+            if len(m2_ids) > 0 and len(others_m1) > 0:
+                bc.add(m2_ids, others_m1)

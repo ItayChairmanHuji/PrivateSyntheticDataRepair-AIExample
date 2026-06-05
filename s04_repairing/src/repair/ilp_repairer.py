@@ -39,9 +39,10 @@ class ILPRepairer(Repairer):
 
     def _add_conflict_constraints(self, model, x, dataset):
         violations = dataset.get_violations()
-        for _, row in violations.iterrows():
-            idx1, idx2 = int(row["idx1"]), int(row["idx2"])
-            model.addConstr(x[idx1] + x[idx2] <= 1)
+        for b in violations.bicliques:
+            for idx1 in b.left_nodes:
+                for idx2 in b.right_nodes:
+                    model.addConstr(x[int(idx1)] + x[int(idx2)] <= 1)
 
     def _add_marginal_objective(self, model, x, n, marginals, dataset):
         m_len = len(marginals)

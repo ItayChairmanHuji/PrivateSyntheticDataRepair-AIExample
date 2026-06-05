@@ -1,47 +1,38 @@
 import pandas as pd
 from shared.entities.denial_constraints import DenialConstraints
+from shared.entities.violations import BicliqueCollection
 from shared.utils.violation_finder.pandas_engine import PandasEngine
 from shared.utils.violation_finder.sql_engine import SqlEngine
-from shared.utils.violation_finder.utils import PredicateCategorizer, ResultNormalizer
+from shared.utils.violation_finder.utils import PredicateCategorizer
+
+from shared.utils.violation_finder.value_grouped_engine import ValueGroupedEngine
 
 class ViolationFinder:
     def __init__(self):
-        self.pandas = PandasEngine()
-        self.sql = SqlEngine()
-        self.categorizer = PredicateCategorizer()
-        self.normalizer = ResultNormalizer()
+        self.value_grouped = ValueGroupedEngine()
 
-    def find_violations(self, data: pd.DataFrame, dcs: DenialConstraints) -> pd.DataFrame:
+    def find_violations(self, data: pd.DataFrame, dcs: DenialConstraints) -> BicliqueCollection:
+        bc = BicliqueCollection()
         if len(data) == 0 or len(dcs.constraints) == 0:
-            return pd.DataFrame(columns=['idx1', 'idx2'])
+            return bc
 
-        all_violations = []
         for dc in dcs.constraints:
             try:
-                res = self._find_single_dc(data, dc)
-                if not res.empty: all_violations.append(res)
+                res_bc = self.value_grouped.find_violations(data, dc)
+                
+                # Merge bicliques
+                bc.bicliques.extend(res_bc.bicliques)
+                
+                # If the engine provided grouping state, use it (assumes consistent grouping across DCs)
+                # In practice, different DCs might have different groupings, but for now we can 
+                # keep the most recent one or the one with most groups.
+                if res_bc.row_to_group is not None:
+                    bc.row_to_group = res_bc.row_to_group
+                    bc.group_indices = res_bc.group_indices
+                    
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 print(f"Error processing DC {dc.to_string()}: {e}")
 
-        if not all_violations:
-            return pd.DataFrame(columns=['idx1', 'idx2'])
-
-        combined = pd.concat(all_violations)
-        return self.normalizer.normalize(combined).reset_index(drop=True)
-
-    def _find_single_dc(self, data, dc):
-        eq, ineq, u1, u2 = self.categorizer.categorize(dc)
-        
-        # Pattern 1: Constant-Value Implication (Pandas)
-        if not eq and len(ineq) <= 1:
-            return self.pandas.find_constant_implication(data, u1, u2, ineq[0] if ineq else None)
-
-        # Pattern 2: FD (Value-Partitioned Join)
-        if len(ineq) == 1 and ineq[0].opr in ["!=", "<>"]:
-            return self.pandas.find_fd_partitioned(data, eq, u1, u2, ineq[0].left.attr)
-
-        # Pattern 3: Order Constraints (DuckDB)
-        if len(ineq) >= 1:
-            return self.sql.find_order_violations(data, eq, u1, u2, ineq)
-
-        return self.sql.find_general_violations(data, dc)
+        return bc

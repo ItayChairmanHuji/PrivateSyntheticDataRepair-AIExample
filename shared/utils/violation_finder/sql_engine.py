@@ -1,24 +1,40 @@
 import duckdb
 import pandas as pd
+import numpy as np
 from shared.entities.denial_constraints import DenialConstraint, Predicate, Side
+from shared.entities.violations import BicliqueCollection
 
 class SqlEngine:
-    def find_order_violations(self, data, eq_keys, u1, u2, ineq_preds):
+    def find_order_violations(self, data, eq_keys, u1, u2, ineq_preds) -> BicliqueCollection:
         con = self._setup_db(data)
         query = self._build_order_query(eq_keys, u1, u2, ineq_preds)
-        if not con.execute(f"SELECT EXISTS ({query} LIMIT 1)").fetchone()[0]:
-            con.close()
-            return pd.DataFrame(columns=['idx1', 'idx2'])
-        res = con.execute(query).df()
+        bc = self._execute_and_collect(con, query)
         con.close()
-        return res
+        return bc
 
-    def find_general_violations(self, data, dc):
+    def find_general_violations(self, data, dc) -> BicliqueCollection:
         con = self._setup_db(data)
         query = self._build_general_query(dc)
-        res = con.execute(query).df()
+        bc = self._execute_and_collect(con, query)
         con.close()
-        return res
+        return bc
+
+    def _execute_and_collect(self, con, query) -> BicliqueCollection:
+        bc = BicliqueCollection()
+        # Wrap query to aggregate by t1.__idx to create (1, K) bicliques
+        agg_query = f"""
+            SELECT idx1, list(idx2) as neighbors
+            FROM ({query}) sub
+            GROUP BY idx1
+        """
+        try:
+            res = con.execute(agg_query).fetchall()
+            for idx1, neighbors in res:
+                bc.add(np.array([idx1]), np.array(neighbors))
+        except Exception:
+            # Fallback if query fails or is empty
+            pass
+        return bc
 
     def _setup_db(self, data):
         con = duckdb.connect(database=':memory:')

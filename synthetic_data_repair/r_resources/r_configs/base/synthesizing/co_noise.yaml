@@ -1,0 +1,5 @@
+_target_: u_utilities.u_synthesis.src.co_noise.CoNoise
+dataset_name: adult100
+num_of_iterations: 10
+seed: 42
+

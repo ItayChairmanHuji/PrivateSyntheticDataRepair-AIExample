@@ -26,6 +26,12 @@ Make sure that:
 4. **Runtime**: The duration of the repair process MUST be measured and saved into `metadata.json` as `repair_runtime`.
 5. **Alpha Selection**: Make sure that alpha is dynamically updated, and reselected at every iteration. 
 
+## Status (2026-06-03)
+- **Re-run**: Triggered re-run focusing on AIM and MST. 
+- **Code Sync**: Pushed latest code changes to the remote cluster. 
+- **Deployment**: 1200 jobs submitted to Slurm (Job IDs 61623, 61705). 
+- **Configuration**: 300K sample size, MST/AIM synthesizers, eps [0.1-1.0], 5 seeds, 3 repair algorithms.
+
 ## Status (2026-05-28)
 - **Blueprints**: Generated for both canary (`experiment_8_canary`) and main (`experiment_8_repair_comparison`).
 - **Canary**: Completed successfully for AIM and MST. PATECTGAN removed from experiment as models are missing. 

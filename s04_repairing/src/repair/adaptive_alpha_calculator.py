@@ -18,11 +18,11 @@ class AdaptiveAlphaCalculator:
     def calculate_alpha(
         self,
         graph: ig.Graph,
-        active_indices: list,
+        active_indices: np.ndarray,
         norm_degrees: np.ndarray,
         norm_weights: np.ndarray = None,
     ) -> tuple[float, float, float]:
-        if not active_indices:
+        if len(active_indices) == 0:
             return self.alpha_min, 0.0, 0.0
 
         n_active = len(active_indices)

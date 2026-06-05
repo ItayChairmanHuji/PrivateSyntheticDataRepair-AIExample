@@ -49,6 +49,7 @@ def patched_synthetic_data(self, rows=None, method='round'):
     for col in order[1:]:
         df = _process_column(df, col, order, used, cliques, self, total, method)
 
+    print(f"Synthesis done! Created {df.shape} dataframe.")
     return Dataset(df, self.domain)
 
 def apply_patch():

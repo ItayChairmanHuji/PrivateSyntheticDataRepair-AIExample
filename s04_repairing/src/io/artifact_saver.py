@@ -15,6 +15,7 @@ class ArtifactSaver:
         dataset.data.to_csv(output_path, index=False)
         
         import json
+        from shared.utils.serialization_helper import NpEncoder
         metadata_path = output_dir / "metadata.json"
         metadata = {
             "name": dataset.name,
@@ -25,7 +26,7 @@ class ArtifactSaver:
             metadata.update(extra_metadata)
             
         with open(metadata_path, "w") as f:
-            json.dump(metadata, f, indent=4)
+            json.dump(metadata, f, indent=4, cls=NpEncoder)
         print(f"Success: Metadata saved to {metadata_path}")
 
         print(f"Success: Repaired dataset saved to {output_path}")

@@ -1,0 +1,17 @@
+dataset_name: ???
+experiment_name: "default_experiment"
+
+orchestrator:
+  _target_: p_processes.p05_evaluating.src.evaluators.evaluation_orchestrator.EvaluationOrchestrator
+  output_dir: ??? # Set by main.py
+  experiment_name: ${experiment_name}
+  evaluators:
+    - _target_: p_processes.p05_evaluating.src.evaluators.runtime_evaluator.RuntimeEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.deletion_ratio_evaluator.DeletionRatioEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.marginals_error_evaluator.MarginalsErrorEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.tvd_evaluator.TwoWayTVDEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.ml_accuracy_evaluator.MLAccuracyEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.violation_evaluator.ViolationEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.loss_function_evaluator.LossFunctionEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.marginal_generation_evaluator.MarginalGenerationEvaluator
+    - _target_: p_processes.p05_evaluating.src.evaluators.marginal_selection_evaluator.MarginalSelectionEvaluator

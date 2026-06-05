@@ -12,9 +12,10 @@ def test_violation_finder_fd():
     
     finder = ViolationFinder()
     violations = finder.find_violations(data, dcs)
+    df = violations.to_dataframe()
     
-    assert len(violations) == 1
-    assert (violations.iloc[0]['idx1'] == 0 and violations.iloc[0]['idx2'] == 1)
+    assert len(df) == 1
+    assert (df.iloc[0]['idx1'] == 0 and df.iloc[0]['idx2'] == 1)
 
 def test_violation_finder_order():
     data = pd.DataFrame({'A': [10, 20, 5]})

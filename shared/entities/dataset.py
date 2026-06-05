@@ -4,6 +4,7 @@ from typing import Optional
 from pandas import DataFrame
 
 from shared.entities.denial_constraints import DenialConstraints
+from shared.entities.violations import BicliqueCollection
 from shared.utils.violation_finder import ViolationFinder
 
 
@@ -18,7 +19,7 @@ class Dataset:
     def __len__(self):
         return len(self.data)
 
-    def get_violations(self) -> DataFrame:
+    def get_violations(self) -> BicliqueCollection:
         finder = ViolationFinder()
         return finder.find_violations(self.data, self.dcs)
 

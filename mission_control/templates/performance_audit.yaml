@@ -1,0 +1,13 @@
+experiment_group: performance_audit_v1
+base_config:
+  dataset: adult
+  synthesizer: aim
+  epsilon: 0.5
+  seed: 42
+  sample_size: 300000
+  mode: sample
+  use_adaptive_alpha: True
+  use_auto_alpha: False
+
+sweep_parameters:
+  repair_algorithm: [vanilla_vc, classic_vc, weighted_vc]

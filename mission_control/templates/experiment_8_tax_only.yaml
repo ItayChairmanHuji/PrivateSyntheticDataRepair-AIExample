@@ -1,0 +1,17 @@
+experiment_group: experiment_8_tax_only
+base_config:
+  dataset: tax
+  synthesizer: aim
+  epsilon: 0.1
+  seed: 42
+  repair_algorithm: vanilla_vc
+  sample_size: 300000
+  mode: sample
+  use_adaptive_alpha: True
+  use_auto_alpha: False
+
+sweep_parameters:
+  synthesizer: [aim, mst]
+  epsilon: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  seed: [42, 100, 200, 300, 400]
+  repair_algorithm: [vanilla_vc, classic_vc, weighted_vc]

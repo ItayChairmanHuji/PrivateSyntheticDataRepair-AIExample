@@ -15,6 +15,14 @@ class VertexCoverRepairer(Repairer):
     """
 
     def repair(self, dataset: Dataset, marginals: MarginalSet) -> Dataset:
+        import time
+        self.profiler = {
+            "graph_status_ns": 0,
+            "vertex_selection_ns": 0,
+            "graph_deletion_ns": 0,
+            "total_iterations": 0
+        }
+        
         graph = self._build_conflict_graph(dataset)
         removed_indices = self._find_vertex_cover(graph, dataset, marginals)
 
@@ -29,26 +37,46 @@ class VertexCoverRepairer(Repairer):
         )
 
     def _find_vertex_cover(self, graph, dataset, marginals) -> set:
+        import time
         removed = set()
-        while graph.ecount() > 0:
+        while True:
+            t0 = time.perf_counter_ns()
+            has_edges = graph.ecount() > 0
+            self.profiler["graph_status_ns"] += time.perf_counter_ns() - t0
+            
+            if not has_edges:
+                break
+                
+            t1 = time.perf_counter_ns()
             selected = self._select_vertex(graph, dataset, marginals)
+            self.profiler["vertex_selection_ns"] += time.perf_counter_ns() - t1
+            
+            t2 = time.perf_counter_ns()
             v_indices = (
                 [selected] if isinstance(selected, (int, np.integer)) else selected
             )
             for v_idx in v_indices:
                 removed.add(int(v_idx))
-                graph.delete_edges(graph.incident(v_idx))
+                graph.delete_edges(v_idx)
+            self.profiler["graph_deletion_ns"] += time.perf_counter_ns() - t2
+            
+            self.profiler["total_iterations"] += 1
+            
         return removed
 
-    def _build_conflict_graph(self, dataset: Dataset) -> ig.Graph:
-        n = len(dataset.data)
-        graph = ig.Graph(n)
-        graph.vs["original_index"] = list(range(n))
+    def _build_conflict_graph(self, dataset: Dataset) -> Any:
         violations = dataset.get_violations()
-        if not violations.empty:
-            graph.add_edges(violations[["idx1", "idx2"]].values.astype(int))
-            graph.simplify()
-        return graph
+        n_rows = len(dataset.data)
+        
+        # Group-Aware Optimization:
+        # If violations are expressed as group conflicts, build a group-level graph.
+        if violations.row_to_group is not None and violations.group_indices is not None:
+            from s04_repairing.src.repair.symbolic_graph import GroupAwareGraph
+            return GroupAwareGraph(n_rows, violations)
+        
+        from s04_repairing.src.repair.symbolic_graph import SymbolicConflictGraph
+        return SymbolicConflictGraph(n_rows, violations)
+
 
     @abstractmethod
     def _select_vertex(
