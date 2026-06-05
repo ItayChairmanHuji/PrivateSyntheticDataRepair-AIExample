@@ -38,6 +38,4 @@ outputs/
 models/
 synthetic_data/
 old/
-*/input/*
-*/output/*
-*/blueprints/*
+r_resources/
