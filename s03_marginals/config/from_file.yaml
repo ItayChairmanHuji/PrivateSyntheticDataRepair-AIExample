@@ -1,4 +1,0 @@
-_target_: s03_marginals.src.marginals.file_obtainer.FileObtainer
-experiment_name: ???
-dataset_name: ${experiment_name}
-path: ???
