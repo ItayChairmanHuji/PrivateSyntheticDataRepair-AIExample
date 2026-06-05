@@ -11,7 +11,7 @@ class PathResolver:
     conventions used in the RPM architecture.
     """
 
-    def __init__(self, root_dir: str = "synthetic_data_repair"):
+    def __init__(self, root_dir: str = "."):
         """Initializes the resolver with a specific project root directory."""
         self.root = Path(root_dir)
         self.r_data = self.root / "r_resources" / "r_data"

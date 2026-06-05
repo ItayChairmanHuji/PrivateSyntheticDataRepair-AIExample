@@ -7,7 +7,8 @@ The `r_resources` directory is the single source of truth for all persistent sta
 All resources follow the **Parameter Identity** rule. Paths are calculated based on the parameters that define the resource.
 
 ### 1. Data (`r_data/`)
-- `private/`: Cleaned ground-truth data.
+- `base/`: Raw ground-truth artifacts (CSV, DCs, Metadata).
+- `private/`: Processed/Encoded ground-truth data created by `p01_loading`.
 - `synthetic/`: Generated data, nested by `{synth}/{eps}/{seed}/{size}`.
 - `repaired/`: Repaired data, nested by `{repairer}/{synth}/{eps}/{seed}/{size}/{alpha}`.
 

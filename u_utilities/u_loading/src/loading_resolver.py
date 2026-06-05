@@ -9,11 +9,11 @@ class LoadingResolver:
 
     @property
     def dataset_dir(self) -> Path:
-        return Path(self.base_path) / self.dataset_name
+        return Path(self.base_path) / self.dataset_name / "base"
 
     @property
     def data_path(self) -> Path:
-        return self.dataset_dir / "data.csv"
+        return self.dataset_dir / "original_data.csv"
 
     @property
     def dcs_path(self) -> Path:

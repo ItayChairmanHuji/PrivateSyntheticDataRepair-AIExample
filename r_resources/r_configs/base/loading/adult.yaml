@@ -8,7 +8,7 @@ orchestrator:
     _target_: p_processes.p01_loading.src.workers.file_loader.FileLoader
     resolver:
       _target_: u_utilities.u_loading.src.loading_resolver.LoadingResolver
-      base_path: data
+      base_path: r_resources/r_data
       dataset_name: adult
     sample_size: null
     seed: 42

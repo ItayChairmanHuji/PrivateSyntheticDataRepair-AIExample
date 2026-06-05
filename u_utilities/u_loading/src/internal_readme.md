@@ -34,5 +34,5 @@ dataset = loader.load_dataset()
 ```
 
 ## Contracts
-- **Input**: Expects a directory containing `data.csv`, `dcs.txt`, and optionally `metadata.json`.
-- **Output**: Returns a `u_shared.Dataset` object with encoded data and constraints.
+- **Input**: Expects a directory (`base/`) containing `original_data.csv`, `dcs.txt`, and `metadata.json`.
+- **Output**: Returns a `u_shared.Dataset` object containing encoded data, constraints, and mappings.
