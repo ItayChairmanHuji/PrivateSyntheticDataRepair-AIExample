@@ -1,8 +1,8 @@
 import hydra
 from omegaconf import DictConfig, OmegaConf
-from p_processes.p02_synthesizing.p02a_training.src.orchestration.training_orchestrator import TrainingWorker
+from p_processes.p02_synthesizing.p02a_training.src.worker import TrainingWorker
 
-@hydra.main(version_base=None, config_path="../config", config_name="model_trainer")
+@hydra.main(version_base=None, config_path="../config", config_name="default")
 def main(cfg: DictConfig):
     # Resilient accessor pattern
     if "training" in cfg:

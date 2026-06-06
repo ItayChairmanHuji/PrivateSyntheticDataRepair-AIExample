@@ -7,8 +7,7 @@ def main(cfg: DictConfig):
     Declarative entry point for the evaluating process.
     Uses Hydra to instantiate the Orchestrator triad.
     """
-    target_cfg = cfg.worker if "worker" in cfg else cfg.evaluating.worker
-    worker = hydra.utils.instantiate(target_cfg)
+    worker = hydra.utils.instantiate(cfg)
     worker.run()
 
 if __name__ == "__main__":

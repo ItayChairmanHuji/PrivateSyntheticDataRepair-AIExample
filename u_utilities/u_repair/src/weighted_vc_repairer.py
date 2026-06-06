@@ -4,9 +4,11 @@ from typing import List, Optional
 import igraph as ig
 import numpy as np
 
-from u_utilities.u_repair.src.adaptive_alpha_calculator import AdaptiveAlphaCalculator
-from u_utilities.u_repair.src.vertex_cover_repairer import VertexCoverRepairer
-from u_utilities.u_shared import Dataset, MarginalSet
+from .adaptive_alpha_calculator import AdaptiveAlphaCalculator
+from .vertex_cover_repairer import VertexCoverRepairer
+from u_utilities.u_shared import Dataset
+from u_utilities.u_shared import MarginalSet
+
 
 @dataclass
 class WeightedVCRepairer(VertexCoverRepairer):
@@ -34,6 +36,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
         if self._matching_matrix is None:
             self._init_state(dataset, marginals, graph)
 
+        # High-perf select
         active_indices = graph.vs.select(_degree_gt=0)
         if len(active_indices) == 0:
             return -1
@@ -51,6 +54,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
         alpha, h, c = self._get_alpha_metrics(graph, active_indices, norm_degrees, norm_weights)
         self.profiler["alpha_metrics_ns"] = self.profiler.get("alpha_metrics_ns", 0) + (time.perf_counter_ns() - t1)
 
+        # Log iteration stats (less frequent to save time)
         if len(self.iteration_stats) % 100 == 0:
             self.iteration_stats.append({
                 "iteration": len(self.iteration_stats),
@@ -77,7 +81,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
         mean_deg = np.mean(degrees)
         if mean_deg == 0:
             return 0.0
-        cv = np.std(degrees) / (mean_deg + 1e-8)
+        cv = np.std(degrees) / mean_deg
         return float(cv / (cv + 1))
 
     def _get_alpha_metrics(self, graph: ig.Graph, active_indices: np.ndarray, norm_degrees: np.ndarray, norm_weights: np.ndarray) -> tuple[float, float, float]:
@@ -104,6 +108,9 @@ class WeightedVCRepairer(VertexCoverRepairer):
             m_len, current_counts, target_freqs
         )
         
+        # Vectorized weight calculation: 
+        # Gain for each vertex is sum of diff_gain for matching marginals
+        # Matrix multiplication handles this: (N x M) @ (M x 1)
         active_matrix = self._matching_matrix[active_indices]
         gain = active_matrix @ diff_gain
         return (base_sum + gain) / m_len
@@ -118,8 +125,8 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self, m_len: int, current_counts: np.ndarray, target_freqs: np.ndarray
     ):
         N_prime = self._current_n - 1
-        base_diffs = np.abs(current_counts / (N_prime + 1e-8) - target_freqs)
-        hypo_diffs = np.abs((current_counts - 1) / (N_prime + 1e-8) - target_freqs)
+        base_diffs = np.abs(current_counts / N_prime - target_freqs)
+        hypo_diffs = np.abs((current_counts - 1) / N_prime - target_freqs)
         return hypo_diffs - base_diffs, base_diffs.sum()
 
     def _pick_best_vertex(
@@ -148,6 +155,7 @@ class WeightedVCRepairer(VertexCoverRepairer):
         self._current_counts = np.zeros(m_len)
         self._target_freqs = np.array([m.target for m in marginals])
         
+        # Precompute the entire matching matrix
         self._matching_matrix = np.zeros((n, m_len), dtype=bool)
         for i, m in enumerate(marginals):
             mask = m.get_mask(dataset.data)

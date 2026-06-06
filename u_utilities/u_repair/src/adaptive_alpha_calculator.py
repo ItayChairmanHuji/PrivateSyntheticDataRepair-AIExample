@@ -1,12 +1,15 @@
 from dataclasses import dataclass
+
 import igraph as ig
 import numpy as np
+
 
 @dataclass
 class AdaptiveAlphaCalculator:
     """
     Calculates an adaptive alpha parameter based on graph topology.
     """
+
     alpha_min: float = 0.1
     alpha_max: float = 1.0
     connectivity_steepness: float = 2.0

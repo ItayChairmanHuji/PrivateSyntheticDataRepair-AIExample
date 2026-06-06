@@ -2,7 +2,7 @@ import numpy as np
 import igraph as ig
 from typing import List, Set, Union, Dict
 import bisect
-from u_utilities.u_shared import BicliqueCollection, ExplicitBiclique, RangeBiclique, GroupBiclique
+from old.shared.entities.violations import BicliqueCollection, ExplicitBiclique, RangeBiclique, GroupBiclique
 
 class Vertex:
     def __init__(self, index: int):
@@ -39,12 +39,19 @@ class GroupAwareGraph:
         edges = []
         for b in bc.bicliques:
             if isinstance(b, GroupBiclique):
+                if b.g1 == b.g2:
+                    # Self-loop in group graph means internal conflicts. 
+                    # We can't have real self-loops in igraph for some algorithms, 
+                    # but here it just means the group must be deleted if any edge exists.
+                    # We'll handle this by giving it a virtual edge or high degree.
+                    pass 
                 edges.append((b.g1, b.g2))
         
         self.g = ig.Graph(n_groups, edges)
         self.g.simplify() # Remove duplicate edges and self-loops
         
         # Handle internal group conflicts (cliques)
+        # Groups with internal conflicts MUST be deleted.
         self.must_delete_groups = set()
         for b in bc.bicliques:
             if isinstance(b, GroupBiclique) and b.g1 == b.g2:
@@ -54,6 +61,8 @@ class GroupAwareGraph:
         self._update_active_mask()
 
     def _update_active_mask(self):
+        # A row is active if its group has degree > 0 or is in must_delete_groups
+        # AND the row hasn't been deleted yet.
         group_degrees = np.array(self.g.degree())
         active_groups = (group_degrees > 0) | np.array([i in self.must_delete_groups for i in range(len(group_degrees))])
         self._active_mask = active_groups[self.row_to_group] & (~self.deleted_rows)
@@ -62,6 +71,8 @@ class GroupAwareGraph:
         return self.g.ecount() + len(self.must_delete_groups)
 
     def degree(self, indices: Union[int, List[int], np.ndarray] = None) -> np.ndarray:
+        # Degree of a row is the degree of its group in the group graph.
+        # We also add a "bonus" degree for groups that MUST be deleted.
         group_degrees = np.array(self.g.degree())
         for g_idx in self.must_delete_groups:
             group_degrees[g_idx] += 1000000 # Force selection
@@ -80,6 +91,8 @@ class GroupAwareGraph:
         self.deleted_rows[rows_in_group] = True
         
         # Delete the group from the graph
+        # In igraph, deleting a vertex changes IDs. 
+        # Instead, we just remove all its edges.
         if g_idx < self.g.vcount():
             incident_edges = self.g.incident(g_idx)
             self.g.delete_edges(incident_edges)
@@ -171,7 +184,9 @@ class SymbolicConflictGraph:
                 other_g = b.g2 if side == 'left' else b.g1
                 neighbor_indices = b.group_indices[other_g] if b.g1 != b.g2 else b.group_indices[g_idx]
                 
+                # Vectorized Update
                 self._current_degrees[neighbor_indices] -= 1
+                # Bulk update active mask
                 new_inactive = neighbor_indices[self._current_degrees[neighbor_indices] == 0]
                 self._active_mask[new_inactive] = False
 
@@ -194,3 +209,5 @@ class SymbolicConflictGraph:
 
     def incident(self, v_idx: int):
         return v_idx
+
+

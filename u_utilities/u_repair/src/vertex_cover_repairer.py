@@ -4,8 +4,9 @@ from typing import Any
 import igraph as ig
 import numpy as np
 
-from u_utilities.u_repair.src.repairer import Repairer
-from u_utilities.u_shared import Dataset, MarginalSet
+from .repairer import Repairer
+from u_utilities.u_shared import Dataset
+from u_utilities.u_shared import MarginalSet
 
 
 class VertexCoverRepairer(Repairer):
@@ -68,11 +69,12 @@ class VertexCoverRepairer(Repairer):
         n_rows = len(dataset.data)
         
         # Group-Aware Optimization:
+        # If violations are expressed as group conflicts, build a group-level graph.
         if violations.row_to_group is not None and violations.group_indices is not None:
-            from u_utilities.u_repair.src.symbolic_graph import GroupAwareGraph
+            from .symbolic_graph import GroupAwareGraph
             return GroupAwareGraph(n_rows, violations)
         
-        from u_utilities.u_repair.src.symbolic_graph import SymbolicConflictGraph
+        from .symbolic_graph import SymbolicConflictGraph
         return SymbolicConflictGraph(n_rows, violations)
 
 

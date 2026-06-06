@@ -1,0 +1,14 @@
+_target_: p_processes.p04_repairing.src.worker.RepairingWorker
+engine:
+  _target_: p_processes.p04_repairing.src.engine.RepairingEngine
+  manager:
+    _target_: u_utilities.u_io.ResourceManager
+core:
+  _target_: p_processes.p04_repairing.src.core.repairing_core.RepairingCore
+  repairer:
+    _target_: p_processes.p04_repairing.src.repair.vanilla_vc_repairer.VanillaVCRepairer
+    experiment_name: ${experiment_name}
+    alpha: 0.5
+
+dataset_name: ???
+experiment_name: ???

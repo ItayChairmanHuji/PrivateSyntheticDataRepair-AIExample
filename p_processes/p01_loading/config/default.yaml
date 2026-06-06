@@ -1,15 +1,18 @@
-orchestrator:
-  _target_: p_processes.p01_loading.src.orchestrator.LoadingOrchestrator
+base_path: "r_resources/r_data"
+dataset_name: ???
+
+worker:
+  _target_: p_processes.p01_loading.src.worker.LoadingWorker
   engine:
     _target_: p_processes.p01_loading.src.engine.LoadingEngine
     manager:
       _target_: u_utilities.u_io.ResourceManager
-  worker:
-    _target_: p_processes.p01_loading.src.logic.loading_logic.LoadingLogic
+  core:
+    _target_: p_processes.p01_loading.src.core.loading_core.LoadingCore
     resolver:
       _target_: u_utilities.u_loading.src.loading_resolver.LoadingResolver
-      base_path: r_resources/r_data
-      dataset_name: adult
+      base_path: ${base_path}
+      dataset_name: ${dataset_name}
     sample_size: null
     seed: 42
     data_loader:
