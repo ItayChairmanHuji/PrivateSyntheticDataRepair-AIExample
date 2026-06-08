@@ -39,7 +39,7 @@ class DuckDBEngine:
         for cid in result.get("_cid", []):
             cid = int(cid)
             if len(compact._compact_to_dense[cid]) > 1:
-                vs.conflicts.append(Violation(np.array([cid]), np.array([cid]), symmetric=True))
+                vs.violations.append(Violation(np.array([cid]), np.array([cid]), symmetric=True))
 
     def _query(self, sql: str, dc: DenialConstraint):
         try:

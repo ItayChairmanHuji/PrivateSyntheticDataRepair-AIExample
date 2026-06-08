@@ -33,7 +33,7 @@ class OrderEngine:
         for cid in left_ids:
             matches = self._two_order_matches(cid, right_ids, profile.binary_predicates, values)
             if len(matches):
-                vs.conflicts.append(Violation(np.array([cid]), matches))
+                vs.violations.append(Violation(np.array([cid]), matches))
         return vs
 
     def _order_frame(self, df: pd.DataFrame, predicates, attr: str, sort: bool = False):
@@ -86,13 +86,13 @@ class OrderEngine:
             return
         matches = np.flatnonzero(right_ids[start:end] == cid)
         if len(matches) == 0:
-            vs.conflicts.append(Violation(np.array([cid]), right_ids[start:end]))
+            vs.violations.append(Violation(np.array([cid]), right_ids[start:end]))
             return
         split = start + int(matches[0])
         if start < split:
-            vs.conflicts.append(Violation(np.array([cid]), right_ids[start:split]))
+            vs.violations.append(Violation(np.array([cid]), right_ids[start:split]))
         if split + 1 < end:
-            vs.conflicts.append(Violation(np.array([cid]), right_ids[split + 1 : end]))
+            vs.violations.append(Violation(np.array([cid]), right_ids[split + 1 : end]))
 
     def _add_internal_conflicts(self, compact, profile, vs) -> None:
         if profile.binary_predicates[0].opr not in (">=", "<="):
@@ -100,4 +100,4 @@ class OrderEngine:
         both = apply_unary_predicates(compact.df, profile.t1_unary + profile.t2_unary)
         for cid in np.flatnonzero(both):
             if len(compact._compact_to_dense[int(cid)]) > 1:
-                vs.conflicts.append(Violation(np.array([int(cid)]), np.array([int(cid)]), symmetric=True))
+                vs.violations.append(Violation(np.array([int(cid)]), np.array([int(cid)]), symmetric=True))

@@ -1,4 +1,4 @@
-﻿﻿import json
+import json
 import os
 import uuid
 import time
@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List
 
 from u_utilities.u_shared.pipeline_result import PipelineResult
-from old.s05_evaluating.src.components.evaluator import Evaluator
+from p_processes.p05_evaluating.src.core.evaluators.evaluator import Evaluator
 
 
 class EvaluationWorker:

@@ -1,5 +1,5 @@
-﻿﻿import numpy as np
-from old.s05_evaluating.src.components.evaluator import Evaluator
+import numpy as np
+from p_processes.p05_evaluating.src.core.evaluators.evaluator import Evaluator
 from u_utilities.u_shared.pipeline_result import PipelineResult
 
 class MarginalGenerationEvaluator(Evaluator):

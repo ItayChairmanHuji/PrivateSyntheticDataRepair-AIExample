@@ -17,6 +17,20 @@ class RepairingWorker:
     alpha: float
 
     def run(self):
+        output_path = self.engine._resolve_repaired_path(
+            self.dataset_name,
+            self.repairer_name,
+            self.synthesizer_name,
+            self.epsilon,
+            self.seed,
+            self.size,
+            self.noise_level,
+            self.alpha,
+        )
+        if output_path.exists():
+            print(f"Skipping [{self.repairer_name}]: {output_path} already exists.")
+            return
+
         synthetic = self.engine.load_synthetic_dataset(
             self.dataset_name, self.synthesizer_name, self.epsilon, self.seed, self.size
         )
@@ -27,6 +41,6 @@ class RepairingWorker:
     def _save_and_log(self, repaired):
         path = self.engine.save_repaired_dataset(
             repaired, self.repairer_name, self.synthesizer_name, 
-            self.epsilon, self.seed, self.size, self.alpha
+            self.epsilon, self.seed, self.size, self.noise_level, self.alpha
         )
         print(f"Success [{self.repairer_name}]: Repaired data saved -> {path}")

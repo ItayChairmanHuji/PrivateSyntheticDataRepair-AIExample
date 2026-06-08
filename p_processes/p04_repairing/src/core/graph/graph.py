@@ -42,10 +42,22 @@ class Graph:
         
         # Find a random neighbor v of u
         c_id = self.row_to_cluster[u]
-        active_memberships = [m for m in self.cluster_to_blocks[c_id] if m.affected_members(self.block_pairs[m.block_pair_idx]).any()]
-        membership = np.random.choice(active_memberships)
+
+        # Filter memberships that have at least one active neighbor OTHER than u
+        possible_memberships = []
+        for m in self.cluster_to_blocks[c_id]:
+            block = self.block_pairs[m.block_pair_idx]
+            neighbors = m.affected_members(block)
+            if (neighbors[self.active[neighbors] & (neighbors != u)]).any():
+                possible_memberships.append(m)
+
+        if not possible_memberships:
+             # This should not happen if degrees are tracked correctly
+             raise ValueError(f"Vertex {u} has degree {self.degrees[u]} but no active neighbors.")
+
+        membership = np.random.choice(possible_memberships)
         block = self.block_pairs[membership.block_pair_idx]
-        
+
         neighbors = membership.affected_members(block)
         active_neighbors = neighbors[self.active[neighbors] & (neighbors != u)]
         v = int(np.random.choice(active_neighbors))
@@ -60,7 +72,8 @@ class Graph:
                 neighbors = membership.affected_members(block)
 
                 # Filter active neighbors and batch decrement
-                active_neighbors = neighbors[self.active[neighbors]]
+                # Crucial: neighbors should not include the node itself being removed
+                active_neighbors = neighbors[self.active[neighbors] & (neighbors != row_idx)]
                 if len(active_neighbors) > 0:
                     self.degrees[active_neighbors] -= 1
                     self.active[active_neighbors] = self.degrees[active_neighbors] > 0

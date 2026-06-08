@@ -80,8 +80,8 @@ wrapper_script = """#!/bin/bash
 #SBATCH --job-name=adult_exp
 #SBATCH --output=logs/exp_%A_%a.out
 #SBATCH --error=logs/exp_%A_%a.err
-#SBATCH --time=04:00:00
-#SBATCH --mem=16G
+#SBATCH --time=08:00:00
+#SBATCH --mem=64G
 #SBATCH --cpus-per-task=2
 
 mkdir -p logs

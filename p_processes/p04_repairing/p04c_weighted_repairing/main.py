@@ -2,7 +2,7 @@ import hydra
 from omegaconf import DictConfig
 from p_processes.p04_repairing.src.worker import RepairingWorker
 
-@hydra.main(version_base=None, config_path="../../config", config_name="weighted")
+@hydra.main(version_base=None, config_path="../config", config_name="weighted")
 def main(cfg: DictConfig):
     worker: RepairingWorker = hydra.utils.instantiate(cfg)
     worker.run()

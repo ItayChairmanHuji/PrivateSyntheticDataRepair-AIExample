@@ -2,34 +2,38 @@
 #SBATCH --job-name=adult_exp
 #SBATCH --output=logs/exp_%A_%a.out
 #SBATCH --error=logs/exp_%A_%a.err
-#SBATCH --time=04:00:00
-#SBATCH --mem=16G
+#SBATCH --time=08:00:00
+#SBATCH --mem=64G
 #SBATCH --cpus-per-task=2
 
 mkdir -p logs
 
-# Get parameters for this task
+# Get parameters for this task (with OFFSET support)
+REAL_ID=$((SLURM_ARRAY_TASK_ID + ${OFFSET:-0}))
 PARAM_FILE="experiment_params.txt"
-LINE=$(sed -n "$((SLURM_ARRAY_TASK_ID + 1))p" $PARAM_FILE)
+LINE=$(sed -n "$((REAL_ID + 1))p" $PARAM_FILE)
 read -r ID TYPE ENGINE EPS SEED SIZE MARGINALS REPAIRER <<< "$LINE"
 
-echo "Running Job $ID: Type=$TYPE Engine=$ENGINE Eps=$EPS Seed=$SEED Size=$SIZE Marginals=$MARGINALS Repairer=$REPAIRER"
+echo "Running Job $REAL_ID: Type=$TYPE Engine=$ENGINE Eps=$EPS Seed=$SEED Size=$SIZE Marginals=$MARGINALS Repairer=$REPAIRER"
 
 export PYTHONPATH=$(pwd):$PYTHONPATH
 
 # Activate environment
-if [ -f ".venv/bin/activate" ]; then
+if [ -d ".venv" ]; then
     source .venv/bin/activate
+elif [ -d "../.venv" ]; then
+    source ../.venv/bin/activate
 fi
 
 # 1. Sampling
 echo "--- Stage 1: Sampling ---"
-python -m p_processes.p02_synthesizing.p02b_sampling.main \
+python3 -m p_processes.p02_synthesizing.p02b_sampling.main \
     dataset_name=adult \
     engine_name=$ENGINE \
     epsilon=$EPS \
     seed=$SEED \
-    size=$SIZE
+    size=$SIZE \
+    model_seed=42
 
 # 2. Repairing
 echo "--- Stage 2: Repairing ---"
@@ -45,19 +49,18 @@ fi
 # Marginals noise level tag
 MARGINAL_TAG="1.0_sampled_$MARGINALS"
 
-python -m p_processes.p04_repairing.$REPAIR_PROC.main \
+python3 -m p_processes.p04_repairing.$REPAIR_PROC.main \
     dataset_name=adult \
     synthesizer_name=$ENGINE \
     epsilon=$EPS \
     seed=$SEED \
     size=$SIZE \
     noise_level=$MARGINAL_TAG \
-    alpha=0.5 \
-    experiment_name="basic_exp_adult"
+    alpha=0.5
 
 # 3. Evaluating
 echo "--- Stage 3: Evaluating ---"
-python -m p_processes.p05_evaluating.main \
+python3 -m p_processes.p05_evaluating.main \
     dataset_name=adult \
     synthesizer_name=$ENGINE \
     repairer_name=$REPAIRER \

@@ -1,4 +1,4 @@
-﻿﻿import pandas as pd
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
@@ -7,7 +7,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from u_utilities.u_shared.pipeline_result import PipelineResult
-from old.s05_evaluating.src.components.evaluator import Evaluator
+from p_processes.p05_evaluating.src.core.evaluators.evaluator import Evaluator
 
 
 class MLAccuracyEvaluator(Evaluator):

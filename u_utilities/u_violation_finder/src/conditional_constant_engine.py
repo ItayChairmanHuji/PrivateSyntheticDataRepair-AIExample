@@ -35,7 +35,7 @@ class ConditionalConstantEngine:
         for left_value, left in t1.groupby(key, dropna=False):
             for right_value, right in right_groups.items():
                 if not self._same_value(left_value, right_value):
-                    vs.conflicts.append(Violation(left["_cid"].to_numpy(), right["_cid"].to_numpy()))
+                    vs.violations.append(Violation(left["_cid"].to_numpy(), right["_cid"].to_numpy()))
 
     def _same_value(self, left, right) -> bool:
         return left == right or (pd.isna(left) and pd.isna(right))

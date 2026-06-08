@@ -31,14 +31,14 @@ class RepairingEngine:
         with open(path, "r") as f:
             return MarginalSet.from_dict(json.load(f))
 
-    def save_repaired_dataset(self, dataset: Dataset, r_name: str, s_name: str, eps: float, seed: int, size: int, alpha: float):
-        path = self._resolve_repaired_path(dataset.name, r_name, s_name, eps, seed, size, alpha)
+    def save_repaired_dataset(self, dataset: Dataset, r_name: str, s_name: str, eps: float, seed: int, size: int, noise_level: Any, alpha: float):
+        path = self._resolve_repaired_path(dataset.name, r_name, s_name, eps, seed, size, noise_level, alpha)
         path.parent.mkdir(parents=True, exist_ok=True)
         dataset.data.to_csv(path, index=False)
         return path
 
-    def _resolve_repaired_path(self, name: str, r_name: str, s_name: str, eps: float, seed: int, size: int, alpha: float):
+    def _resolve_repaired_path(self, name: str, r_name: str, s_name: str, eps: float, seed: int, size: int, noise_level: Any, alpha: float):
         return self.manager.resolver.resolve(
             "data", name=name.replace("_syn", ""), mode=DataMode.REPAIRED,
-            repairer_name=r_name, synth_name=s_name, epsilon=eps, seed=seed, size=size, alpha=alpha
+            repairer_name=r_name, synth_name=s_name, epsilon=eps, seed=seed, size=size, noise_level=noise_level, alpha=alpha
         )
