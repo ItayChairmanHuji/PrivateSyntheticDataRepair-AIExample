@@ -20,7 +20,18 @@ export PYTHONPATH=$(pwd):$PYTHONPATH
 
 # Activate environment
 if [ -d ".venv" ]; then
-    source .venv/bin/activate
+    LOCAL_VENV="/tmp/${USER}/final_research_venv"
+    VENV_READY="$LOCAL_VENV/.ready"
+    mkdir -p "/tmp/${USER}"
+    (
+        flock 9
+        if [ ! -f "$VENV_READY" ]; then
+            rm -rf "$LOCAL_VENV"
+            cp -a .venv "$LOCAL_VENV"
+            touch "$VENV_READY"
+        fi
+    ) 9>"/tmp/${USER}/final_research_venv.lock"
+    source "$LOCAL_VENV/bin/activate"
 elif [ -d "../.venv" ]; then
     source ../.venv/bin/activate
 fi
