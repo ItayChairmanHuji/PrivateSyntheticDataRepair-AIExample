@@ -46,7 +46,23 @@ read -r DS ALGO EPS <<< "$TASK_PARAMS"
 echo "Running: dataset=$DS engine=$ALGO epsilon=$EPS"
 
 export PYTHONPATH=$(pwd):$PYTHONPATH
+
+start_time=$(date +%s)
 python -m p_processes.p02_synthesizing.p02a_training.main dataset_name=$DS engine=$ALGO epsilon=$EPS
+exit_code=$?
+end_time=$(date +%s)
+
+runtime=$((end_time - start_time))
+
+if [ $exit_code -eq 0 ]; then
+    # Save the results
+    result_dir="r_resources/r_models/$DS/$ALGO/$EPS"
+    mkdir -p "$result_dir"
+    echo "$runtime" > "$result_dir/runtime.txt"
+    echo "Successfully trained. Runtime: $runtime seconds."
+else
+    echo "Training failed with exit code $exit_code."
+fi
 """
 
 params_lines = []
