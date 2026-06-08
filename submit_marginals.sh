@@ -15,11 +15,16 @@ adult census compas tax
 )
 
 # Get the specific dataset for this array task
-DS="${{DATASETS[$SLURM_ARRAY_TASK_ID]}}"
+DS="${DATASETS[$SLURM_ARRAY_TASK_ID]}"
 
 echo "Running marginals for: dataset=$DS noise_level=1.0"
 
 export PYTHONPATH=$(pwd):$PYTHONPATH
+
+# Activate environment
+if [ -f ".venv/bin/activate" ]; then
+    source .venv/bin/activate
+fi
 
 start_time=$(date +%s)
 python -m p_processes.p03_marginals.main dataset_name=$DS noise_level=1.0
