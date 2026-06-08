@@ -86,12 +86,13 @@ wrapper_script = """#!/bin/bash
 
 mkdir -p logs
 
-# Get parameters for this task
+# Get parameters for this task (with OFFSET support)
+REAL_ID=$((SLURM_ARRAY_TASK_ID + ${OFFSET:-0}))
 PARAM_FILE="experiment_params.txt"
-LINE=$(sed -n "$((SLURM_ARRAY_TASK_ID + 1))p" $PARAM_FILE)
+LINE=$(sed -n "$((REAL_ID + 1))p" $PARAM_FILE)
 read -r ID TYPE ENGINE EPS SEED SIZE MARGINALS REPAIRER <<< "$LINE"
 
-echo "Running Job $ID: Type=$TYPE Engine=$ENGINE Eps=$EPS Seed=$SEED Size=$SIZE Marginals=$MARGINALS Repairer=$REPAIRER"
+echo "Running Job $REAL_ID: Type=$TYPE Engine=$ENGINE Eps=$EPS Seed=$SEED Size=$SIZE Marginals=$MARGINALS Repairer=$REPAIRER"
 
 export PYTHONPATH=$(pwd):$PYTHONPATH
 
@@ -154,4 +155,11 @@ with open("run_adult_exp.sh", "w") as f:
     f.write(wrapper_script)
 
 print("Generated run_adult_exp.sh and experiment_params.txt.")
-print(f"To submit: sbatch --array=0-{len(jobs)-1} run_adult_exp.sh")
+if len(jobs) > 1000:
+    print("Large job detected. Submit in parts:")
+    for offset in range(0, len(jobs), 1000):
+        end = min(offset + 999, len(jobs) - 1)
+        count = end - offset + 1
+        print(f"sbatch --export=OFFSET={offset} --array=0-{count-1} run_adult_exp.sh")
+else:
+    print(f"To submit: sbatch --array=0-{len(jobs)-1} run_adult_exp.sh")
