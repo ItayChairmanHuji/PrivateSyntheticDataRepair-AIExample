@@ -14,7 +14,7 @@ class Pusher:
     DEFAULT_EXCLUDES = {
         ".git", ".venv", "__pycache__", ".pytest_cache", ".vscode",
         "old", "r_resources", "outputs", "models", "synthetic_data",
-        "code_sync.zip"
+        "code_sync.zip", "*.tar", "*.tar.gz", "*.zip", "*.pkl"
     }
 
     def __init__(self, remote_host: str, remote_dir: str, excludes: Set[str] = None):
@@ -33,12 +33,13 @@ class Pusher:
         if not path_parts:
             return False
             
-        # Check if any part of the path is in excludes
+        # Check if any part of the path is in excludes (exact match or glob)
         for part in path_parts:
-            if part in self.excludes or part.startswith('.'):
-                if part == '.' or (part == '..' and path == root_dir): # Special case for current dir
-                     continue
+            if part.startswith('.') and part != '.':
                 return True
+            for exclude in self.excludes:
+                if part == exclude or path.name == exclude or path.match(exclude):
+                    return True
         return False
 
     def create_zip(self, zip_path: Path, root_dir: Path):
