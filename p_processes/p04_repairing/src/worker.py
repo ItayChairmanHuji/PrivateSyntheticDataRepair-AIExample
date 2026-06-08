@@ -16,16 +16,16 @@ class RepairingWorker:
     alpha: float
 
     def run(self):
-        synthetic_dataset = self.engine.load_synthetic_dataset(
+        synthetic = self.engine.load_synthetic_dataset(
             self.dataset_name, self.synthesizer_name, self.epsilon, self.seed, self.size
         )
         marginals = self.engine.load_marginal_set(self.dataset_name, self.noise_level)
-        
-        repaired_dataset = self.repairer.repair(synthetic_dataset, marginals)
-        
-        output_path = self.engine.save_repaired_dataset(
-            repaired_dataset, self.repairer_name, self.synthesizer_name, 
+        repaired = self.repairer.repair(synthetic, marginals)
+        self._save_and_log(repaired)
+
+    def _save_and_log(self, repaired):
+        path = self.engine.save_repaired_dataset(
+            repaired, self.repairer_name, self.synthesizer_name, 
             self.epsilon, self.seed, self.size, self.alpha
         )
-        
-        print(f"Success [{self.repairer_name}]: Repaired data saved -> {output_path}")
+        print(f"Success [{self.repairer_name}]: Repaired data saved -> {path}")

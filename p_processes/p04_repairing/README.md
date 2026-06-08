@@ -14,13 +14,14 @@ This process group manages the repair of synthetic datasets to satisfy Denial Co
 - `p04c_weighted_repairing/`: Optimized Weighted VC repair with adaptive alpha support.
 - `p04d_ilp_repairing/`: Exact ILP-based repair using Gurobi.
 
-## Architecture: Shared Orchestration, Bespoke Logic
+## Architecture: Shared Orchestration, Symbolic Optimization
 
-The repair processes follow a standardized flow orchestrated by a shared **RepairingWorker**:
+The repair processes follow a standardized flow orchestrated by a shared **RepairingWorker**, leveraging a **Biclique-Compressed Symbolic Graph** for extreme performance at scale.
 
 1. **Hydrate**: The `RepairingEngine` loads synthetic data and marginals into domain objects.
-2. **Repair**: The worker invokes a bespoke `Repairer` implementation located within each sub-process.
-3. **Persist**: The `RepairingEngine` saves the repaired results.
+2. **Graph Build**: The `ConflictGraphBuilder` constructs a symbolic graph, compressing millions of edges into a few hundred blocks.
+3. **Repair**: The worker invokes a bespoke `Repairer` implementation (e.g., `WeightedVCRepairer` with its modular DI weight/alpha components).
+4. **Persist**: The `RepairingEngine` saves the repaired results.
 
 ### Orchestration Flow
 ```python

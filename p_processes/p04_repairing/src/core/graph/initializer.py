@@ -44,18 +44,18 @@ class GraphBuilder:
 
     def _handle_cluster(self, block_idx: int, block_pair: BlockPair, cid: int, left_cids: set, right_cids: set) -> None:
         rows = self.cluster_map.members[cid]
-        in_left = cid in left_cids
-        in_right = cid in right_cids
-
-        if in_left and in_right:
-            self.degrees[rows] += len(block_pair.union_members) - 1
-            side = BlockSide.CLIQUE if block_pair.is_clique else BlockSide.BOTH
-            self.cluster_to_blocks[cid].append(BlockMembership(block_idx, side))
-
-        elif in_left:
-            self.degrees[rows] += len(block_pair.right_members)
-            self.cluster_to_blocks[cid].append(BlockMembership(block_idx, BlockSide.LEFT))
-
+        if cid in left_cids and cid in right_cids:
+            self._apply_overlap_block(block_idx, block_pair, cid, rows)
+        elif cid in left_cids:
+            self._apply_one_sided_block(block_idx, block_pair.right_members, cid, rows, BlockSide.LEFT)
         else:
-            self.degrees[rows] += len(block_pair.left_members)
-            self.cluster_to_blocks[cid].append(BlockMembership(block_idx, BlockSide.RIGHT))
+            self._apply_one_sided_block(block_idx, block_pair.left_members, cid, rows, BlockSide.RIGHT)
+
+    def _apply_overlap_block(self, block_idx: int, block_pair: BlockPair, cid: int, rows: np.ndarray):
+        self.degrees[rows] += len(block_pair.union_members) - 1
+        side = BlockSide.CLIQUE if block_pair.is_clique else BlockSide.BOTH
+        self.cluster_to_blocks[cid].append(BlockMembership(block_idx, side))
+
+    def _apply_one_sided_block(self, block_idx: int, other_members: np.ndarray, cid: int, rows: np.ndarray, side: BlockSide):
+        self.degrees[rows] += len(other_members)
+        self.cluster_to_blocks[cid].append(BlockMembership(block_idx, side))

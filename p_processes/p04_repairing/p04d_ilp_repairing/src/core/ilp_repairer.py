@@ -1,10 +1,9 @@
+import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
 import gurobipy as gp
-from u_utilities.u_shared import Dataset
-from u_utilities.u_shared import MarginalSet
+from u_utilities.u_shared import Dataset, MarginalSet, GurobiHelper
 from p_processes.p04_repairing.src.core.repairer import Repairer
-from old.shared.utils.gurobi_helper import GurobiHelper
 
 @dataclass
 class ILPRepairer(Repairer):
@@ -19,9 +18,9 @@ class ILPRepairer(Repairer):
         model = self._setup_model()
         n = len(dataset.data)
         x = model.addVars(n, vtype=gp.GRB.BINARY, name="x")
-        
+
         self._add_conflict_constraints(model, x, dataset)
-        
+
         if self.use_marginals and marginals:
             self._add_marginal_objective(model, x, n, marginals, dataset)
         else:
@@ -39,14 +38,19 @@ class ILPRepairer(Repairer):
 
     def _add_conflict_constraints(self, model, x, dataset):
         vs = dataset.get_violations()
-        for b in vs.conflicts:
-            l_nodes = np.concatenate([vs.cluster_indices[c] for c in b.cids_left]) if len(b.cids_left) > 1 else vs.cluster_indices[b.cids_left[0]]
-            r_nodes = l_nodes if b.symmetric else (np.concatenate([vs.cluster_indices[c] for c in b.cids_right]) if len(b.cids_right) > 1 else vs.cluster_indices[b.cids_right[0]])
-            
-            for idx1 in l_nodes:
-                for idx2 in r_nodes:
-                    if idx1 < idx2 or (not b.symmetric and idx1 != idx2):
-                        model.addConstr(x[int(idx1)] + x[int(idx2)] <= 1)
+        for v in vs.violations:
+            l_rows = np.concatenate([vs.cluster_indices[c] for c in v.left]) if len(v.left) > 0 else np.array([], dtype=int)
+
+            if v.symmetric:
+                # Clique constraint: sum of x_i <= 1 is much more efficient
+                if len(l_rows) > 1:
+                    model.addConstr(gp.quicksum(x[int(i)] for i in l_rows) <= 1)
+            else:
+                r_rows = np.concatenate([vs.cluster_indices[c] for c in v.right]) if len(v.right) > 0 else np.array([], dtype=int)
+                for i in l_rows:
+                    for j in r_rows:
+                        if i != j:
+                            model.addConstr(x[int(i)] + x[int(j)] <= 1)
 
     def _add_marginal_objective(self, model, x, n, marginals, dataset):
         m_len = len(marginals)

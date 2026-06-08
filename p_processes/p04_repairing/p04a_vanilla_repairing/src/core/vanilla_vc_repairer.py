@@ -17,11 +17,11 @@ class VanillaVCRepairer(Repairer):
         graph = ConflictGraphBuilder.build(n_rows, violations)
 
         removed = set()
-        while graph.ecount() > 0:
-            degrees = graph.degree()
+        while graph.has_edges():
+            degrees = graph.degrees
             selected = int(np.argmax(degrees))
             removed.add(selected)
-            graph.delete_edges(selected)
+            graph.remove_vertex(selected)
 
         keep_indices = [i for i in range(n_rows) if i not in removed]
         data = dataset.data.iloc[keep_indices].reset_index(drop=True)

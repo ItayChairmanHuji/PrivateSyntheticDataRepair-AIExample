@@ -1,7 +1,9 @@
 import random
 from dataclasses import dataclass
 
-from p_processes.p04_repairing.src.core import Graph, Repairer
+import numpy as np
+
+from p_processes.p04_repairing.src.core import ConflictGraphBuilder, Repairer
 from u_utilities.u_shared import Dataset, MarginalSet
 
 
@@ -13,14 +15,14 @@ class ClassicVCRepairer(Repairer):
         violations = dataset.get_violations()
         n_rows = len(dataset.data)
 
-        graph = Graph(n_rows, violations)
+        graph = ConflictGraphBuilder.build(n_rows, violations)
 
         removed = set()
-        while graph.ecount() > 0:
-            active_nodes = graph.vs.select(_degree_gt=0)
-            selected = int(random.choice(active_nodes))
+        while graph.has_edges():
+            u, v = graph.pick_random_edge()
+            selected = random.choice([u, v])
             removed.add(selected)
-            graph.delete_edges(selected)
+            graph.remove_vertex(selected)
 
         keep_indices = [i for i in range(n_rows) if i not in removed]
         data = dataset.data.iloc[keep_indices].reset_index(drop=True)

@@ -4,3 +4,4 @@ from .denial_constraints import DenialConstraint, DenialConstraints, Predicate, 
 from .marginal import Marginal, MarginalSet
 from .pipeline_result import PipelineResult
 from .violations import Violation, ViolationSet
+from .gurobi_helper import GurobiHelper

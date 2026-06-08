@@ -11,7 +11,8 @@ Uses Gurobi to minimize:
 `Objective = alpha * (Removal_Loss) + (1 - alpha) * (Marginal_Error)`
 
 Constraints:
-- For every violation pair (i, j): `x_i + x_j <= 1` (Standard VC constraint).
+- For every symmetric violation (clique): `sum(x_i) <= 1` (Optimized clique constraint).
+- For every bipartite violation pair (i, j): `x_i + x_j <= 1` (Standard VC constraint).
 
 ## Inputs
 - **Synthetic Dataset**: `Dataset` object.
