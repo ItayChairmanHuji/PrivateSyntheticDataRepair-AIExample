@@ -75,7 +75,7 @@ class PathResolver:
         )
 
     def _resolve_repaired_data_path(self, **kwargs) -> Path:
-        """Resolves r_resources/r_data/{name}/repaired/{repairer}/{synth}/{eps}/{seed}/{size}/{alpha}/data.csv"""
+        """Resolves r_resources/r_data/{name}/repaired/{repairer}/{synth}/{eps}/{seed}/{size}/{noise}/{alpha}/data.csv"""
         return (
             self.r_data
             / kwargs["name"]
@@ -85,6 +85,7 @@ class PathResolver:
             / str(kwargs["epsilon"])
             / str(kwargs["seed"])
             / str(kwargs["size"])
+            / str(kwargs["noise_level"])
             / str(kwargs["alpha"])
             / "data.csv"
         )

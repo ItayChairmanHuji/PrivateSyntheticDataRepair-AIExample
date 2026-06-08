@@ -5,6 +5,9 @@ engine:
     _target_: u_utilities.u_io.ResourceManager
 core:
   _target_: p_processes.p02_synthesizing.p02b_sampling.src.core.sampling_core.SamplingCore
+  sampler:
+    _target_: u_utilities.u_synthesis.src.smart_noise.SmartNoiseSynthesizer
+    engine: aim
 dataset_name: adult100
 engine_name: aim
 epsilon: 1.0

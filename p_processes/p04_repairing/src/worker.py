@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 from .engine import RepairingEngine
 from p_processes.p04_repairing.src.core.repairer import Repairer
 
@@ -12,7 +13,7 @@ class RepairingWorker:
     epsilon: float
     seed: int
     size: int
-    noise_level: float
+    noise_level: Any
     alpha: float
 
     def run(self):

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 from u_utilities.u_io import ResourceManager, DataMode
 
 @dataclass
@@ -18,7 +19,7 @@ class EvaluatingEngine:
             size=size
         )
 
-    def resolve_repaired_data_path(self, dataset_name: str, repairer_name: str, synthesizer_name: str, epsilon: float, seed: int, size: int, alpha: float) -> Path:
+    def resolve_repaired_data_path(self, dataset_name: str, repairer_name: str, synthesizer_name: str, epsilon: float, seed: int, size: int, noise: Any, alpha: float) -> Path:
         return self.manager.resolver.resolve(
             "data",
             name=dataset_name,
@@ -28,6 +29,7 @@ class EvaluatingEngine:
             epsilon=epsilon,
             seed=seed,
             size=size,
+            noise_level=noise,
             alpha=alpha
         )
 

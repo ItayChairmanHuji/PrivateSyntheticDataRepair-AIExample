@@ -18,6 +18,7 @@ class EvaluatingWorker:
     seed: int
     size: int
     alpha: float
+    noise_level: Any
     experiment_id: str
     timestamp: str = "latest"
 
@@ -41,7 +42,7 @@ class EvaluatingWorker:
         
         repaired_path = self.engine.resolve_repaired_data_path(
             self.dataset_name, self.repairer_name, self.synthesizer_name, 
-            self.epsilon, self.seed, self.size, self.alpha
+            self.epsilon, self.seed, self.size, self.noise_level, self.alpha
         )
         repaired_df = pd.read_csv(repaired_path) if repaired_path.exists() else pd.DataFrame()
         repaired_dataset = Dataset(

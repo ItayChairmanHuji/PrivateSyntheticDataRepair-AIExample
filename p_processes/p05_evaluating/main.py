@@ -1,7 +1,7 @@
 import hydra
 from omegaconf import DictConfig
 
-@hydra.main(version_base=None, config_path="config", config_name="default")
+@hydra.main(version_base=None, config_path="./config", config_name="default")
 def main(cfg: DictConfig):
     """
     Declarative entry point for the evaluating process.
