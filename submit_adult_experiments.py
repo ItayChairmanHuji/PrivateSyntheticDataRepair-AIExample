@@ -131,8 +131,7 @@ python -m p_processes.p04_repairing.$REPAIR_PROC.main \\
     seed=$SEED \\
     size=$SIZE \\
     noise_level=$MARGINAL_TAG \\
-    alpha=0.5 \\
-    experiment_name="basic_exp_adult"
+    alpha=0.5
 
 # 3. Evaluating
 echo "--- Stage 3: Evaluating ---"

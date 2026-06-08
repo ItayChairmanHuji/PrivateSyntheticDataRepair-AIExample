@@ -13,6 +13,7 @@ class SamplingWorker:
     epsilon: float
     seed: int
     size: Optional[int] = None
+    model_seed: int = 42
 
     def run(self):
         """Executes the sampling flow: Load Model -> Sample -> Save Data."""
@@ -24,9 +25,13 @@ class SamplingWorker:
             self.dataset_name, 
             self.engine_name, 
             self.epsilon, 
-            self.seed
+            self.model_seed
         )
         model = self.engine.manager.load_model(model_path)
+        
+        # Update core's sampler seed if possible
+        if hasattr(self.core.sampler, 'seed'):
+            self.core.sampler.seed = self.seed
         
         # Determine actual generation size
         gen_size = self.size if self.size is not None else len(dataset.data)
