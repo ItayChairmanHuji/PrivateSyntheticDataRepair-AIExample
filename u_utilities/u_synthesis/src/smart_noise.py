@@ -35,6 +35,8 @@ class SmartNoiseSynthesizer(Synthesizer, ModelTrainer, ModelSampler):
         fit_params = ["categorical_columns", "ordinal_columns", "continuous_columns"]
         create_kwargs = {k: v for k, v in self.kwargs.items() if k not in fit_params}
         fit_kwargs = {k: v for k, v in self.kwargs.items() if k in fit_params}
+        if "categorical_columns" not in fit_kwargs:
+            fit_kwargs["categorical_columns"] = list(dataset.data.columns)
 
         print(f"Training {self.engine} (epsilon={self.epsilon})...")
         synth = SnSynthesizer.create(self.engine, epsilon=self.epsilon, **create_kwargs)
