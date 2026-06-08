@@ -1,0 +1,13 @@
+_target_: p_processes.p03b_marginal_sampling.src.worker.MarginalSamplingWorker
+engine:
+  _target_: p_processes.p03b_marginal_sampling.src.engine.MarginalSamplingEngine
+  manager:
+    _target_: u_utilities.u_io.ResourceManager
+core:
+  _target_: p_processes.p03b_marginal_sampling.src.core.sampling_core.MarginalSamplingCore
+  sample_size: ${sample_size}
+  seed: 42
+
+dataset_name: ???
+noise_level: 1.0
+sample_size: 100
