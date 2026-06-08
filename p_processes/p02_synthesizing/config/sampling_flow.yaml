@@ -13,3 +13,4 @@ engine_name: aim
 epsilon: 1.0
 seed: 42
 size: 100
+model_seed: 42

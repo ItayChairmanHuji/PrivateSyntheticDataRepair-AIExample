@@ -97,18 +97,21 @@ echo "Running Job $REAL_ID: Type=$TYPE Engine=$ENGINE Eps=$EPS Seed=$SEED Size=$
 export PYTHONPATH=$(pwd):$PYTHONPATH
 
 # Activate environment
-if [ -f ".venv/bin/activate" ]; then
+if [ -d ".venv" ]; then
     source .venv/bin/activate
+elif [ -d "../.venv" ]; then
+    source ../.venv/bin/activate
 fi
 
 # 1. Sampling
 echo "--- Stage 1: Sampling ---"
-python -m p_processes.p02_synthesizing.p02b_sampling.main \\
+python3 -m p_processes.p02_synthesizing.p02b_sampling.main \\
     dataset_name=adult \\
     engine_name=$ENGINE \\
     epsilon=$EPS \\
     seed=$SEED \\
-    size=$SIZE
+    size=$SIZE \\
+    model_seed=42
 
 # 2. Repairing
 echo "--- Stage 2: Repairing ---"
@@ -124,7 +127,7 @@ fi
 # Marginals noise level tag
 MARGINAL_TAG="1.0_sampled_$MARGINALS"
 
-python -m p_processes.p04_repairing.$REPAIR_PROC.main \\
+python3 -m p_processes.p04_repairing.$REPAIR_PROC.main \\
     dataset_name=adult \\
     synthesizer_name=$ENGINE \\
     epsilon=$EPS \\
@@ -135,7 +138,7 @@ python -m p_processes.p04_repairing.$REPAIR_PROC.main \\
 
 # 3. Evaluating
 echo "--- Stage 3: Evaluating ---"
-python -m p_processes.p05_evaluating.main \\
+python3 -m p_processes.p05_evaluating.main \\
     dataset_name=adult \\
     synthesizer_name=$ENGINE \\
     repairer_name=$REPAIRER \\
