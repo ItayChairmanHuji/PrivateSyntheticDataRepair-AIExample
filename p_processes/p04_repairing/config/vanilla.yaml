@@ -8,7 +8,6 @@ repairer:
   alpha: 0.5
 
 dataset_name: ???
-experiment_name: ???
 synthesizer_name: ???
 repairer_name: "vanilla_vc"
 epsilon: ???

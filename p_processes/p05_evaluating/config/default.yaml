@@ -17,4 +17,11 @@ core:
     - _target_: p_processes.p05_evaluating.src.evaluators.marginal_selection_evaluator.MarginalSelectionEvaluator
 
 dataset_name: ???
-experiment_name: "default_experiment"
+synthesizer_name: ???
+repairer_name: ???
+epsilon: ???
+seed: ???
+size: ???
+alpha: ???
+experiment_id: ???
+timestamp: "v1"

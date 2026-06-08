@@ -10,7 +10,6 @@ repairer:
   use_auto_alpha: False
 
 dataset_name: ???
-experiment_name: ???
 synthesizer_name: ???
 repairer_name: "weighted_vc"
 epsilon: ???

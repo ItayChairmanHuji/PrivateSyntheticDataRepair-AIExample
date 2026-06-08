@@ -1,13 +1,10 @@
-_target_: p_processes.p02_synthesizing.p02b_sampling.src.orchestrator.SamplingOrchestrator
+_target_: p_processes.p02_synthesizing.p02b_sampling.src.worker.SamplingWorker
 engine:
   _target_: p_processes.p02_synthesizing.p02b_sampling.src.engine.SamplingEngine
   manager:
     _target_: u_utilities.u_io.ResourceManager
-worker:
-  _target_: p_processes.p02_synthesizing.p02b_sampling.src.logic.sampling_logic.SamplingLogic
-  sampler:
-    _target_: u_utilities.u_synthesis.src.smart_noise.SmartNoiseSynthesizer
-    engine: aim
+core:
+  _target_: p_processes.p02_synthesizing.p02b_sampling.src.core.sampling_core.SamplingCore
 dataset_name: adult100
 engine_name: aim
 epsilon: 1.0
