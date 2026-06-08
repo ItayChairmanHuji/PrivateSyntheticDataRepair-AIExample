@@ -31,7 +31,9 @@ if [ -d ".venv" ]; then
             touch "$VENV_READY"
         fi
     ) 9>"/tmp/${USER}/final_research_venv.lock"
-    source "$LOCAL_VENV/bin/activate"
+    export VIRTUAL_ENV="$LOCAL_VENV"
+    export PATH="$LOCAL_VENV/bin:$PATH"
+    hash -r
 elif [ -d "../.venv" ]; then
     source ../.venv/bin/activate
 fi
