@@ -16,4 +16,3 @@ Utilities are the "Tools" of the framework. They contain the core algorithms, en
 - **`u_synthesis`**: Training and sampling logic.
 - **`u_remote`**: Zero-Friction synchronization with the cluster.
 - **`u_violation_finder`**: DC violation detection engines.
-- **`u_repair`**: Optimized repair algorithms (Weighted VC, Symbolic Graphs).

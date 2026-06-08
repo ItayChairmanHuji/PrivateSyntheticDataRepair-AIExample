@@ -1,11 +1,13 @@
 from .src import (
-    Dataset, 
-    DenialConstraints, 
-    DenialConstraint, 
-    Predicate, 
-    Side, 
-    Marginal, 
-    MarginalSet, 
-    PipelineResult, 
-    BicliqueCollection
+    CompactData,
+    Dataset,
+    DenialConstraint,
+    DenialConstraints,
+    Marginal,
+    MarginalSet,
+    PipelineResult,
+    Predicate,
+    Side,
+    Violation,
+    ViolationSet,
 )

@@ -1,0 +1,20 @@
+_target_: p_processes.p04_repairing.src.worker.RepairingWorker
+engine:
+  _target_: p_processes.p04_repairing.src.engine.RepairingEngine
+  manager:
+    _target_: u_utilities.u_io.ResourceManager
+repairer:
+  _target_: p_processes.p04_repairing.p04c_weighted_repairing.src.core.weighted_vc_repairer.WeightedVCRepairer
+  alpha: 0.5
+  use_adaptive_alpha: True
+  use_auto_alpha: False
+
+dataset_name: ???
+experiment_name: ???
+synthesizer_name: ???
+repairer_name: "weighted_vc"
+epsilon: ???
+seed: ???
+size: ???
+noise_level: ???
+alpha: 0.5

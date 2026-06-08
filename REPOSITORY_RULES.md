@@ -34,16 +34,16 @@ Use Python's `match case` for high-level dispatching. The "Main" resolution meth
 ### C. Enum-Driven Type Safety
 Use Enums to define modes, categories, and stages. Avoid "stringly-typed" APIs to prevent runtime errors and improve discoverability.
 
----
-
-## 3. The "Glass Box" Documentation Standard
-
-We do not believe in cluttered in-code documentation. Code should be readable "at a glance."
+### C. The "Glass Box" Documentation Standard (Rigorous Edition)
+We do not believe in cluttered in-code documentation. Code should be readable "at a glance," but logic must be fully externalized.
 1.  **Remove Trivial Comments**: No `# Load data` or `# Initialize class`.
 2.  **Externalize Blueprints**: Every `src/` and `tests/` directory must contain an `internal_readme.md`.
-3.  **The Rebuild Test**: A human or AI should be able to read the Markdown files and reimplement the entire folder's logic from scratch without ever looking at the original source code.
-
----
+3.  **The Reimplementation Test**: A senior engineer should be able to read the `internal_readme.md` and reimplement the entire module's logic from scratch without looking at the source code.
+4.  **Content Mandate**: Documentation must include:
+    - **Theory of Operation**: The mathematical or logical principle behind the code.
+    - **Implementation Logic**: Step-by-step algorithms, state management details, and edge-case handling.
+    - **Pseudo-code**: Every algorithmic implementation MUST have a clear, high-level pseudo-code block for verification and reimplementation.
+    - **Contract Definition**: Detailed explanation of inputs, outputs, and side effects.
 
 ## 4. The "Mock-Hierarchy" Testing Standard
 

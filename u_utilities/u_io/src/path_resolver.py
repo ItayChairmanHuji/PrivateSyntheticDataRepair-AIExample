@@ -19,13 +19,14 @@ class PathResolver:
         self.r_marginals = self.root / "r_resources" / "r_marginals"
         self.r_results = self.root / "r_resources" / "r_results"
         self.r_analysis = self.root / "r_resources" / "r_analysis"
+        self.r_compact = self.root / "r_resources" / "r_compact"
 
     def resolve(self, category: str, **kwargs) -> Path:
         """
         Unified entry point for path resolution.
 
         Args:
-            category: One of ["data", "model", "marginal", "result", "analysis"].
+            category: One of ["data", "model", "marginal", "result", "analysis", "compact"].
             **kwargs: Parameters required for the specific category.
         """
         match category:
@@ -39,6 +40,8 @@ class PathResolver:
                 return self._resolve_result_path(**kwargs)
             case "analysis":
                 return self._resolve_analysis_path(**kwargs)
+            case "compact":
+                return self._resolve_compact_path(**kwargs)
             case _:
                 raise ValueError(f"Unknown path category: {category}")
 
@@ -55,9 +58,11 @@ class PathResolver:
                 raise ValueError(f"Unknown data mode: {mode}")
 
     def _resolve_private_data_path(self, **kwargs) -> Path:
-        return self.r_data / kwargs["name"] / "private"
+        """Resolves r_resources/r_data/{name}/private/data.csv"""
+        return self.r_data / kwargs["name"] / "private" / "data.csv"
 
     def _resolve_synthetic_data_path(self, **kwargs) -> Path:
+        """Resolves r_resources/r_data/{name}/synthetic/{synth}/{eps}/{seed}/{size}/data.csv"""
         return (
             self.r_data
             / kwargs["name"]
@@ -70,6 +75,7 @@ class PathResolver:
         )
 
     def _resolve_repaired_data_path(self, **kwargs) -> Path:
+        """Resolves r_resources/r_data/{name}/repaired/{repairer}/{synth}/{eps}/{seed}/{size}/{alpha}/data.csv"""
         return (
             self.r_data
             / kwargs["name"]
@@ -82,6 +88,25 @@ class PathResolver:
             / str(kwargs["alpha"])
             / "data.csv"
         )
+
+    def _resolve_compact_path(self, **kwargs) -> Path:
+        """
+        Resolves the path for a compact dataset.
+        Requires: dataset_name, mode, attributes (list).
+        Optional: synth_name, epsilon, seed, size, repairer_name, alpha.
+        """
+        base = self.r_compact / kwargs["dataset_name"] / str(kwargs["mode"])
+        
+        # Build identifier for source parameters
+        if kwargs["mode"] == DataMode.PRIVATE:
+            source_id = "default"
+        elif kwargs["mode"] == DataMode.SYNTHETIC:
+            source_id = f"{kwargs['synth_name']}_{kwargs['epsilon']}_{kwargs['seed']}_{kwargs['size']}"
+        else: # REPAIRED
+            source_id = f"{kwargs['repairer_name']}_{kwargs['synth_name']}_{kwargs['epsilon']}_{kwargs['seed']}_{kwargs['size']}_{kwargs['alpha']}"
+            
+        attr_id = "_".join(sorted(kwargs["attributes"]))
+        return base / source_id / attr_id
 
     def _resolve_model_path(self, **kwargs) -> Path:
         return (

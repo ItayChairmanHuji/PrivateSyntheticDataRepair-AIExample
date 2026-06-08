@@ -1,0 +1,18 @@
+_target_: p_processes.p04_repairing.src.worker.RepairingWorker
+engine:
+  _target_: p_processes.p04_repairing.src.engine.RepairingEngine
+  manager:
+    _target_: u_utilities.u_io.ResourceManager
+repairer:
+  _target_: p_processes.p04_repairing.p04a_vanilla_repairing.src.core.vanilla_vc_repairer.VanillaVCRepairer
+  alpha: 0.5
+
+dataset_name: ???
+experiment_name: ???
+synthesizer_name: ???
+repairer_name: "vanilla_vc"
+epsilon: ???
+seed: ???
+size: ???
+noise_level: ???
+alpha: 0.5
