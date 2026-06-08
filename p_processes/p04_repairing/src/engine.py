@@ -39,7 +39,8 @@ class RepairingEngine:
         return path
 
     def _resolve_repaired_path(self, name: str, r_name: str, s_name: str, eps: float, seed: int, size: int, noise_level: Any, alpha: float):
+        source_name = name.replace("_syn", "").replace("_repaired", "")
         return self.manager.resolver.resolve(
-            "data", name=name.replace("_syn", ""), mode=DataMode.REPAIRED,
+            "data", name=source_name, mode=DataMode.REPAIRED,
             repairer_name=r_name, synth_name=s_name, epsilon=eps, seed=seed, size=size, noise_level=noise_level, alpha=alpha
         )

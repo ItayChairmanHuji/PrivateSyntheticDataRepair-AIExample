@@ -84,6 +84,8 @@ wrapper_script = """#!/bin/bash
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=2
 
+set -euo pipefail
+
 mkdir -p logs
 
 # Get parameters for this task (with OFFSET support)
