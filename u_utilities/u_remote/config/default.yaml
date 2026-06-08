@@ -1,0 +1,4 @@
+remote_host: "snorlax-login"
+remote_dir: "~/final_research"
+mode: "push"
+experiment_id: null
