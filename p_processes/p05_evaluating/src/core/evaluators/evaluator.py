@@ -1,5 +1,5 @@
-﻿from abc import ABC, abstractmethod
-from u_utilities.u_shared.pipeline_result import PipelineResult
+from abc import ABC, abstractmethod
+from u_utilities.u_shared import PipelineResult
 
 class Evaluator(ABC):
     """

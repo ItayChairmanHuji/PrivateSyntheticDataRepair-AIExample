@@ -6,7 +6,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from u_utilities.u_shared.pipeline_result import PipelineResult
+from u_utilities.u_shared import PipelineResult
 from p_processes.p05_evaluating.src.core.evaluators.evaluator import Evaluator
 
 

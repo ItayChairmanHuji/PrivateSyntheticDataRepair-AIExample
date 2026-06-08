@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 from typing import List
 
-from u_utilities.u_shared.pipeline_result import PipelineResult
+from u_utilities.u_shared import PipelineResult
 from p_processes.p05_evaluating.src.core.evaluators.evaluator import Evaluator
 
 

@@ -1,5 +1,5 @@
 from p_processes.p05_evaluating.src.core.evaluators.evaluator import Evaluator
-from u_utilities.u_shared.pipeline_result import PipelineResult
+from u_utilities.u_shared import PipelineResult
 
 class DeletionRatioEvaluator(Evaluator):
     def evaluate(self, result: PipelineResult) -> dict:
