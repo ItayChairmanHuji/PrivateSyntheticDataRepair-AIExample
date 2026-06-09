@@ -34,6 +34,7 @@ class SamplingWorker:
             self.seed,
             gen_size
         )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         lock_dir = output_path.parent / ".sampling.lock"
         while True:
             try:
