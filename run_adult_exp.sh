@@ -85,6 +85,6 @@ python3 -m p_processes.p05_evaluating.main \
     alpha=0.5 \
     noise_level=$MARGINAL_TAG \
     experiment_id="basic_exp_adult" \
-    timestamp="v1"
+    timestamp="v2"
 
 echo "Job $ID completed."

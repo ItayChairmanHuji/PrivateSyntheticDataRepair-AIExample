@@ -10,7 +10,7 @@ class LossFunctionEvaluator(Evaluator):
         # Try to get alpha from repairer params, default to 0.5 if not found
         metadata = result.metadata or {}
         alpha = metadata.get("repairer_params", {}).get("alpha", 0.5)
-        n = len(result.private_dataset.data)
+        n = len(result.synthetic_dataset.data)
         marginals = result.obtained_marginals
         
         datasets = {

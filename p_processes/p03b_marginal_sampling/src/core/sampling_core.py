@@ -14,5 +14,7 @@ class MarginalSamplingCore:
             return marginal_set
         
         rng = random.Random(self.seed)
-        sampled_marginals = rng.sample(marginal_set.marginals, self.sample_size)
+        sampled_marginals = list(marginal_set.marginals)
+        rng.shuffle(sampled_marginals)
+        sampled_marginals = sampled_marginals[:self.sample_size]
         return MarginalSet(marginals=sampled_marginals)

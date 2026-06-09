@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from u_utilities.u_shared import MarginalSet
 from u_utilities.u_io import ResourceManager, DataMode
 
 @dataclass
@@ -32,6 +33,9 @@ class EvaluatingEngine:
             noise_level=noise,
             alpha=alpha
         )
+
+    def load_marginal_set(self, dataset_name: str, noise_level: Any) -> MarginalSet:
+        return self.manager.load_marginals(dataset_name=dataset_name, noise_level=noise_level)
 
     def resolve_result_dir(self, experiment_id: str, timestamp: str) -> Path:
         return self.manager.resolver.resolve(

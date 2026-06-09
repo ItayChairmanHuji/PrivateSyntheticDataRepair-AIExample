@@ -57,15 +57,20 @@ class EvaluatingWorker:
             target=private_dataset.target,
             mappings=private_dataset.mappings
         )
+        marginals = self.engine.load_marginal_set(self.dataset_name, self.noise_level)
         
         # Prepare pipeline result
         pipeline_result = PipelineResult(
             private_dataset=private_dataset,
             synthetic_dataset=synthetic_dataset,
             repaired_dataset=repaired_dataset,
-            obtained_marginals=[],
+            obtained_marginals=marginals,
             runtimes={},
-            metadata={"alpha": self.alpha, "epsilon": self.epsilon}
+            metadata={
+                "repairer_params": {"alpha": self.alpha},
+                "epsilon": self.epsilon,
+                "noise_level": self.noise_level,
+            }
         )
         
         output_dir = self.engine.resolve_result_dir(self.experiment_id, self.timestamp)
