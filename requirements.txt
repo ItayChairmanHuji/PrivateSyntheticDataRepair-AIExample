@@ -74,7 +74,7 @@ seaborn
 setuptools
 six
 smartnoise-sql
-smartnoise-synth
+smartnoise-synth==1.0.5
 SQLAlchemy
 stack-data
 sympy
